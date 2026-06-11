@@ -1,0 +1,1601 @@
+<!DOCTYPE html>
+<html lang="eu">
+<head>
+<meta charset="UTF-8" />
+<title>GelaLekuak · Tutorearen aulki-antolatzailea</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Paleta: Obsidian Ink · Velvet Curfew · Almond Hearth */
+  --green:#2e8f62; --green-soft:#e0efe1;
+  --red:#c44949; --red-soft:#f5dcd2;
+  --yellow:#d99a3d; --yellow-soft:#f7e8cd;
+  --primary:#4B262F; --primary-dark:#33181e; --primary-soft:#eed9c5;
+  --ink:#151311; --muted:#85705f; --line:#e0cab0;
+  --bg:#EED3BA; --card:#FBF2E4; --paper:#FFFBF2;
+  --neutral:#d9c1a4;
+  --w:122px; --h:64px;
+  --radius:14px;
+}
+*{box-sizing:border-box}
+body{
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,Ubuntu,sans-serif;
+  margin:0; background:var(--bg); color:var(--ink);
+}
+h1,h2,h3,.btn,.tab,label.filebtn,.iconbtn,.arbela,.kName{
+  font-family:'Poppins',system-ui,sans-serif; letter-spacing:.2px;
+}
+header.app{
+  background:linear-gradient(120deg,#151311,#2c161c 55%,#4B262F);
+  color:#fff; padding:16px 22px;
+  display:flex; flex-wrap:wrap; gap:12px; align-items:center;
+}
+header.app h1{margin:0; font-size:20px; letter-spacing:.3px}
+header.app .sub{font-size:12px; opacity:.85}
+header.app .spacer{flex:1}
+.grouppick{display:flex; gap:6px; align-items:center; flex-wrap:wrap}
+.grouppick select{
+  padding:8px 10px; border-radius:10px; border:none; font-size:14px; font-weight:600;
+  background:rgba(255,255,255,.92); color:var(--ink); max-width:200px;
+}
+.iconbtn{
+  background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.35); color:#fff;
+  border-radius:10px; padding:8px 11px; font-size:13px; cursor:pointer; font-weight:600;
+}
+.iconbtn:hover{background:rgba(255,255,255,.3)}
+
+nav.tabs{
+  display:flex; gap:8px; padding:14px 22px 0; flex-wrap:wrap;
+}
+.tab{
+  border:none; cursor:pointer; font-size:15px; font-weight:700;
+  padding:11px 20px; border-radius:12px 12px 0 0; background:#e2c6a6; color:#7c6450;
+  position:relative;
+}
+.tab.active{background:var(--card); color:var(--primary-dark)}
+.tab .dot{
+  position:absolute; top:6px; right:8px; background:var(--red); color:#fff;
+  border-radius:99px; font-size:11px; min-width:18px; height:18px; line-height:18px;
+  display:none; padding:0 4px;
+}
+.tab .dot.show{display:inline-block}
+
+main{padding:0 22px 60px}
+section.view{display:none; background:var(--card); border-radius:0 var(--radius) var(--radius) var(--radius); padding:20px; box-shadow:0 2px 14px rgba(15,23,42,.06)}
+section.view.active{display:block}
+
+.cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(330px,1fr)); gap:16px}
+.card{
+  background:#f7ecdc; border:1px solid var(--line); border-radius:var(--radius); padding:18px;
+}
+.card h2{margin:0 0 6px; font-size:16px; display:flex; align-items:center; gap:8px}
+.card .desc{font-size:13px; color:var(--muted); margin:0 0 14px}
+
+button.btn{
+  background:var(--primary); color:#fff; border:none; border-radius:10px;
+  padding:10px 16px; font-size:14px; font-weight:700; cursor:pointer;
+  display:inline-flex; align-items:center; gap:8px; transition:transform .12s, box-shadow .12s;
+}
+button.btn:hover:not(:disabled){transform:translateY(-1px); box-shadow:0 6px 14px rgba(75,38,47,.3)}
+button.btn:disabled{background:#c9b49c; cursor:not-allowed}
+button.btn.green{background:var(--ink)}
+button.btn.gray{background:#a3866d}
+button.btn.outline{background:var(--paper); color:var(--primary-dark); border:2px solid var(--primary)}
+button.btn.danger{background:var(--red)}
+button.btn.big{font-size:15px; padding:12px 20px}
+
+.importgrid{display:flex; flex-direction:column; gap:10px}
+.importgrid .step{
+  display:flex; gap:10px; align-items:center; background:var(--paper); border:1px dashed var(--line);
+  border-radius:10px; padding:10px 12px; font-size:14px;
+}
+.importgrid .step b.num{
+  background:var(--primary-soft); color:var(--primary-dark); border-radius:99px;
+  width:26px; height:26px; display:inline-flex; align-items:center; justify-content:center; flex:none;
+}
+input[type=file]{display:none}
+label.filebtn{
+  background:var(--primary); color:#fff; border-radius:10px; padding:10px 16px;
+  font-size:14px; font-weight:700; cursor:pointer; display:inline-flex; gap:8px; align-items:center;
+}
+label.filebtn:hover{filter:brightness(1.08)}
+
+input[type=text], textarea, select.inp{
+  padding:9px 12px; border-radius:10px; border:1.5px solid var(--line); font-size:14px;
+  font-family:inherit; background:var(--paper); color:var(--ink);
+}
+input[type=text]:focus, textarea:focus{outline:2px solid var(--primary-soft); border-color:var(--primary)}
+
+/* Ikasleen zerrenda */
+.stuRow{
+  display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:10px;
+  border:1px solid var(--line); background:var(--paper); margin-bottom:7px; cursor:pointer;
+}
+.stuRow:hover{border-color:var(--primary); box-shadow:0 2px 8px rgba(75,38,47,.15)}
+.stuRow .nm{font-weight:700; font-size:14px; min-width:150px}
+.stuRow .chips{flex:1; display:flex; flex-wrap:wrap; gap:4px}
+.chip{
+  font-size:11.5px; padding:2px 8px; border-radius:99px; font-weight:600;
+}
+.chip.g{background:var(--green-soft); color:#1d5c3e}
+.chip.r{background:var(--red-soft); color:#8e3030}
+.chip.front{background:var(--primary-soft); color:var(--primary-dark)}
+.stuRow .mini{
+  background:none; border:none; cursor:pointer; font-size:15px; opacity:.55; padding:4px;
+}
+.stuRow .mini:hover{opacity:1}
+.emptyState{
+  text-align:center; padding:30px 10px; color:var(--muted); font-size:14px;
+  border:2px dashed var(--line); border-radius:12px;
+}
+
+/* Abisuak */
+.warnItem{
+  background:var(--yellow-soft); border-left:5px solid var(--yellow); border-radius:8px;
+  padding:10px 12px; margin-bottom:8px; font-size:13.5px;
+  display:flex; flex-wrap:wrap; gap:8px; align-items:center;
+}
+.warnItem select{max-width:210px}
+
+/* Gela-mapa */
+.maptoolbar{
+  display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:14px;
+  background:#f7ecdc; border:1px solid var(--line); border-radius:var(--radius); padding:12px 14px;
+}
+.maptoolbar label{font-size:13.5px; font-weight:600}
+.metrics{
+  display:flex; flex-wrap:wrap; gap:10px; margin-bottom:14px;
+}
+.metric{
+  border-radius:10px; padding:8px 14px; font-size:14px; font-weight:700; background:var(--paper);
+  border:1.5px solid var(--line); display:flex; gap:7px; align-items:center;
+}
+.metric.good{border-color:var(--green); background:var(--green-soft); color:#1d5c3e}
+.metric.bad{border-color:var(--red); background:var(--red-soft); color:#8e3030}
+.metric.neutral{color:var(--muted)}
+
+.arbela{
+  background:linear-gradient(120deg,#151311,#3a2228); color:var(--bg); border-radius:10px;
+  text-align:center; padding:9px; font-weight:800; letter-spacing:2px; font-size:14px;
+  margin-bottom:16px; max-width:var(--gridw,900px);
+}
+.grid{display:flex; flex-direction:column; gap:12px; max-width:100%; overflow-x:auto; padding:12px 2px 16px}
+.grid .row{display:flex; gap:12px}
+.seat{
+  position:relative; background:var(--paper);
+  border:5px solid var(--neutral); border-radius:12px;
+  width:var(--w); height:var(--h);
+  display:flex; align-items:center; justify-content:center;
+  user-select:none; -webkit-user-select:none; touch-action:none; cursor:grab;
+  box-shadow:0 3px 6px rgba(15,23,42,.07);
+  transition:box-shadow .15s, opacity .2s, background .2s;
+}
+.seat.empty{background:transparent; border:3px dashed var(--neutral); box-shadow:none; cursor:default; color:#94a3b8; font-size:12px}
+.seat .label{text-align:center; line-height:1.15; padding:0 4px; pointer-events:none; overflow:hidden}
+.seat .label .sur{font-size:10.5px; color:var(--muted); font-weight:600}
+.seat .label .giv{font-size:14px; font-weight:800}
+.seat.locked{background-image:repeating-linear-gradient(45deg,transparent,transparent 9px,rgba(15,23,42,.04) 9px,rgba(15,23,42,.04) 18px)}
+.lockbtn{
+  position:absolute; top:-10px; right:-10px; width:24px; height:24px; border-radius:50%;
+  border:none; cursor:pointer; font-size:11px; z-index:6;
+  background:#e8d2b6; color:#85705f; opacity:0; transition:opacity .15s;
+  display:flex; align-items:center; justify-content:center;
+}
+.seat:hover .lockbtn{opacity:1}
+.seat.locked .lockbtn{opacity:1; background:#151311; color:var(--bg)}
+.frontbadge{
+  position:absolute; top:-9px; left:-9px; background:var(--primary); color:#fff;
+  font-size:10px; font-weight:800; border-radius:99px; padding:2px 6px; z-index:6;
+}
+.frontbadge.miss{background:var(--red)}
+.hintbadge{
+  position:absolute; bottom:-11px; right:-9px; min-width:26px; height:24px; padding:0 5px;
+  border-radius:99px; display:none; align-items:center; justify-content:center;
+  font-size:11.5px; font-weight:800; color:#fff; z-index:7; box-shadow:0 2px 5px rgba(0,0,0,.25);
+}
+.seat.hint-pos .hintbadge{display:flex; background:var(--green)}
+.seat.hint-neg .hintbadge{display:flex; background:var(--red)}
+.seat.hint-zero .hintbadge{display:flex; background:#94a3b8}
+.seat.hint-pos{background:#eaf3e4}
+.seat.hint-neg{background:#f8e6da}
+body.dragging .seat:not(.dragSrc){cursor:copy}
+body.dragging .seat{opacity:.45}
+body.dragging .seat.glow-g, body.dragging .seat.glow-r, body.dragging .seat.dragSrc, body.dragging .seat.dropHover{opacity:1}
+.seat.glow-g{box-shadow:0 0 18px 5px rgba(46,143,98,.55)!important; border-color:var(--green)!important}
+.seat.glow-r{box-shadow:0 0 18px 5px rgba(196,73,73,.55)!important; border-color:var(--red)!important}
+.seat.dragSrc{opacity:.35!important}
+.seat.dropHover{outline:3px solid var(--primary); outline-offset:3px}
+.ghost{
+  position:fixed; z-index:999; pointer-events:none; opacity:.92;
+  transform:translate(-50%,-50%) scale(1.06) rotate(-2deg);
+  box-shadow:0 14px 30px rgba(15,23,42,.3);
+}
+.legend{display:flex; flex-wrap:wrap; gap:16px; margin-top:18px; font-size:13px; color:var(--muted); align-items:center}
+.legend .sw{width:20px; height:20px; border-radius:5px; border:3.5px solid; display:inline-block; vertical-align:middle; margin-right:5px}
+
+/* Gelaren egitura */
+.aisle{width:26px; flex:none}
+.layoutRow{display:flex; align-items:center; gap:10px; margin-bottom:6px; font-size:14px}
+.layoutRow .rlabel{min-width:110px; font-weight:700}
+.stepBtn{
+  width:32px; height:32px; border-radius:8px; border:1.5px solid var(--line); background:var(--paper);
+  font-weight:800; cursor:pointer; font-size:16px; line-height:1;
+}
+.stepBtn:hover{border-color:var(--primary); color:var(--primary-dark)}
+.seatCount{min-width:26px; text-align:center; font-weight:800}
+.miniPrev{
+  display:flex; flex-direction:column; gap:4px; margin:12px 0; padding:12px;
+  background:var(--paper); border:1px solid var(--line); border-radius:10px; overflow-x:auto;
+}
+.miniPrev .mr{display:flex; gap:3px}
+.miniPrev .ms{width:18px; height:11px; border-radius:2px; background:var(--primary-soft); border:1px solid var(--primary); flex:none}
+.miniPrev .ma{width:10px; flex:none}
+.seatTally{font-size:14px; font-weight:700; padding:8px 12px; border-radius:8px}
+.seatTally.ok{background:var(--green-soft); color:#1d5c3e}
+.seatTally.ko{background:var(--red-soft); color:#8e3030}
+
+/* Gida */
+.guideStep{display:flex; gap:10px; margin-bottom:10px; font-size:13.5px; line-height:1.45}
+.guideStep b.num{
+  background:var(--primary-soft); color:var(--primary-dark); border-radius:99px;
+  width:24px; height:24px; display:inline-flex; align-items:center; justify-content:center; flex:none; font-size:12px;
+}
+.guideNote{
+  background:var(--red-soft); border-left:4px solid var(--red); border-radius:8px;
+  padding:10px 12px; font-size:13px; margin-bottom:12px;
+}
+.guideStar{
+  background:var(--green-soft); border:2px solid var(--green); border-radius:12px;
+  padding:12px 14px; margin-bottom:14px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;
+  font-size:13.5px; line-height:1.45;
+}
+
+/* Kiosko modua (gelan bertan bildu) */
+#kiosk{position:fixed; inset:0; background:var(--bg); z-index:300; overflow:auto; padding:18px; display:none}
+.kioskTop{
+  display:flex; justify-content:space-between; align-items:center; gap:12px;
+  max-width:900px; margin:0 auto 16px; flex-wrap:wrap;
+}
+.kioskTop .kTitle{font-size:20px; font-weight:700; font-family:'Poppins',system-ui,sans-serif}
+#kioskBody{max-width:900px; margin:0 auto}
+.kioskGrid{display:flex; flex-wrap:wrap; gap:10px; justify-content:center}
+.kName{
+  padding:14px 20px; border-radius:12px; border:2px solid var(--line); background:var(--paper);
+  font-size:16px; font-weight:700; cursor:pointer; transition:border-color .12s, transform .12s;
+}
+.kName:hover:not(:disabled){border-color:var(--primary); transform:translateY(-2px)}
+.kName.done{opacity:.4; border-color:var(--green); cursor:default}
+.kioskCard{
+  background:var(--card); border-radius:16px; padding:22px;
+  box-shadow:0 4px 20px rgba(21,19,17,.12);
+}
+.kioskCard .chipPick button{font-size:15px; padding:10px 16px}
+.kioskCard .chipPick button.maxed{opacity:.35; cursor:not-allowed}
+.kioskThanks{
+  text-align:center; font-size:26px; font-weight:800; padding:70px 0;
+  font-family:'Poppins',system-ui,sans-serif;
+}
+
+/* Modalak */
+.overlay{
+  position:fixed; inset:0; background:rgba(21,19,17,.55); display:none;
+  align-items:flex-start; justify-content:center; padding:40px 16px; z-index:100; overflow:auto;
+}
+.overlay.open{display:flex}
+.modal{
+  background:var(--paper); border-radius:16px; padding:22px; width:100%; max-width:640px;
+  box-shadow:0 20px 60px rgba(15,23,42,.35);
+}
+.modal h3{margin:0 0 4px; font-size:18px}
+.modal .desc{font-size:13px; color:var(--muted); margin:0 0 14px}
+.modal .foot{display:flex; gap:10px; justify-content:flex-end; margin-top:18px}
+.modal .mapRow{display:flex; gap:10px; align-items:center; margin-bottom:10px; flex-wrap:wrap; font-size:14px}
+.modal .mapRow label{font-weight:700; min-width:170px}
+.previewTbl{width:100%; border-collapse:collapse; font-size:12px; margin:10px 0; overflow:hidden; border-radius:8px}
+.previewTbl th{background:var(--primary-soft); color:var(--primary-dark); padding:5px 7px; text-align:left}
+.previewTbl td{border-bottom:1px solid var(--line); padding:4px 7px; max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.chipPick{display:flex; flex-wrap:wrap; gap:6px; margin:8px 0 14px}
+.chipPick button{
+  border:1.5px solid var(--line); background:var(--paper); border-radius:99px; padding:5px 12px;
+  font-size:13px; cursor:pointer; font-weight:600; color:var(--ink);
+}
+.chipPick button.on-g{background:var(--green); border-color:var(--green); color:#fff}
+.chipPick button.on-r{background:var(--red); border-color:var(--red); color:#fff}
+textarea#pasteArea{width:100%; min-height:180px; font-family:ui-monospace,monospace; font-size:12.5px}
+
+/* Toast */
+#toast{
+  position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(80px);
+  background:#151311; color:var(--bg); padding:12px 22px; border-radius:99px; font-size:14px;
+  font-weight:600; box-shadow:0 10px 30px rgba(0,0,0,.3); transition:transform .25s; z-index:200;
+}
+#toast.show{transform:translateX(-50%) translateY(0)}
+
+/* Paperezko galdetegia */
+#paperSheet{display:none}
+#paperSheet h1{font-size:17px; margin:0 0 2px}
+#paperSheet .sub{font-size:11.5px; color:#555; margin-bottom:10px}
+#paperSheet .box{border:1.5px solid #999; border-radius:6px; padding:8px 10px; font-size:11.5px; margin-bottom:10px; background:#f7f7f7}
+#paperSheet table{width:100%; border-collapse:collapse; font-size:12px}
+#paperSheet th,#paperSheet td{border:1px solid #bbb; padding:4px 8px; text-align:left}
+#paperSheet th{background:#eee; font-size:11px}
+#paperSheet td.n{width:24px; text-align:right; color:#888}
+#paperSheet th.c,#paperSheet td.c{width:84px; text-align:center}
+#paperSheet.compact table{font-size:10.5px}
+#paperSheet.compact th,#paperSheet.compact td{padding:2px 6px}
+
+/* Inprimatzea */
+#printHeader{display:none}
+@media print{
+  body{background:var(--paper)}
+  header.app, nav.tabs, .maptoolbar, .legend, .no-print, #toast{display:none!important}
+  main{padding:0}
+  section.view{box-shadow:none; padding:0}
+  #view-datuak{display:none!important}
+  #view-gela{display:block!important}
+  body.print-paper #view-gela{display:none!important}
+  body.print-paper #paperSheet{display:block!important}
+  #printHeader{display:block; margin-bottom:14px}
+  #printHeader h2{margin:0; font-size:20px}
+  #printHeader .d{color:#555; font-size:13px}
+  .seat{box-shadow:none}
+  .lockbtn,.hintbadge{display:none!important}
+  :root{--w:96px; --h:52px}
+  .grid{zoom:.85; overflow:visible}
+  .seat .label .giv{font-size:11.5px}
+  .seat .label .sur{font-size:9px}
+}
+@page{size:landscape; margin:1.2cm}
+</style>
+</head>
+<body>
+
+<header class="app">
+  <div>
+    <h1>🪑 GelaLekuak</h1>
+    <div class="sub">Tutorearen aulki-antolatzailea · datuak zure nabigatzailean bakarrik gordetzen dira</div>
+  </div>
+  <div class="spacer"></div>
+  <div class="grouppick">
+    <label style="font-size:13px; font-weight:700">Taldea:</label>
+    <select id="groupSel"></select>
+    <button class="iconbtn" id="newGroupBtn" title="Talde berria">➕ Berria</button>
+    <button class="iconbtn" id="renameGroupBtn" title="Izena aldatu">✏️</button>
+    <button class="iconbtn" id="delGroupBtn" title="Taldea ezabatu">🗑️</button>
+  </div>
+  <div class="grouppick">
+    <button class="iconbtn" id="exportBtn" title="Gorde datu guztiak fitxategi batean">⬇️ Gorde</button>
+    <label class="iconbtn" style="cursor:pointer" title="Lehenago gordetako fitxategia kargatu">⬆️ Berreskuratu<input type="file" id="importJsonInput" accept=".json"></label>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button class="tab active" id="tab-datuak" onclick="showTab('datuak')">1 · Ikasleak eta datuak <span class="dot" id="warnDot"></span></button>
+  <button class="tab" id="tab-gela" onclick="showTab('gela')">2 · Gelako mapa</button>
+</nav>
+
+<main>
+<!-- ===================== 1. DATUAK ===================== -->
+<section class="view active" id="view-datuak">
+  <div class="cards">
+
+    <div class="card">
+      <h2>📥 Datuak kargatu</h2>
+      <p class="desc">Hiru modu dituzu — aukeratu erosoena. Kargatu ondoren, zutabeak zeintzuk diren berretsiko duzu (ez da formatu zehatzik behar).</p>
+      <div class="importgrid">
+        <div class="step">
+          <b class="num">A</b>
+          <div style="flex:1">
+            <b>Excel / CSV fitxategia igo</b><br>
+            <span style="font-size:12px;color:var(--muted)">Google Forms-eko erantzunen esportazioa, adibidez.</span>
+          </div>
+          <label class="filebtn">📂 Igo fitxategia<input type="file" id="fileInput" accept=".csv,.xlsx,.xls"></label>
+        </div>
+        <div class="step">
+          <b class="num">B</b>
+          <div style="flex:1">
+            <b>Kopiatu eta itsatsi</b><br>
+            <span style="font-size:12px;color:var(--muted)">Kopiatu gelaxkak Excel / Google Sheets-etik eta itsatsi zuzenean.</span>
+          </div>
+          <button class="btn" id="pasteBtn">📋 Itsatsi datuak</button>
+        </div>
+        <div class="step">
+          <b class="num">C</b>
+          <div style="flex:1">
+            <b>Txantiloia deskargatu</b><br>
+            <span style="font-size:12px;color:var(--muted)">Excel hutsa adibideekin: bete, gorde eta igo.</span>
+          </div>
+          <button class="btn outline" id="templateBtn">⬇️ Txantiloia</button>
+        </div>
+      </div>
+      <div style="margin-top:14px; text-align:center">
+        <button class="btn gray" id="demoBtn">🎲 Probatu adibide-talde batekin</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🧑‍🎓 Ikasleen zerrenda <span id="stuCount" style="font-size:13px;color:var(--muted);font-weight:600"></span></h2>
+      <p class="desc">Egin klik ikasle batengan bere nahiak (BAI / EZ) eta lehen lerroko beharra editatzeko.</p>
+      <div style="display:flex; gap:8px; margin-bottom:12px">
+        <input type="text" id="manualName" placeholder="Abizenak, Izena" style="flex:1">
+        <button class="btn green" id="addStudentBtn">➕ Gehitu</button>
+      </div>
+      <div id="studentList"></div>
+    </div>
+
+    <div class="card" id="guideCard">
+      <h2>🗳️ Nola bildu ikasleen nahiak</h2>
+      <div class="guideNote">
+        <b>Arau nagusia:</b> ikasleek <b>inoiz ez</b> dute izenik eskuz idatzi behar ("Inhar" / "Inar" arazoa). Beti <b>zerrenda itxi batetik aukeratu</b> behar dute.
+      </div>
+      <div class="guideStar">
+        <div style="flex:1"><b>⭐ Errazena: bildu gelan bertan, gailu honekin.</b><br>
+        Pasatu tableta/ordenagailua ikaslez ikasle tutoretza-saioan: bakoitzak bere izena aukeratu, nahiak markatu (zerrenda itxia) eta hurrengoari pasatzen dio. Inportaziorik ez, akatsik ez, daturik ez da gailutik ateratzen.</div>
+        <button class="btn green big" id="kioskBtn">🧑‍🎓 Hasi bilketa</button>
+      </div>
+      <div style="font-size:13px; color:var(--muted); margin-bottom:10px"><b>Bestela, urrutitik bildu nahi baduzu:</b></div>
+      <div class="guideStep"><b class="num">1</b><div><b>Kargatu lehenik zerrenda ofiziala</b> (izenak bakarrik, nahirik gabe) — goiko A/B/C aukerak edo eskuz.</div></div>
+      <div class="guideStep"><b class="num">2</b><div><b>Sortu Google Forms bat</b> 3 galderarekin, aukerak = ikasleen zerrenda zehatza:
+        <ul style="margin:6px 0 6px 16px; padding:0; font-size:13px">
+          <li><b>«Nor zara?»</b> — Goitibeherakoa (dropdown), <i>derrigorrezkoa</i>.</li>
+          <li><b>«Norekin egongo zinateke gustura?»</b> — Kontrol-laukiak. Gomendioa: gehienez 3.</li>
+          <li><b>«Norekin ez zenuke eseri nahi?»</b> — Kontrol-laukiak. Gomendioa: gehienez 2. <i>Aukerakoa.</i></li>
+        </ul>
+        Truko bat: Forms-en, lehen aukeraren gainean <b>itsatsi zerrenda osoa</b> eta lerro bakoitza aukera bihurtuko da automatikoki. ⤵
+        <div style="margin-top:8px"><button class="btn" id="copyListBtn">📋 Kopiatu ikasleen zerrenda</button></div>
+      </div></div>
+      <div class="guideStep"><b class="num">3</b><div><b>Erantzunak ekarri hona:</b> Forms → Erantzunak → ireki Sheets-en → kopiatu dena → hemen <b>«Itsatsi datuak»</b> (aukeratu <i>Gehitu / eguneratu</i>). Izenak zerrenda itxikoak direnez, dena automatikoki lotuko da.</div></div>
+      <div class="guideStep"><b class="num">4</b><div><b>Paperean nahiago?</b> Inprimatu galdetegi-orria (zerrenda itxia markatzeko), fotokopiatu, eta gero sartu erantzunak ikasle bakoitzaren ✏️ fitxan klik eginez — hor ere ez da izenik idazten.
+        <div style="margin-top:8px"><button class="btn outline" id="paperBtn">🖨️ Paperezko galdetegia</button></div>
+      </div></div>
+    </div>
+
+    <div class="card" id="warnCard" style="display:none">
+      <h2>⚠️ Argitu beharreko izenak</h2>
+      <p class="desc">Izen hauek ezin izan dira automatikoki lotu (gaizki idatzita, anbiguoak...). Lotu eskuz edo baztertu — bestela nahi horiek <b>ez dira kontuan hartuko</b>.</p>
+      <div id="warnList"></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===================== 2. GELA ===================== -->
+<section class="view" id="view-gela">
+  <div id="printHeader"><h2 id="printTitle"></h2><div class="d" id="printDate"></div></div>
+
+  <div class="maptoolbar no-print">
+    <button class="btn outline" id="layoutBtn">🪑 Gelaren egitura <span id="layoutSummary" style="font-weight:600; font-size:12.5px"></span></button>
+    <button class="btn big" id="generateBtn">✨ <span id="genTxt">Antolaketa optimoa sortu</span></button>
+    <button class="btn gray" id="undoBtn" disabled>↩️ Desegin</button>
+    <div style="flex:1"></div>
+    <button class="btn outline" id="printBtn">🖨️ Inprimatu / PDF</button>
+  </div>
+
+  <div class="metrics" id="metrics"></div>
+  <div class="arbela" id="arbela">🧑‍🏫 &nbsp;ARBELA · IRAKASLEA</div>
+  <div id="seatGrid" class="grid"></div>
+
+  <div class="legend no-print">
+    <span><span class="sw" style="border-color:var(--green)"></span> BAI elkarren ondoan</span>
+    <span><span class="sw" style="border-color:var(--red)"></span> EZ elkarren ondoan</span>
+    <span><span class="sw" style="border-color:var(--yellow)"></span> Preferentziarik ez</span>
+    <span><span class="sw" style="border-color:var(--neutral); border-style:dashed"></span> Hutsik</span>
+    <span style="flex-basis:100%"></span>
+    <span>🔮 <b>X-izpiak:</b> arrastatu ikasle bat lagunak (berdez) eta gatazkak (gorriz) ikusteko, eta zenbakiek esango dizute toki bakoitzak zenbat hobetzen duen.</span>
+    <span>🔒 <b>Aingurak:</b> sakatu giltzarrapoa ikaslea bere tokian finkatzeko. · 👆 Klik labur batek ikaslearen fitxa irekitzen du.</span>
+  </div>
+</section>
+</main>
+
+<!-- ===================== MODALAK ===================== -->
+<div id="kiosk">
+  <div class="kioskTop">
+    <span class="kTitle" id="kioskTitle"></span>
+    <button class="btn gray" id="kioskExit">🚪 Bilketa amaitu</button>
+  </div>
+  <div id="kioskBody"></div>
+</div>
+
+<div id="paperSheet"></div>
+
+<div class="overlay" id="overlay">
+  <div class="modal" id="modalBox"></div>
+</div>
+
+<div id="toast" aria-live="polite"></div>
+
+<script>
+/* ============================================================
+   GelaLekuak v2 — jatorrizko soziograma-aplikazioan oinarritua
+   Hobekuntzak: inportazio-laguntzailea, itsatsi, abisuak,
+   editorea, localStorage, talde anitz, ukipen-euskarria, inprimatzea
+   ============================================================ */
+
+/* ---------- Tresnak ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => (s??'').toString().replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const uid = () => 'i' + Math.random().toString(36).slice(2,10);
+const deepClone = o => JSON.parse(JSON.stringify(o));
+let toastTimer;
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(()=>t.classList.remove('show'), 3500);
+}
+
+/* ---------- Izenen normalizazioa (jatorrizkotik) ---------- */
+const deburrMap = {'á':'a','é':'e','í':'i','ó':'o','ú':'u','ü':'u','ñ':'n','ç':'c','à':'a','è':'e','ì':'i','ò':'o','ù':'u'};
+const deburr = s => s.replace(/[áéíóúüñçàèìòù]/g, ch => deburrMap[ch] || ch);
+const normCore = s => deburr((s||'').toString().trim().toLowerCase()).replace(/\s+/g,' ').replace(/[^a-z0-9 ,]/g,'');
+function keyFull(s){
+  const core = normCore(s);
+  return core.includes(',') ? core.replace(/\s*,\s*/, ',') : core.replace(/\s+/g,'');
+}
+function splitSurGiv(s){
+  const core = normCore(s);
+  if(core.includes(',')){
+    const [sur,giv] = core.split(',').map(x=>x.trim());
+    return {surname:sur||'', given:giv||''};
+  }
+  const parts = core.split(' ');
+  return {surname: parts.length>1 ? parts.slice(-1)[0] : '', given: parts[0]||core};
+}
+const keyGiven = s => splitSurGiv(s).given.replace(/\s+/g,'');
+const keySurname = s => splitSurGiv(s).surname.replace(/\s+/g,'');
+
+/* ---------- Egoera eta biltegiratzea ---------- */
+const LS_KEY = 'gelalekuak-v2';
+let state = null;
+const histories = {}; // taldeko desegite-pilak (memorian soilik)
+
+function newGroup(name){
+  // rowSeats=null → automatikoa (4 errenkada); groupSize: 0 jarraian, 2 binaka, 3 hirunaka
+  return {id:uid(), name, rowSeats:null, groupSize:2, students:[], seating:[], locked:[], pending:[]};
+}
+function load(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(raw){
+      const st = JSON.parse(raw);
+      if(st.groups?.length){
+        for(const g of st.groups){ // bertsio zaharretik migratu
+          if(!('rowSeats' in g)) g.rowSeats = null;
+          if(!('groupSize' in g)) g.groupSize = 0;
+        }
+        return st;
+      }
+    }
+  }catch(e){ console.warn('localStorage irakurtzeko errorea', e); }
+  return null;
+}
+function save(){
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+  catch(e){ console.warn('localStorage gordetzeko errorea', e); }
+}
+state = load() || {groups:[newGroup('Nire taldea')], activeId:null};
+if(!state.activeId || !state.groups.some(g=>g.id===state.activeId)) state.activeId = state.groups[0].id;
+const G = () => state.groups.find(g=>g.id===state.activeId);
+
+/* ---------- Gelaren egitura ---------- */
+function rowSeatsOf(g){
+  g = g || G();
+  if(g.rowSeats?.length) return g.rowSeats;
+  const n = Math.max(1, g.students.length);
+  const rows = g.rows || 4; // bertsio zaharreko taldeek 'rows' izan dezakete
+  return Array(rows).fill(Math.max(1, Math.ceil(n/rows)));
+}
+let GS = 0; // talde aktiboaren mahai-taldekatzea (0 = jarraian)
+/* c eta c+1 eserlekuak benetan ondoan daude? (pasabideek lotura hausten dute) */
+const hAdjC = c => GS===0 || ((c+1) % GS !== 0);
+
+/* ---------- Harremanen cachea ---------- */
+let rel = new Map(); // id -> {like:Set, dislike:Set, front, name, ref}
+function buildRel(){
+  rel = new Map();
+  GS = G().groupSize || 0;
+  for(const s of G().students){
+    rel.set(s.id, {like:new Set(s.likes), dislike:new Set(s.dislikes), front:!!s.front, name:s.name, ref:s});
+  }
+}
+function classify(a,b){
+  const A = rel.get(a), B = rel.get(b);
+  if(!A || !B) return 'yellow';
+  if(A.dislike.has(b) || B.dislike.has(a)) return 'red';
+  if(A.like.has(b) || B.like.has(a)) return 'green';
+  return 'yellow';
+}
+function pairScore(a,b,mult){
+  const c = classify(a,b);
+  if(c==='red') return -5*mult;
+  if(c==='green') return 3*mult;
+  return 0;
+}
+function evalGrid(grid){
+  let sc = 0;
+  for(let r=0;r<grid.length;r++)for(let c=0;c<grid[r].length;c++){
+    const id = grid[r][c]; if(!id) continue;
+    if(c < grid[r].length-1 && grid[r][c+1] && hAdjC(c)) sc += pairScore(id, grid[r][c+1], 2);
+    if(r < grid.length-1 && grid[r+1]?.[c]) sc += pairScore(id, grid[r+1][c], 1);
+    const st = rel.get(id);
+    if(st?.front) sc += (r===0 ? 6 : -5*r);
+  }
+  return sc;
+}
+
+/* ---------- Eserlekuen egitura ---------- */
+function ensureSeating(g){
+  g = g || G();
+  const ids = g.students.map(s=>s.id);
+  const idSet = new Set(ids);
+  // Eskuz finkatutako egiturak eserleku gutxiegi baditu, zabaldu errenkada laburrenak
+  if(g.rowSeats?.length){
+    let total = g.rowSeats.reduce((a,b)=>a+b,0);
+    while(total < ids.length){
+      const i = g.rowSeats.indexOf(Math.min(...g.rowSeats));
+      g.rowSeats[i]++; total++;
+    }
+  }
+  const rs = rowSeatsOf(g);
+  const old = g.seating || [];
+  const placed = new Set();
+  const grid = rs.map(n => Array(n).fill(null));
+  for(let r=0;r<Math.min(old.length, grid.length);r++)
+    for(let c=0;c<Math.min(old[r]?.length||0, grid[r].length);c++){
+      const id = old[r][c];
+      if(id && idSet.has(id) && !placed.has(id)){ grid[r][c]=id; placed.add(id); }
+    }
+  const free = ids.filter(id=>!placed.has(id));
+  for(let r=0;r<grid.length && free.length;r++)
+    for(let c=0;c<grid[r].length && free.length;c++)
+      if(!grid[r][c]) grid[r][c] = free.shift();
+  g.seating = grid;
+  g.locked = (g.locked||[]).filter(id=>idSet.has(id));
+}
+
+function pushHistory(){
+  const h = histories[G().id] = histories[G().id] || [];
+  h.push(deepClone(G().seating));
+  if(h.length>30) h.shift();
+  $('#undoBtn').disabled = false;
+}
+function undo(){
+  const h = histories[G().id];
+  if(h?.length){
+    G().seating = h.pop();
+    renderSeating(); save();
+    $('#undoBtn').disabled = !h.length;
+  }
+}
+
+/* ---------- Optimizatzailea (jatorrizko algoritmoa, ainguekin) ---------- */
+function optimize(){
+  const g = G();
+  if(!g.students.length){ toast('Lehenik kargatu ikasleak (1. fitxan).'); return; }
+  const btn = $('#generateBtn');
+  btn.disabled = true; $('#genTxt').textContent = 'Algoritmoa pentsatzen…';
+  setTimeout(()=>{
+    buildRel();
+    ensureSeating(g);
+    pushHistory();
+    const n = g.students.length;
+    const rs = rowSeatsOf(g);
+    const nRows = rs.length;
+    const lockedSet = new Set(g.locked);
+    const attempts = n<=10 ? 900 : n<=20 ? 450 : n<=30 ? 200 : 90;
+    let best = null, bestScore = -Infinity;
+
+    const lockedPos = []; // [r,c,id] gaur egungo posizioetan
+    for(let r=0;r<nRows;r++)for(let c=0;c<rs[r];c++){
+      const id = g.seating[r]?.[c];
+      if(id && lockedSet.has(id)) lockedPos.push([r,c,id]);
+    }
+    const lockedIds = new Set(lockedPos.map(p=>p[2]));
+    const freeIds = g.students.map(s=>s.id).filter(id=>!lockedIds.has(id));
+
+    for(let t=0;t<attempts;t++){
+      const grid = rs.map(len => Array(len).fill(null));
+      for(const [r,c,id] of lockedPos) grid[r][c] = id;
+      const shuffled = [...freeIds].sort(()=>Math.random()-0.5);
+      let k=0;
+      for(let r=0;r<nRows;r++)for(let c=0;c<rs[r];c++)
+        if(!grid[r][c] && k<shuffled.length) grid[r][c] = shuffled[k++];
+
+      let sc = evalGrid(grid), improved = true;
+      while(improved){
+        improved = false;
+        for(let r1=0;r1<nRows;r1++)for(let c1=0;c1<rs[r1];c1++){
+          if(grid[r1][c1] && lockedSet.has(grid[r1][c1])) continue;
+          for(let r2=r1;r2<nRows;r2++)for(let c2=(r2===r1?c1+1:0);c2<rs[r2];c2++){
+            if(grid[r2][c2] && lockedSet.has(grid[r2][c2])) continue;
+            if(!grid[r1][c1] && !grid[r2][c2]) continue;
+            const t1=grid[r1][c1]; grid[r1][c1]=grid[r2][c2]; grid[r2][c2]=t1;
+            const sc2 = evalGrid(grid);
+            if(sc2 > sc){ sc = sc2; improved = true; }
+            else { const t2=grid[r1][c1]; grid[r1][c1]=grid[r2][c2]; grid[r2][c2]=t2; }
+          }
+        }
+      }
+      if(sc > bestScore){ bestScore = sc; best = grid; }
+    }
+    g.seating = best;
+    renderSeating(); save();
+    btn.disabled = false; $('#genTxt').textContent = 'Antolaketa optimoa sortu';
+    toast('Antolaketa berria sortuta ✨ (puntuazioa: ' + bestScore + ')');
+  }, 30);
+}
+
+/* ---------- Metrikak ---------- */
+function computeMetrics(){
+  const g = G(), grid = g.seating;
+  const pos = new Map();
+  grid.forEach((row,r)=>row.forEach((id,c)=>{ if(id) pos.set(id,[r,c]); }));
+  const adj = (a,b)=>{
+    const pa=pos.get(a), pb=pos.get(b);
+    if(!pa || !pb) return false;
+    const [ra,ca]=pa, [rb,cb]=pb;
+    if(ra===rb && Math.abs(ca-cb)===1) return hAdjC(Math.min(ca,cb)); // pasabideak hausten du
+    return ca===cb && Math.abs(ra-rb)===1;
+  };
+  let likesTot=0, likesOk=0, conf=0, frontBad=0;
+  for(const s of g.students){
+    for(const t of s.likes) if(pos.has(t)){ likesTot++; if(adj(s.id,t)) likesOk++; }
+    if(s.front){ const p=pos.get(s.id); if(p && p[0]!==0) frontBad++; }
+  }
+  grid.forEach((row,r)=>row.forEach((id,c)=>{
+    if(!id) return;
+    if(c<row.length-1 && row[c+1] && hAdjC(c) && classify(id,row[c+1])==='red') conf++;
+    if(r<grid.length-1 && grid[r+1]?.[c] && classify(id,grid[r+1][c])==='red') conf++;
+  }));
+  return {likesTot, likesOk, conf, frontBad, score:evalGrid(grid)};
+}
+function renderMetrics(){
+  const m = computeMetrics();
+  const parts = [];
+  parts.push(`<div class="metric ${m.likesTot && m.likesOk===m.likesTot ? 'good':''}">💚 Nahiak beteta: ${m.likesOk}/${m.likesTot}</div>`);
+  parts.push(`<div class="metric ${m.conf ? 'bad':'good'}">${m.conf ? '🔴' : '✅'} Gatazkak ondoan: ${m.conf}</div>`);
+  if(G().students.some(s=>s.front))
+    parts.push(`<div class="metric ${m.frontBad ? 'bad':'good'}">📌 Lehen lerroa: ${m.frontBad ? m.frontBad+' gaizki' : 'denak ondo'}</div>`);
+  parts.push(`<div class="metric neutral">Σ ${m.score} puntu</div>`);
+  $('#metrics').innerHTML = parts.join('');
+}
+
+/* ---------- Gela-mapa marraztu ---------- */
+const colorFor = c => c==='red' ? 'var(--red)' : c==='green' ? 'var(--green)' : c==='yellow' ? 'var(--yellow)' : 'transparent';
+
+function renderSeating(){
+  buildRel();
+  const g = G();
+  ensureSeating(g);
+  const grid = g.seating;
+  const lockedSet = new Set(g.locked);
+  const rs = rowSeatsOf(g);
+  const aislesIn = len => GS>0 ? Math.max(0, Math.ceil(len/GS)-1) : 0;
+  const maxW = Math.max(...rs.map(len => len*134 - 12 + aislesIn(len)*38));
+  $('#arbela').style.maxWidth = maxW+'px';
+  const gsTxt = GS===2 ? 'binaka' : GS===3 ? 'hirunaka' : 'jarraian';
+  $('#layoutSummary').textContent = `· ${rs.length} errenkada (${rs.join('+')}) · ${gsTxt}`;
+
+  const html = grid.map((row,r)=>{
+    const cells = row.map((id,c)=>{
+      const aisle = (GS>0 && c>0 && c%GS===0) ? '<div class="aisle"></div>' : '';
+      if(!id) return `${aisle}<div class="seat empty" data-r="${r}" data-c="${c}">Hutsik</div>`;
+      const st = rel.get(id);
+      const nb = {
+        T: r>0 ? grid[r-1]?.[c] : null,
+        B: r<grid.length-1 ? grid[r+1]?.[c] : null,
+        L: (c>0 && hAdjC(c-1)) ? row[c-1] : null,
+        R: (c<row.length-1 && hAdjC(c)) ? row[c+1] : null,
+      };
+      const style = `border-top-color:${nb.T?colorFor(classify(id,nb.T)):'transparent'};`+
+                    `border-bottom-color:${nb.B?colorFor(classify(id,nb.B)):'transparent'};`+
+                    `border-left-color:${nb.L?colorFor(classify(id,nb.L)):'transparent'};`+
+                    `border-right-color:${nb.R?colorFor(classify(id,nb.R)):'transparent'};`;
+      const locked = lockedSet.has(id);
+      const parts = st.name.includes(',') ? st.name.split(',') : null;
+      const label = parts
+        ? `<div class="sur">${esc(parts[0].trim())}</div><div class="giv">${esc(parts[1].trim())}</div>`
+        : `<div class="giv" style="font-size:13px">${esc(st.name)}</div>`;
+      const frontBadge = st.front ? `<div class="frontbadge ${r!==0?'miss':''}" title="Lehen lerroan behar du">📌1</div>` : '';
+      return `${aisle}<div class="seat ${locked?'locked':''}" data-r="${r}" data-c="${c}" data-id="${id}" style="${style}" title="${esc(st.name)}">
+        ${frontBadge}
+        <button class="lockbtn" title="${locked?'Aingura kendu':'Ainguratu (tokian finkatu)'}" data-lock="${id}">${locked?'🔒':'🔓'}</button>
+        <div class="label">${label}</div>
+        <div class="hintbadge"></div>
+      </div>`;
+    }).join('');
+    return `<div class="row">${cells}</div>`;
+  }).join('');
+  $('#seatGrid').innerHTML = html;
+  renderMetrics();
+  $('#printTitle').textContent = '🪑 ' + g.name + ' — gelako mapa';
+  $('#printDate').textContent = new Date().toLocaleDateString('eu-ES', {year:'numeric',month:'long',day:'numeric'}) + ' · GelaLekuak';
+}
+
+/* ---------- Arrastatzea (pointer events: ukipena + sagua) ---------- */
+let drag = null;
+$('#seatGrid').addEventListener('pointerdown', e => {
+  const lockBtn = e.target.closest('.lockbtn');
+  if(lockBtn){ e.preventDefault(); toggleLock(lockBtn.dataset.lock); return; }
+  const seat = e.target.closest('.seat');
+  if(!seat || seat.classList.contains('empty')) return;
+  const id = seat.dataset.id;
+  if(new Set(G().locked).has(id)) { drag = {tapOnly:true, id}; return; }
+  e.preventDefault();
+  drag = {id, r:+seat.dataset.r, c:+seat.dataset.c, el:seat, x0:e.clientX, y0:e.clientY, started:false};
+});
+document.addEventListener('pointermove', e => {
+  if(!drag || drag.tapOnly) return;
+  if(!drag.started){
+    if(Math.hypot(e.clientX-drag.x0, e.clientY-drag.y0) < 8) return;
+    startDrag(e);
+  }
+  drag.ghost.style.left = e.clientX+'px';
+  drag.ghost.style.top  = e.clientY+'px';
+  const seat = document.elementFromPoint(e.clientX, e.clientY)?.closest('.seat');
+  document.querySelectorAll('.seat.dropHover').forEach(el=>el.classList.remove('dropHover'));
+  if(seat && seat!==drag.el) seat.classList.add('dropHover');
+});
+document.addEventListener('pointerup', e => {
+  if(!drag) return;
+  if(drag.tapOnly){ openEditor(drag.id); drag=null; return; }
+  if(!drag.started){ openEditor(drag.id); drag=null; return; }
+  const seat = document.elementFromPoint(e.clientX, e.clientY)?.closest('.seat');
+  endDragVisuals();
+  if(seat && seat!==drag.el){
+    const tr=+seat.dataset.r, tc=+seat.dataset.c;
+    const tgtId = G().seating[tr][tc];
+    if(tgtId && new Set(G().locked).has(tgtId)){
+      toast('🔒 Ikasle hori ainguratuta dago — askatu lehenik.');
+    } else {
+      pushHistory();
+      const g=G(), tmp=g.seating[tr][tc];
+      g.seating[tr][tc]=g.seating[drag.r][drag.c];
+      g.seating[drag.r][drag.c]=tmp;
+      renderSeating(); save();
+    }
+  }
+  drag = null;
+});
+function startDrag(e){
+  drag.started = true;
+  document.body.classList.add('dragging');
+  drag.el.classList.add('dragSrc');
+  const ghost = drag.el.cloneNode(true);
+  ghost.classList.add('ghost'); ghost.classList.remove('dragSrc');
+  ghost.style.width = drag.el.offsetWidth+'px'; ghost.style.height = drag.el.offsetHeight+'px';
+  ghost.style.left = e.clientX+'px'; ghost.style.top = e.clientY+'px';
+  document.body.appendChild(ghost);
+  drag.ghost = ghost;
+  // X-izpiak + puntuazio-pistak
+  const base = evalGrid(G().seating);
+  const lockedSet = new Set(G().locked);
+  document.querySelectorAll('#seatGrid .seat').forEach(el=>{
+    const tr=+el.dataset.r, tc=+el.dataset.c;
+    if(tr===drag.r && tc===drag.c) return;
+    const tgtId = el.dataset.id || null;
+    if(tgtId){
+      const c = classify(drag.id, tgtId);
+      if(c==='green') el.classList.add('glow-g');
+      if(c==='red') el.classList.add('glow-r');
+    }
+    const badge = el.querySelector('.hintbadge'); if(!badge) return;
+    if(tgtId && lockedSet.has(tgtId)){ el.classList.add('hint-zero'); badge.textContent='🔒'; return; }
+    const sim = G().seating.map(row=>[...row]);
+    const tmp = sim[tr][tc]; sim[tr][tc]=sim[drag.r][drag.c]; sim[drag.r][drag.c]=tmp;
+    const diff = evalGrid(sim) - base;
+    if(diff>0){ el.classList.add('hint-pos'); badge.textContent='+'+diff; }
+    else if(diff<0){ el.classList.add('hint-neg'); badge.textContent=diff; }
+    else { el.classList.add('hint-zero'); badge.textContent='0'; }
+  });
+}
+function endDragVisuals(){
+  document.body.classList.remove('dragging');
+  drag.ghost?.remove();
+  document.querySelectorAll('#seatGrid .seat').forEach(el=>{
+    el.classList.remove('dragSrc','dropHover','glow-g','glow-r','hint-pos','hint-neg','hint-zero');
+    const b = el.querySelector('.hintbadge'); if(b) b.textContent='';
+  });
+}
+function toggleLock(id){
+  const g = G();
+  const i = g.locked.indexOf(id);
+  if(i>=0) g.locked.splice(i,1); else g.locked.push(id);
+  renderSeating(); save();
+}
+
+/* ---------- Ikasleen zerrenda ---------- */
+function nameOf(id){ return G().students.find(s=>s.id===id)?.name || '?'; }
+
+function renderStudents(){
+  const g = G();
+  $('#stuCount').textContent = g.students.length ? `(${g.students.length})` : '';
+  if(!g.students.length){
+    $('#studentList').innerHTML = `<div class="emptyState">Oraindik ez dago ikaslerik.<br>⬅️ Kargatu datuak, edo gehitu ikasleak eskuz goian.</div>`;
+    return;
+  }
+  $('#studentList').innerHTML = g.students.map(s=>{
+    const chips = [
+      s.front ? `<span class="chip front">📌 1. lerroa</span>` : '',
+      ...s.likes.map(id=>`<span class="chip g">💚 ${esc(nameOf(id))}</span>`),
+      ...s.dislikes.map(id=>`<span class="chip r">⛔ ${esc(nameOf(id))}</span>`),
+    ].join('');
+    return `<div class="stuRow" data-edit="${s.id}">
+      <span class="nm">${esc(s.name)}</span>
+      <span class="chips">${chips || '<span style="font-size:12px;color:var(--muted)">preferentziarik ez</span>'}</span>
+      <button class="mini" data-edit="${s.id}" title="Editatu">✏️</button>
+      <button class="mini" data-del="${s.id}" title="Ezabatu">🗑️</button>
+    </div>`;
+  }).join('');
+}
+$('#studentList').addEventListener('click', e=>{
+  const del = e.target.closest('[data-del]');
+  if(del){
+    const s = G().students.find(x=>x.id===del.dataset.del);
+    if(s && confirm(`"${s.name}" ezabatu nahi duzu?`)) deleteStudent(s.id);
+    return;
+  }
+  const ed = e.target.closest('[data-edit]');
+  if(ed) openEditor(ed.dataset.edit);
+});
+function deleteStudent(id){
+  const g = G();
+  g.students = g.students.filter(s=>s.id!==id);
+  for(const s of g.students){
+    s.likes = s.likes.filter(x=>x!==id);
+    s.dislikes = s.dislikes.filter(x=>x!==id);
+  }
+  g.pending = g.pending.filter(p=>p.by!==id);
+  g.seating = g.seating.map(row=>row.map(x=>x===id?null:x));
+  g.locked = g.locked.filter(x=>x!==id);
+  refreshAll();
+}
+$('#addStudentBtn').addEventListener('click', addManual);
+$('#manualName').addEventListener('keypress', e=>{ if(e.key==='Enter') addManual(); });
+function addManual(){
+  const inp = $('#manualName');
+  const name = inp.value.trim();
+  if(!name) return;
+  if(G().students.some(s=>keyFull(s.name)===keyFull(name))){ toast('Ikasle hori zerrendan dago jada!'); return; }
+  G().students.push({id:uid(), name, likes:[], dislikes:[], front:false});
+  G().students.sort((a,b)=>a.name.localeCompare(b.name,'eu'));
+  inp.value='';
+  refreshAll();
+  toast(`"${name}" gehituta ✓ — egin klik bere gainean nahiak jartzeko.`);
+}
+
+/* ---------- Abisuak (lotu gabeko izenak) ---------- */
+function renderWarnings(){
+  const g = G();
+  const dot = $('#warnDot');
+  if(!g.pending.length){
+    $('#warnCard').style.display='none';
+    dot.classList.remove('show');
+    return;
+  }
+  dot.textContent = g.pending.length; dot.classList.add('show');
+  $('#warnCard').style.display='block';
+  $('#warnList').innerHTML = g.pending.map((p,i)=>{
+    const by = nameOf(p.by);
+    const fieldTxt = p.field==='likes' ? '💚 BAI' : '⛔ EZ';
+    const cands = p.candidates || [];
+    const opts = ['<option value="">— aukeratu ikaslea —</option>']
+      .concat(cands.map(id=>`<option value="${id}">⭐ ${esc(nameOf(id))}</option>`))
+      .concat(g.students.filter(s=>!cands.includes(s.id) && s.id!==p.by)
+        .map(s=>`<option value="${s.id}">${esc(s.name)}</option>`)).join('');
+    return `<div class="warnItem">
+      <span><b>${esc(by)}</b>-k «<b>${esc(p.raw)}</b>» idatzi du (${fieldTxt}). Nor da?</span>
+      <select class="inp" data-warnsel="${i}">${opts}</select>
+      <button class="btn green" data-warnok="${i}" style="padding:7px 12px">Lotu</button>
+      <button class="btn gray" data-warnno="${i}" style="padding:7px 12px">Baztertu</button>
+    </div>`;
+  }).join('');
+}
+$('#warnList').addEventListener('click', e=>{
+  const ok = e.target.closest('[data-warnok]');
+  const no = e.target.closest('[data-warnno]');
+  const g = G();
+  if(ok){
+    const i = +ok.dataset.warnok;
+    const sel = document.querySelector(`[data-warnsel="${i}"]`);
+    if(!sel.value){ toast('Aukeratu ikasle bat zerrendan.'); return; }
+    const p = g.pending[i];
+    const stu = g.students.find(s=>s.id===p.by);
+    if(stu && !stu[p.field].includes(sel.value) && sel.value!==p.by) stu[p.field].push(sel.value);
+    g.pending.splice(i,1);
+    refreshAll(); toast('Lotuta ✓');
+  } else if(no){
+    g.pending.splice(+no.dataset.warnno, 1);
+    refreshAll();
+  }
+});
+
+/* ---------- Ikaslearen editorea ---------- */
+function openEditor(id){
+  const g = G();
+  const s = g.students.find(x=>x.id===id);
+  if(!s) return;
+  const others = g.students.filter(x=>x.id!==id);
+  const chipsHtml = mode => others.map(o=>{
+    const on = mode==='g' ? s.likes.includes(o.id) : s.dislikes.includes(o.id);
+    return `<button data-pick="${o.id}" data-mode="${mode}" class="${on ? 'on-'+mode : ''}">${esc(o.name)}</button>`;
+  }).join('');
+  openModal(`
+    <h3>✏️ ${esc(s.name)}</h3>
+    <p class="desc">Aldatu izena, markatu norekin egon nahi duen (💚) edo ez (⛔), eta beharrezko baldintzak.</p>
+    <div class="mapRow"><label>Izena:</label><input type="text" id="edName" value="${esc(s.name)}" style="flex:1"></div>
+    <div class="mapRow"><label><input type="checkbox" id="edFront" ${s.front?'checked':''}> 📌 Lehen lerroan eseri behar du</label></div>
+    <div style="font-weight:700; font-size:14px; color:#1d5c3e">💚 Norekin BAI:</div>
+    <div class="chipPick" id="pickG">${chipsHtml('g')}</div>
+    <div style="font-weight:700; font-size:14px; color:#8e3030">⛔ Norekin EZ:</div>
+    <div class="chipPick" id="pickR">${chipsHtml('r')}</div>
+    <div class="foot">
+      <button class="btn gray" onclick="closeModal()">Utzi</button>
+      <button class="btn green" id="edSave">💾 Gorde</button>
+    </div>
+  `);
+  const likes = new Set(s.likes), dislikes = new Set(s.dislikes);
+  $('#modalBox').querySelectorAll('[data-pick]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const oid = btn.dataset.pick, mode = btn.dataset.mode;
+      const mySet = mode==='g' ? likes : dislikes;
+      const otherSet = mode==='g' ? dislikes : likes;
+      if(mySet.has(oid)){ mySet.delete(oid); btn.classList.remove('on-'+mode); }
+      else {
+        mySet.add(oid); btn.classList.add('on-'+mode);
+        if(otherSet.has(oid)){
+          otherSet.delete(oid);
+          const twin = $('#modalBox').querySelector(`[data-pick="${oid}"][data-mode="${mode==='g'?'r':'g'}"]`);
+          twin?.classList.remove(mode==='g'?'on-r':'on-g');
+        }
+      }
+    });
+  });
+  $('#edSave').addEventListener('click', ()=>{
+    const newName = $('#edName').value.trim();
+    if(newName) s.name = newName;
+    s.front = $('#edFront').checked;
+    s.likes = [...likes]; s.dislikes = [...dislikes];
+    g.students.sort((a,b)=>a.name.localeCompare(b.name,'eu'));
+    closeModal(); refreshAll(); toast('Gordeta ✓');
+  });
+}
+
+/* ---------- Modal orokorra ---------- */
+function openModal(html){ $('#modalBox').innerHTML = html; $('#overlay').classList.add('open'); }
+function closeModal(){ $('#overlay').classList.remove('open'); }
+$('#overlay').addEventListener('click', e=>{ if(e.target.id==='overlay') closeModal(); });
+
+/* ---------- Inportazioa: fitxategia / itsatsi / txantiloia ---------- */
+$('#templateBtn').addEventListener('click', ()=>{
+  const aoa = [
+    ['Abizenak','Izena','Norekin BAI (banatu ; ikurrarekin)','Norekin EZ (banatu ; ikurrarekin)'],
+    ['Agirre','June','Lasa, Maddi; Etxeberria, Ane','Lopez, Danel'],
+    ['Lasa','Maddi','Agirre, June',''],
+    ['Lopez','Danel','','Agirre, June'],
+  ];
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  ws['!cols'] = [{wch:16},{wch:14},{wch:42},{wch:42}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Ikasleak');
+  XLSX.writeFile(wb, 'gelalekuak_txantiloia.xlsx');
+});
+
+$('#fileInput').addEventListener('change', e=>{
+  const f = e.target.files?.[0]; if(!f) return;
+  const reader = new FileReader();
+  reader.onload = ev=>{
+    try{
+      const wb = XLSX.read(new Uint8Array(ev.target.result), {type:'array'});
+      const grid = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header:1, defval:''});
+      openMappingModal(grid);
+    }catch(err){ console.error(err); toast('❌ Errorea fitxategia irakurtzean.'); }
+  };
+  reader.readAsArrayBuffer(f);
+  e.target.value = '';
+});
+
+$('#pasteBtn').addEventListener('click', ()=>{
+  openModal(`
+    <h3>📋 Itsatsi datuak</h3>
+    <p class="desc">Kopiatu gelaxkak Excel / Google Sheets / Forms-eko erantzunen orritik (goiburua barne, ahal bada) eta itsatsi hemen (Ctrl+V).</p>
+    <textarea id="pasteArea" placeholder="Abizenak	Izena	Norekin BAI	Norekin EZ&#10;Agirre	June	Lasa, Maddi	Lopez, Danel&#10;..."></textarea>
+    <div class="foot">
+      <button class="btn gray" onclick="closeModal()">Utzi</button>
+      <button class="btn" id="pasteGo">Jarraitu →</button>
+    </div>
+  `);
+  $('#pasteArea').focus();
+  $('#pasteGo').addEventListener('click', ()=>{
+    const txt = $('#pasteArea').value.trim();
+    if(!txt){ toast('Itsatsi zerbait lehenik.'); return; }
+    const lines = txt.split(/\r?\n/).filter(l=>l.trim());
+    const delim = lines[0].includes('\t') ? '\t' : (lines[0].split(';').length > lines[0].split(',').length ? ';' : ',');
+    const grid = lines.map(l=>l.split(delim).map(c=>c.trim()));
+    openMappingModal(grid);
+  });
+});
+
+/* ---------- Zutabeen mapaketa-laguntzailea ---------- */
+function guessMapping(grid){
+  const header = (grid[0]||[]).map(h=>normCore(h));
+  const find = re => header.findIndex(h=>re.test(h));
+  const looksHeader = header.some(h=>/izen|abizen|nahi|bai|ez|name/.test(h));
+  let full = find(/izen[- ]?abizen|izena eta abizena|izen osoa|nor zara/);
+  let sur  = find(/^abizen|abizenak/);
+  let giv  = (()=>{ for(let i=0;i<header.length;i++){ if(i!==full && i!==sur && /izen/.test(header[i]) && !/abizen|erabiltzaile|helbide/.test(header[i])) return i; } return -1; })();
+  let likes = find(/norekin bai|\bbai\b|nahiago|gustura/);
+  let dislikes = find(/norekin ez|ez zenuke|ez nuke|\bez\b/);
+  if(dislikes===likes) dislikes = -1;
+  return {looksHeader, full, sur, giv, likes, dislikes};
+}
+function openMappingModal(grid){
+  grid = grid.filter(r=>r && r.some(c=>(c??'').toString().trim()));
+  if(grid.length < 1){ toast('Ez da daturik aurkitu.'); return; }
+  const gss = guessMapping(grid);
+  const nCols = Math.max(...grid.map(r=>r.length));
+  const colName = i => String.fromCharCode(65 + (i%26)) + (grid[0]?.[i] ? ' · '+(grid[0][i]+'').slice(0,18) : '');
+  const colOpts = (sel, allowNone) =>
+    (allowNone ? `<option value="-1">— Ez dago —</option>` : '') +
+    Array.from({length:nCols}, (_,i)=>`<option value="${i}" ${i===sel?'selected':''}>${esc(colName(i))}</option>`).join('');
+  const prevRows = grid.slice(0, 5).map(r=>
+    `<tr>${Array.from({length:Math.min(nCols,8)},(_,i)=>`<td>${esc((r[i]??'')+'')}</td>`).join('')}</tr>`).join('');
+  const twoColGuess = gss.sur!==-1 && gss.giv!==-1;
+  openModal(`
+    <h3>🧭 Zutabeak egiaztatu</h3>
+    <p class="desc">Esan zein zutabetan dagoen informazio bakoitza. Saiatu naiz asmatzen — egiaztatu eta zuzendu behar bada.</p>
+    <table class="previewTbl">
+      <tr>${Array.from({length:Math.min(nCols,8)},(_,i)=>`<th>${String.fromCharCode(65+i)}</th>`).join('')}</tr>
+      ${prevRows}
+    </table>
+    <div class="mapRow"><label><input type="checkbox" id="mHeader" ${gss.looksHeader?'checked':''}> Lehen errenkada goiburua da (ez da ikaslea)</label></div>
+    <div class="mapRow"><label>Izenaren formatua:</label>
+      <label><input type="radio" name="mMode" value="two" ${twoColGuess?'checked':''}> Bi zutabe</label>
+      <label><input type="radio" name="mMode" value="one" ${!twoColGuess?'checked':''}> Zutabe bakarra</label>
+    </div>
+    <div class="mapRow" id="rowTwo" style="${twoColGuess?'':'display:none'}">
+      <label>Abizenak:</label><select class="inp" id="mSur">${colOpts(gss.sur===-1?0:gss.sur)}</select>
+      <label style="min-width:auto">Izena:</label><select class="inp" id="mGiv">${colOpts(gss.giv===-1?1:gss.giv)}</select>
+    </div>
+    <div class="mapRow" id="rowOne" style="${twoColGuess?'display:none':''}">
+      <label>Izen osoa:</label><select class="inp" id="mFull">${colOpts(gss.full===-1 ? (gss.giv!==-1?gss.giv:0) : gss.full)}</select>
+    </div>
+    <div class="mapRow"><label>💚 Norekin BAI:</label><select class="inp" id="mLikes">${colOpts(gss.likes, true)}</select></div>
+    <div class="mapRow"><label>⛔ Norekin EZ:</label><select class="inp" id="mDislikes">${colOpts(gss.dislikes, true)}</select></div>
+    ${G().students.length ? `<div class="mapRow"><label>Dauden ikasleak:</label>
+      <label><input type="radio" name="mMerge" value="append" checked> Gehitu / nahiak eguneratu</label>
+      <label><input type="radio" name="mMerge" value="replace"> Ordeztu dena</label>
+    </div>` : ''}
+    <div class="foot">
+      <button class="btn gray" onclick="closeModal()">Utzi</button>
+      <button class="btn green big" id="mGo">✅ Inportatu</button>
+    </div>
+  `);
+  document.querySelectorAll('input[name=mMode]').forEach(r=>r.addEventListener('change', ()=>{
+    const two = document.querySelector('input[name=mMode]:checked').value==='two';
+    $('#rowTwo').style.display = two ? '' : 'none';
+    $('#rowOne').style.display = two ? 'none' : '';
+  }));
+  $('#mGo').addEventListener('click', ()=>{
+    applyMapping(grid, {
+      header: $('#mHeader').checked,
+      two: document.querySelector('input[name=mMode]:checked').value==='two',
+      sur:+($('#mSur')?.value ?? 0), giv:+($('#mGiv')?.value ?? 1), full:+($('#mFull')?.value ?? 0),
+      likes:+$('#mLikes').value, dislikes:+$('#mDislikes').value,
+      merge: document.querySelector('input[name=mMerge]:checked')?.value || 'replace',
+    });
+  });
+}
+
+/* Gelaxka batean izen bat edo gehiago egon daitezke. ';' banatzaile segurua da;
+   komak anbiguoak dira ("Lopez, Danel" izen bakarra izan daiteke), beraz lehenik
+   gelaxka osoa izen gisa ebazten saiatzen gara, eta bikoteka gero. */
+function splitCellNames(cell, tryResolve){
+  const txt = (cell??'').toString().trim();
+  if(!txt) return [];
+  if(txt.includes(';')) return txt.split(';').map(x=>x.trim()).filter(Boolean);
+  if(!txt.includes(',')) return [txt];
+  const parts = txt.split(',').map(x=>x.trim()).filter(Boolean);
+  if(parts.length===2 && tryResolve(txt)) return [txt];
+  if(parts.length>=2 && parts.length%2===0){
+    const pairs = [];
+    let allOk = true;
+    for(let i=0;i<parts.length;i+=2){
+      const nm = parts[i]+', '+parts[i+1];
+      if(tryResolve(nm)) pairs.push(nm); else { allOk=false; break; }
+    }
+    if(allOk) return pairs;
+  }
+  return parts;
+}
+
+function applyMapping(grid, m){
+  const start = m.header ? 1 : 0;
+  const base = [];
+  for(let i=start; i<grid.length; i++){
+    const r = grid[i]; if(!r) continue;
+    let name = '';
+    if(m.two){
+      const sur=(r[m.sur]??'').toString().trim(), giv=(r[m.giv]??'').toString().trim();
+      if(!sur && !giv) continue;
+      name = sur && giv ? `${sur}, ${giv}` : (sur||giv);
+    } else {
+      name = (r[m.full]??'').toString().trim();
+      if(!name) continue;
+    }
+    base.push({
+      name,
+      likesCell: m.likes>=0 ? r[m.likes] : '',
+      dislikesCell: m.dislikes>=0 ? r[m.dislikes] : '',
+    });
+  }
+  if(!base.length){ toast('Ez da ikaslerik aurkitu — egiaztatu zutabeak.'); return; }
+
+  const g = G();
+  let students = m.merge==='append' ? [...g.students] : [];
+  if(m.merge!=='append'){ g.pending = []; g.locked = []; g.seating = []; }
+
+  const toResolve = [];
+  let added = 0, updated = 0;
+  for(const b of base){
+    const existing = students.find(s=>keyFull(s.name)===keyFull(b.name));
+    if(existing){ // ikaslea badago: nahiak eguneratu (Forms erantzunen fluxua)
+      existing._likesCell = b.likesCell; existing._dislikesCell = b.dislikesCell;
+      toResolve.push(existing); updated++;
+      continue;
+    }
+    const stu = {id:uid(), name:b.name, likes:[], dislikes:[], front:false, _likesCell:b.likesCell, _dislikesCell:b.dislikesCell};
+    students.push(stu); toResolve.push(stu); added++;
+  }
+  // Indizeak eraiki izenak ebazteko
+  const byFull=new Map(), byGiv=new Map(), bySur=new Map();
+  for(const s of students){
+    byFull.set(keyFull(s.name), s.id);
+    const kg=keyGiven(s.name), ks=keySurname(s.name);
+    if(kg){ if(!byGiv.has(kg)) byGiv.set(kg,new Set()); byGiv.get(kg).add(s.id); }
+    if(ks){ if(!bySur.has(ks)) bySur.set(ks,new Set()); bySur.get(ks).add(s.id); }
+  }
+  const resolve = label => {
+    if((label||'').length<2) return {id:null, candidates:[]};
+    const f = keyFull(label); if(byFull.has(f)) return {id:byFull.get(f), candidates:[]};
+    const sg = byGiv.get(keyGiven(label));
+    if(sg?.size===1) return {id:[...sg][0], candidates:[]};
+    const ss = bySur.get(keySurname(label));
+    if(ss?.size===1) return {id:[...ss][0], candidates:[]};
+    const cands = [...(sg||[]), ...(ss||[])];
+    return {id:null, candidates:[...new Set(cands)]};
+  };
+  const tryResolve = label => !!resolve(label).id;
+  const resolveIds = new Set(toResolve.map(s=>s.id));
+  g.pending = g.pending.filter(p=>!resolveIds.has(p.by));
+  let unresolved = 0;
+  for(const s of toResolve){
+    if(m.likes>=0) s.likes = [];
+    if(m.dislikes>=0) s.dislikes = [];
+    for(const raw of splitCellNames(s._likesCell, tryResolve)){
+      const r = resolve(raw);
+      if(r.id && r.id!==s.id){ if(!s.likes.includes(r.id)) s.likes.push(r.id); }
+      else if(!r.id){ g.pending.push({by:s.id, field:'likes', raw, candidates:r.candidates}); unresolved++; }
+    }
+    for(const raw of splitCellNames(s._dislikesCell, tryResolve)){
+      const r = resolve(raw);
+      if(r.id && r.id!==s.id){ if(!s.dislikes.includes(r.id)) s.dislikes.push(r.id); }
+      else if(!r.id){ g.pending.push({by:s.id, field:'dislikes', raw, candidates:r.candidates}); unresolved++; }
+    }
+    delete s._likesCell; delete s._dislikesCell;
+  }
+  students.sort((a,b)=>a.name.localeCompare(b.name,'eu'));
+  g.students = students;
+  closeModal(); refreshAll();
+  const bits = [];
+  if(added) bits.push(`${added} ikasle berri`);
+  if(updated) bits.push(`${updated} eguneratuta`);
+  toast(`✅ ${bits.join(' · ') || 'Kargatuta'}` + (unresolved ? ` · ⚠️ ${unresolved} izen argitzeke` : ''));
+}
+
+/* ---------- Gida: zerrenda kopiatu + paperezko galdetegia ---------- */
+$('#copyListBtn').addEventListener('click', async ()=>{
+  const names = G().students.map(s=>s.name);
+  if(!names.length){ toast('Lehenik kargatu ikasleen zerrenda.'); return; }
+  const txt = names.join('\n');
+  try{
+    await navigator.clipboard.writeText(txt);
+    toast(`📋 ${names.length} izen kopiatuta — itsatsi Forms-eko lehen aukeran.`);
+  }catch(e){
+    openModal(`<h3>📋 Ikasleen zerrenda</h3>
+      <p class="desc">Kopiatu eskuz (Ctrl+C) eta itsatsi Google Forms-eko lehen aukeran:</p>
+      <textarea id="pasteArea" readonly style="width:100%; min-height:220px">${esc(txt)}</textarea>
+      <div class="foot"><button class="btn" onclick="closeModal()">Itxi</button></div>`);
+    $('#pasteArea').select();
+  }
+});
+
+$('#paperBtn').addEventListener('click', ()=>{
+  const g = G();
+  if(!g.students.length){ toast('Lehenik kargatu ikasleen zerrenda.'); return; }
+  const rows = g.students.map((s,i)=>
+    `<tr><td class="n">${i+1}</td><td>${esc(s.name)}</td><td class="c"></td><td class="c"></td><td class="c"></td></tr>`).join('');
+  const sheet = $('#paperSheet');
+  sheet.className = g.students.length>30 ? 'compact' : '';
+  sheet.innerHTML = `
+    <h1>🪑 Norekin eseri? — ${esc(g.name)}</h1>
+    <div class="sub">Ez idatzi izenik inon. Markatu laukiak bakarrik.</div>
+    <div class="box"><b>Jarraibideak:</b>
+      ① Bilatu <b>zure izena</b> zerrendan eta markatu <b>X</b> bat "NI NAIZ" zutabean. &nbsp;
+      ② Markatu <b>✓</b> gustura ondoan izango zenituzkeen <b>3 ikasle gehienez</b>. &nbsp;
+      ③ Nahi baduzu, markatu <b>✗</b> ondoan eseri nahi EZ zenituzkeen <b>2 gehienez</b>.
+    </div>
+    <table>
+      <tr><th></th><th>Ikaslea</th><th class="c">NI NAIZ (X)</th><th class="c">GUSTURA ✓ (max 3)</th><th class="c">EZ ✗ (max 2)</th></tr>
+      ${rows}
+    </table>`;
+  document.body.classList.add('print-paper');
+  window.print();
+});
+window.addEventListener('afterprint', ()=>document.body.classList.remove('print-paper'));
+
+/* ---------- Kiosko modua: gelan bertan bildu, gailua txandaka ---------- */
+const KIOSK_MAX_BAI = 3, KIOSK_MAX_EZ = 2;
+let kioskDone = new Set();
+
+$('#kioskBtn').addEventListener('click', ()=>{
+  if(G().students.length < 2){ toast('Lehenik kargatu ikasleen zerrenda.'); return; }
+  kioskDone = new Set();
+  $('#kiosk').style.display = 'block';
+  kioskNameScreen();
+});
+$('#kioskExit').addEventListener('click', ()=>{
+  if(!confirm('Bilketa amaitu eta aplikaziora itzuli?')) return;
+  $('#kiosk').style.display = 'none';
+  refreshAll();
+  toast(`✅ ${kioskDone.size} erantzun jasota.`);
+});
+
+function kioskNameScreen(){
+  $('#kioskTitle').innerHTML = 'Nor zara? — aukeratu zure izena';
+  $('#kioskBody').innerHTML = `<div class="kioskGrid">` +
+    G().students.map(s=>{
+      const done = kioskDone.has(s.id);
+      return `<button class="kName ${done?'done':''}" data-k="${s.id}" ${done?'disabled':''}>${esc(s.name)}${done?' ✓':''}</button>`;
+    }).join('') + `</div>
+    <p style="text-align:center; color:var(--muted); font-size:13.5px; margin-top:20px">
+      🔒 Zure erantzunak ez ditu beste ikasleek ikusiko. Erantzun ondoren, pasa gailua hurrengoari.
+    </p>`;
+  $('#kioskBody').querySelectorAll('[data-k]').forEach(b=>
+    b.addEventListener('click', ()=>kioskAnswerScreen(b.dataset.k)));
+}
+
+function kioskAnswerScreen(id){
+  const me = G().students.find(s=>s.id===id);
+  if(!me) return;
+  const others = G().students.filter(s=>s.id!==id);
+  const likes = new Set(), dislikes = new Set();
+  $('#kioskTitle').innerHTML = `Kaixo, <b>${esc(me.name)}</b>!`;
+  const chips = (mode) => others.map(o=>`<button data-pick="${o.id}" data-mode="${mode}">${esc(o.name)}</button>`).join('');
+  $('#kioskBody').innerHTML = `
+    <div class="kioskCard">
+      <h3 style="margin:0 0 4px; color:#1d5c3e">💚 Norekin egongo zinateke gustura eserita? <span style="font-size:13px; color:var(--muted); font-weight:600">(gehienez ${KIOSK_MAX_BAI})</span></h3>
+      <div class="chipPick" id="kPickG">${chips('g')}</div>
+      <h3 style="margin:14px 0 4px; color:#8e3030">⛔ Norekin ez zenuke eseri nahi? <span style="font-size:13px; color:var(--muted); font-weight:600">(gehienez ${KIOSK_MAX_EZ} — aukerakoa)</span></h3>
+      <div class="chipPick" id="kPickR">${chips('r')}</div>
+      <div class="foot">
+        <button class="btn gray" id="kBack">← Atzera</button>
+        <button class="btn green big" id="kSave">💾 Gorde eta pasa hurrengoari</button>
+      </div>
+    </div>`;
+  const refreshChips = ()=>{
+    $('#kioskBody').querySelectorAll('[data-pick]').forEach(b=>{
+      const oid = b.dataset.pick, mode = b.dataset.mode;
+      const mySet = mode==='g' ? likes : dislikes;
+      const max = mode==='g' ? KIOSK_MAX_BAI : KIOSK_MAX_EZ;
+      b.classList.toggle('on-'+mode, mySet.has(oid));
+      b.classList.toggle('maxed', !mySet.has(oid) && mySet.size>=max);
+    });
+  };
+  $('#kioskBody').querySelectorAll('[data-pick]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const oid = b.dataset.pick, mode = b.dataset.mode;
+      const mySet = mode==='g' ? likes : dislikes;
+      const otherSet = mode==='g' ? dislikes : likes;
+      const max = mode==='g' ? KIOSK_MAX_BAI : KIOSK_MAX_EZ;
+      if(mySet.has(oid)) mySet.delete(oid);
+      else if(mySet.size < max){ mySet.add(oid); otherSet.delete(oid); }
+      refreshChips();
+    });
+  });
+  $('#kBack').addEventListener('click', kioskNameScreen);
+  $('#kSave').addEventListener('click', ()=>{
+    me.likes = [...likes]; me.dislikes = [...dislikes];
+    kioskDone.add(id);
+    save();
+    const giv = me.name.includes(',') ? me.name.split(',')[1].trim() : me.name;
+    $('#kioskTitle').textContent = '';
+    $('#kioskBody').innerHTML = `<div class="kioskThanks">✅ Eskerrik asko, ${esc(giv)}!<br>Pasa gailua hurrengoari.</div>`;
+    setTimeout(kioskNameScreen, 1700);
+  });
+}
+
+/* ---------- Demo ---------- */
+$('#demoBtn').addEventListener('click', ()=>{
+  const grp = newGroup('Adibidea (demo)');
+  state.groups.push(grp); state.activeId = grp.id;
+  const names = ['Agirre, June','Aldai, Markel','Arruti, Nahia','Bengoetxea, Oier','Etxeberria, Ane','Garmendia, Unax','Goikoetxea, Irati','Ibarra, Aimar','Lasa, Maddi','Lopez, Danel','Mendizabal, Uxue','Otaegi, Eneko','Perez, Naroa','Sagastume, Ibai','Urkiola, Alaitz','Zabala, Telmo','Zubeldia, Lore','Etxarri, Peru'];
+  const stus = names.map(n=>({id:uid(), name:n, likes:[], dislikes:[], front:false}));
+  const id = i => stus[i].id;
+  const L = (a,...bs)=>{ for(const b of bs) stus[a].likes.push(id(b)); };
+  const D = (a,...bs)=>{ for(const b of bs) stus[a].dislikes.push(id(b)); };
+  L(0,8,4); L(8,0); L(4,6); L(6,10); L(2,14); L(14,2,16); L(1,3,11); L(11,5);
+  L(7,13); L(13,7,15); L(9,17); L(12,10); L(16,2); L(5,1);
+  D(0,9); D(9,0,3); D(3,7); D(10,15); D(15,12); D(6,17); D(17,11);
+  stus[4].front = true; stus[13].front = true;
+  grp.students = stus.sort((a,b)=>a.name.localeCompare(b.name,'eu'));
+  refreshAll(); renderGroupSelect();
+  toast('🎲 Adibide-taldea sortuta · joan "2 · Gelako mapa" fitxara eta sakatu ✨');
+});
+
+/* ---------- Taldeak ---------- */
+function renderGroupSelect(){
+  $('#groupSel').innerHTML = state.groups.map(g=>
+    `<option value="${g.id}" ${g.id===state.activeId?'selected':''}>${esc(g.name)}</option>`).join('');
+}
+$('#groupSel').addEventListener('change', e=>{
+  state.activeId = e.target.value;
+  refreshAll();
+});
+$('#newGroupBtn').addEventListener('click', ()=>{
+  const name = prompt('Talde berriaren izena:', 'Talde berria');
+  if(!name) return;
+  const g = newGroup(name.trim());
+  state.groups.push(g); state.activeId = g.id;
+  renderGroupSelect(); refreshAll();
+});
+$('#renameGroupBtn').addEventListener('click', ()=>{
+  const name = prompt('Taldearen izen berria:', G().name);
+  if(!name) return;
+  G().name = name.trim(); renderGroupSelect(); refreshAll();
+});
+$('#delGroupBtn').addEventListener('click', ()=>{
+  if(state.groups.length===1){ toast('Gutxienez talde bat behar da.'); return; }
+  if(!confirm(`"${G().name}" taldea eta bere datu guztiak ezabatu?`)) return;
+  state.groups = state.groups.filter(g=>g.id!==state.activeId);
+  state.activeId = state.groups[0].id;
+  renderGroupSelect(); refreshAll();
+});
+
+/* ---------- JSON gorde / berreskuratu ---------- */
+$('#exportBtn').addEventListener('click', ()=>{
+  const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'gelalekuak_datuak.json';
+  a.click(); URL.revokeObjectURL(a.href);
+  toast('⬇️ Datu guztiak gordeta fitxategian.');
+});
+$('#importJsonInput').addEventListener('change', e=>{
+  const f = e.target.files?.[0]; if(!f) return;
+  const reader = new FileReader();
+  reader.onload = ev=>{
+    try{
+      const st = JSON.parse(ev.target.result);
+      if(!st.groups?.length) throw new Error('formatua');
+      for(const g of st.groups){
+        g.id = uid(); // talkarik ez
+        if(!('rowSeats' in g)) g.rowSeats = null;
+        if(!('groupSize' in g)) g.groupSize = 0;
+        state.groups.push(g);
+      }
+      state.activeId = state.groups[state.groups.length-1].id;
+      renderGroupSelect(); refreshAll();
+      toast(`✅ ${st.groups.length} talde berreskuratuta.`);
+    }catch(err){ toast('❌ Fitxategi baliogabea.'); }
+  };
+  reader.readAsText(f);
+  e.target.value='';
+});
+
+/* ---------- Fitxak eta hasieratzea ---------- */
+function showTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  $('#tab-'+name).classList.add('active');
+  $('#view-'+name).classList.add('active');
+}
+$('#layoutBtn').addEventListener('click', openLayoutModal);
+function openLayoutModal(){
+  const g = G();
+  let rs = [...rowSeatsOf(g)];
+  let gs = g.groupSize || 0;
+  const n = g.students.length;
+  openModal(`<div id="layoutWrap">
+    <h3>🪑 Gelaren egitura</h3>
+    <p class="desc">Zehaztu zenbat errenkada eta zenbat mahai errenkada bakoitzean — zure gela errealaren arabera. 1. errenkada arbelatik gertuen dagoena da.</p>
+    <div class="mapRow"><label>Mahaien taldekatzea:</label>
+      <label><input type="radio" name="lgs" value="0" ${gs===0?'checked':''}> Jarraian</label>
+      <label><input type="radio" name="lgs" value="2" ${gs===2?'checked':''}> Binaka</label>
+      <label><input type="radio" name="lgs" value="3" ${gs===3?'checked':''}> Hirunaka</label>
+    </div>
+    <div class="mapRow"><label>Errenkada kopurua:</label>
+      <button class="stepBtn" id="rowMinus">−</button>
+      <span class="seatCount" id="rowCount">${rs.length}</span>
+      <button class="stepBtn" id="rowPlus">+</button>
+    </div>
+    <div id="rowList"></div>
+    <div class="miniPrev" id="miniPrev"></div>
+    <div class="seatTally" id="seatTally"></div>
+    <div class="foot">
+      <button class="btn gray" onclick="closeModal()">Utzi</button>
+      <button class="btn green" id="layoutSave">💾 Aplikatu</button>
+    </div>
+  </div>`);
+  const redraw = ()=>{
+    $('#rowCount').textContent = rs.length;
+    $('#rowList').innerHTML = rs.map((len,i)=>`
+      <div class="layoutRow">
+        <span class="rlabel">${i+1}. errenkada ${i===0?'🧑‍🏫':''}</span>
+        <button class="stepBtn" data-rm="${i}">−</button>
+        <span class="seatCount">${len}</span>
+        <button class="stepBtn" data-rp="${i}">+</button>
+      </div>`).join('');
+    $('#miniPrev').innerHTML = rs.map(len=>{
+      let cells='';
+      for(let c=0;c<len;c++){
+        if(gs>0 && c>0 && c%gs===0) cells += '<div class="ma"></div>';
+        cells += '<div class="ms"></div>';
+      }
+      return `<div class="mr">${cells}</div>`;
+    }).join('');
+    const total = rs.reduce((a,b)=>a+b,0);
+    const t = $('#seatTally');
+    if(total >= n){
+      t.className='seatTally ok';
+      t.textContent = `✅ ${total} eserleku · ${n} ikasle` + (total>n ? ` (${total-n} hutsik geldituko dira)` : '');
+      $('#layoutSave').disabled = false;
+    } else {
+      t.className='seatTally ko';
+      t.textContent = `⚠️ ${total} eserleku bakarrik, eta ${n} ikasle — ${n-total} falta dira`;
+      $('#layoutSave').disabled = true;
+    }
+  };
+  $('#layoutWrap').addEventListener('click', e=>{
+    const rm = e.target.closest('[data-rm]'), rp = e.target.closest('[data-rp]');
+    if(e.target.id==='rowMinus'){ if(rs.length>1) rs.pop(); else return; }
+    else if(e.target.id==='rowPlus'){ if(rs.length<10) rs.push(rs[rs.length-1]||4); else return; }
+    else if(rm){ if(rs[+rm.dataset.rm]>1) rs[+rm.dataset.rm]--; else return; }
+    else if(rp){ if(rs[+rp.dataset.rp]<12) rs[+rp.dataset.rp]++; else return; }
+    else return;
+    redraw();
+  });
+  document.querySelectorAll('input[name=lgs]').forEach(r=>r.addEventListener('change', ()=>{
+    gs = +document.querySelector('input[name=lgs]:checked').value;
+    redraw();
+  }));
+  $('#layoutSave').addEventListener('click', ()=>{
+    pushHistory();
+    g.rowSeats = rs; g.groupSize = gs;
+    closeModal();
+    ensureSeating(g); renderSeating(); save();
+    toast('Gelaren egitura aplikatuta ✓ — sakatu ✨ berriro optimizatzeko.');
+  });
+  redraw();
+}
+$('#generateBtn').addEventListener('click', optimize);
+$('#undoBtn').addEventListener('click', undo);
+$('#printBtn').addEventListener('click', ()=>window.print());
+
+function refreshAll(){
+  buildRel();
+  ensureSeating();
+  renderStudents();
+  renderWarnings();
+  renderSeating();
+  renderGroupSelect();
+  save();
+  const h = histories[G().id];
+  $('#undoBtn').disabled = !(h && h.length);
+}
+refreshAll();
+</script>
+</body>
+</html>
