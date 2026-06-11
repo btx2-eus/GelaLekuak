@@ -26,7 +26,7 @@ body{
   font-family:system-ui,-apple-system,"Segoe UI",Roboto,Ubuntu,sans-serif;
   margin:0; background:var(--bg); color:var(--ink);
 }
-h1,h2,h3,.btn,.tab,label.filebtn,.iconbtn,.arbela,.kName{
+h1,h2,h3,.btn,.tab,label.filebtn,.iconbtn,.arbela{
   font-family:'Poppins',system-ui,sans-serif; letter-spacing:.2px;
 }
 header.app{
@@ -248,37 +248,7 @@ body.dragging .seat.glow-g, body.dragging .seat.glow-r, body.dragging .seat.drag
   background:var(--red-soft); border-left:4px solid var(--red); border-radius:8px;
   padding:10px 12px; font-size:13px; margin-bottom:12px;
 }
-.guideStar{
-  background:var(--green-soft); border:2px solid var(--green); border-radius:12px;
-  padding:12px 14px; margin-bottom:14px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;
-  font-size:13.5px; line-height:1.45;
-}
-
-/* Kiosko modua (gelan bertan bildu) */
-#kiosk{position:fixed; inset:0; background:var(--bg); z-index:300; overflow:auto; padding:18px; display:none}
-.kioskTop{
-  display:flex; justify-content:space-between; align-items:center; gap:12px;
-  max-width:900px; margin:0 auto 16px; flex-wrap:wrap;
-}
-.kioskTop .kTitle{font-size:20px; font-weight:700; font-family:'Poppins',system-ui,sans-serif}
-#kioskBody{max-width:900px; margin:0 auto}
-.kioskGrid{display:flex; flex-wrap:wrap; gap:10px; justify-content:center}
-.kName{
-  padding:14px 20px; border-radius:12px; border:2px solid var(--line); background:var(--paper);
-  font-size:16px; font-weight:700; cursor:pointer; transition:border-color .12s, transform .12s;
-}
-.kName:hover:not(:disabled){border-color:var(--primary); transform:translateY(-2px)}
-.kName.done{opacity:.4; border-color:var(--green); cursor:default}
-.kioskCard{
-  background:var(--card); border-radius:16px; padding:22px;
-  box-shadow:0 4px 20px rgba(21,19,17,.12);
-}
-.kioskCard .chipPick button{font-size:15px; padding:10px 16px}
-.kioskCard .chipPick button.maxed{opacity:.35; cursor:not-allowed}
-.kioskThanks{
-  text-align:center; font-size:26px; font-weight:800; padding:70px 0;
-  font-family:'Poppins',system-ui,sans-serif;
-}
+.guideStep a{color:var(--primary); font-weight:700}
 
 /* Modalak */
 .overlay{
@@ -315,19 +285,6 @@ textarea#pasteArea{width:100%; min-height:180px; font-family:ui-monospace,monosp
 }
 #toast.show{transform:translateX(-50%) translateY(0)}
 
-/* Paperezko galdetegia */
-#paperSheet{display:none}
-#paperSheet h1{font-size:17px; margin:0 0 2px}
-#paperSheet .sub{font-size:11.5px; color:#555; margin-bottom:10px}
-#paperSheet .box{border:1.5px solid #999; border-radius:6px; padding:8px 10px; font-size:11.5px; margin-bottom:10px; background:#f7f7f7}
-#paperSheet table{width:100%; border-collapse:collapse; font-size:12px}
-#paperSheet th,#paperSheet td{border:1px solid #bbb; padding:4px 8px; text-align:left}
-#paperSheet th{background:#eee; font-size:11px}
-#paperSheet td.n{width:24px; text-align:right; color:#888}
-#paperSheet th.c,#paperSheet td.c{width:84px; text-align:center}
-#paperSheet.compact table{font-size:10.5px}
-#paperSheet.compact th,#paperSheet.compact td{padding:2px 6px}
-
 /* Inprimatzea */
 #printHeader{display:none}
 @media print{
@@ -337,8 +294,6 @@ textarea#pasteArea{width:100%; min-height:180px; font-family:ui-monospace,monosp
   section.view{box-shadow:none; padding:0}
   #view-datuak{display:none!important}
   #view-gela{display:block!important}
-  body.print-paper #view-gela{display:none!important}
-  body.print-paper #paperSheet{display:block!important}
   #printHeader{display:block; margin-bottom:14px}
   #printHeader h2{margin:0; font-size:20px}
   #printHeader .d{color:#555; font-size:13px}
@@ -384,8 +339,8 @@ textarea#pasteArea{width:100%; min-height:180px; font-family:ui-monospace,monosp
   <div class="cards">
 
     <div class="card">
-      <h2>📥 Datuak kargatu</h2>
-      <p class="desc">Hiru modu dituzu — aukeratu erosoena. Kargatu ondoren, zutabeak zeintzuk diren berretsiko duzu (ez da formatu zehatzik behar).</p>
+      <h2>📥 1 · Ikasleen zerrenda kargatu</h2>
+      <p class="desc">Lehen pausoa: kargatu ikasleen izenak (nahirik gabe nahikoa da). Gero, Google Forms galdetegiaren erantzunek beteko dituzte nahiak (2. txartela).</p>
       <div class="importgrid">
         <div class="step">
           <b class="num">A</b>
@@ -428,29 +383,28 @@ textarea#pasteArea{width:100%; min-height:180px; font-family:ui-monospace,monosp
     </div>
 
     <div class="card" id="guideCard">
-      <h2>🗳️ Nola bildu ikasleen nahiak</h2>
+      <h2>🗳️ 2 · Google Forms galdetegia: sortu → esportatu → igo</h2>
       <div class="guideNote">
-        <b>Arau nagusia:</b> ikasleek <b>inoiz ez</b> dute izenik eskuz idatzi behar ("Inhar" / "Inar" arazoa). Beti <b>zerrenda itxi batetik aukeratu</b> behar dute.
+        <b>Arau nagusia:</b> ikasleek <b>inoiz ez</b> dute izenik eskuz idazten ("Inhar" / "Inar" arazoa). Galdera guztiak zerrenda itxiekin sortzen dira — horregatik kargatu behar da lehenik ikasleen zerrenda (1. txartela).
       </div>
-      <div class="guideStar">
-        <div style="flex:1"><b>⭐ Errazena: bildu gelan bertan, gailu honekin.</b><br>
-        Pasatu tableta/ordenagailua ikaslez ikasle tutoretza-saioan: bakoitzak bere izena aukeratu, nahiak markatu (zerrenda itxia) eta hurrengoari pasatzen dio. Inportaziorik ez, akatsik ez, daturik ez da gailutik ateratzen.</div>
-        <button class="btn green big" id="kioskBtn">🧑‍🎓 Hasi bilketa</button>
-      </div>
-      <div style="font-size:13px; color:var(--muted); margin-bottom:10px"><b>Bestela, urrutitik bildu nahi baduzu:</b></div>
-      <div class="guideStep"><b class="num">1</b><div><b>Kargatu lehenik zerrenda ofiziala</b> (izenak bakarrik, nahirik gabe) — goiko A/B/C aukerak edo eskuz.</div></div>
-      <div class="guideStep"><b class="num">2</b><div><b>Sortu Google Forms bat</b> 3 galderarekin, aukerak = ikasleen zerrenda zehatza:
+      <div class="guideStep"><b class="num">1</b><div><b>Sortu galdetegia</b> — <a href="https://forms.google.com" target="_blank" rel="noopener">forms.google.com</a> → <i>Hutsik</i>. Hiru galdera, hauek bezala:
         <ul style="margin:6px 0 6px 16px; padding:0; font-size:13px">
-          <li><b>«Nor zara?»</b> — Goitibeherakoa (dropdown), <i>derrigorrezkoa</i>.</li>
-          <li><b>«Norekin egongo zinateke gustura?»</b> — Kontrol-laukiak. Gomendioa: gehienez 3.</li>
-          <li><b>«Norekin ez zenuke eseri nahi?»</b> — Kontrol-laukiak. Gomendioa: gehienez 2. <i>Aukerakoa.</i></li>
+          <li><b>«Nor zara?»</b> — mota: <i>Goitibeherakoa</i> · <i>Derrigorrezkoa</i> ✓<br>
+            Aukerak jartzeko: sakatu behean <b>Kopiatu zerrenda</b>, eta Forms-en <b>itsatsi lehen aukeraren gainean</b> — lerro bakoitza aukera bihurtuko da automatikoki.</li>
+          <li><b>«Norekin egongo zinateke gustura eserita?»</b> — mota: <i>Kontrol-laukiak</i> · aukera berberak (itsatsi berriro) · ⋮ menuan: <i>Erantzunak balioztatzea → Hautatu gehienez → 3</i></li>
+          <li><b>«Norekin ez zenuke eseri nahi?»</b> — <i>Kontrol-laukiak</i> · balioztatzea: gehienez 2 · derrigorrezkoa EZ markatu</li>
         </ul>
-        Truko bat: Forms-en, lehen aukeraren gainean <b>itsatsi zerrenda osoa</b> eta lerro bakoitza aukera bihurtuko da automatikoki. ⤵
-        <div style="margin-top:8px"><button class="btn" id="copyListBtn">📋 Kopiatu ikasleen zerrenda</button></div>
+        <button class="btn" id="copyListBtn">📋 Kopiatu zerrenda</button>
       </div></div>
-      <div class="guideStep"><b class="num">3</b><div><b>Erantzunak ekarri hona:</b> Forms → Erantzunak → ireki Sheets-en → kopiatu dena → hemen <b>«Itsatsi datuak»</b> (aukeratu <i>Gehitu / eguneratu</i>). Izenak zerrenda itxikoak direnez, dena automatikoki lotuko da.</div></div>
-      <div class="guideStep"><b class="num">4</b><div><b>Paperean nahiago?</b> Inprimatu galdetegi-orria (zerrenda itxia markatzeko), fotokopiatu, eta gero sartu erantzunak ikasle bakoitzaren ✏️ fitxan klik eginez — hor ere ez da izenik idazten.
-        <div style="margin-top:8px"><button class="btn outline" id="paperBtn">🖨️ Paperezko galdetegia</button></div>
+      <div class="guideStep"><b class="num">2</b><div><b>Bidali ikasleei</b> (Classroom edo posta bidez). Ezarpenetan, aktibatu <i>«Mugatu erantzun 1era»</i>, ikasle bakoitzak behin bakarrik erantzun dezan.</div></div>
+      <div class="guideStep"><b class="num">3</b><div><b>Esportatu eta igo hona:</b><br>
+        Forms-en: <i>Erantzunak</i> fitxa → Sheets ikono berdea (<i>Ikusi Kalkulu-orrietan</i>) → <i>Fitxategia → Deskargatu → Microsoft Excel (.xlsx)</i> → sakatu behean <b>Igo erantzunak</b>.<br>
+        <span style="font-size:12.5px; color:var(--muted)">Bizkorrago: Sheets-en dena hautatu (Ctrl+A / ⌘A), kopiatu, eta hemen <b>Itsatsi erantzunak</b>.</span><br>
+        Igotzean aukeratu <b>«Gehitu / nahiak eguneratu»</b> — izenak zerrenda itxikoak direnez, automatikoki lotuko dira.
+        <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap">
+          <button class="btn green" id="uploadRespBtn">📂 Igo erantzunak (.xlsx)</button>
+          <button class="btn outline" id="pasteRespBtn">📋 Itsatsi erantzunak</button>
+        </div>
       </div></div>
     </div>
 
@@ -492,16 +446,6 @@ textarea#pasteArea{width:100%; min-height:180px; font-family:ui-monospace,monosp
 </main>
 
 <!-- ===================== MODALAK ===================== -->
-<div id="kiosk">
-  <div class="kioskTop">
-    <span class="kTitle" id="kioskTitle"></span>
-    <button class="btn gray" id="kioskExit">🚪 Bilketa amaitu</button>
-  </div>
-  <div id="kioskBody"></div>
-</div>
-
-<div id="paperSheet"></div>
-
 <div class="overlay" id="overlay">
   <div class="modal" id="modalBox"></div>
 </div>
@@ -613,16 +557,62 @@ function pairScore(a,b,mult){
   if(c==='green') return 3*mult;
   return 0;
 }
+const DIAG = 0.4; // diagonalen pisua (berdea +1.2, gorria -2)
+const frontBonus = (id,r)=>{ const st = rel.get(id); return st?.front ? (r===0 ? 6 : -5*r) : 0; };
+
 function evalGrid(grid){
   let sc = 0;
-  for(let r=0;r<grid.length;r++)for(let c=0;c<grid[r].length;c++){
-    const id = grid[r][c]; if(!id) continue;
-    if(c < grid[r].length-1 && grid[r][c+1] && hAdjC(c)) sc += pairScore(id, grid[r][c+1], 2);
-    if(r < grid.length-1 && grid[r+1]?.[c]) sc += pairScore(id, grid[r+1][c], 1);
-    const st = rel.get(id);
-    if(st?.front) sc += (r===0 ? 6 : -5*r);
+  for(let r=0;r<grid.length;r++){
+    const row = grid[r], below = grid[r+1];
+    for(let c=0;c<row.length;c++){
+      const id = row[c]; if(!id) continue;
+      if(c < row.length-1 && row[c+1] && hAdjC(c)) sc += pairScore(id, row[c+1], 2);
+      if(below){
+        if(c < below.length && below[c]) sc += pairScore(id, below[c], 1);
+        if(c > 0 && c-1 < below.length && below[c-1] && hAdjC(c-1)) sc += pairScore(id, below[c-1], DIAG);
+        if(c+1 < below.length && below[c+1] && hAdjC(c)) sc += pairScore(id, below[c+1], DIAG);
+      }
+      sc += frontBonus(id, r);
+    }
   }
   return sc;
+}
+
+/* (r,c)-ren bizilagun guztiak pisuekin: albokoak ×2, aurre/atzekoak ×1, diagonalak ×DIAG */
+function neighborsOf(grid, r, c){
+  const out = [], row = grid[r];
+  if(c > 0 && hAdjC(c-1)) out.push([r, c-1, 2]);
+  if(c < row.length-1 && hAdjC(c)) out.push([r, c+1, 2]);
+  for(const r2 of [r-1, r+1]){
+    const rw = grid[r2]; if(!rw) continue;
+    if(c < rw.length) out.push([r2, c, 1]);
+    if(c > 0 && c-1 < rw.length && hAdjC(c-1)) out.push([r2, c-1, DIAG]);
+    if(c+1 < rw.length && hAdjC(c)) out.push([r2, c+1, DIAG]);
+  }
+  return out;
+}
+
+/* Gelaxka jakin batzuen inguruko puntuazio lokala (bikote errepikatuak behin bakarrik) */
+function scoreAround(grid, cells){
+  let sc = 0; const seen = new Set();
+  for(const [r,c] of cells){
+    for(const [r2,c2,w] of neighborsOf(grid, r, c)){
+      const key = (r < r2 || (r === r2 && c < c2)) ? r+','+c+'|'+r2+','+c2 : r2+','+c2+'|'+r+','+c;
+      if(seen.has(key)) continue; seen.add(key);
+      const a = grid[r][c], b = grid[r2][c2];
+      if(a && b) sc += pairScore(a, b, w);
+    }
+    const id = grid[r][c]; if(id) sc += frontBonus(id, r);
+  }
+  return sc;
+}
+
+/* Trukea EGINDA uzten du; delta itzultzen du — hobekuntzarik ez badago, deitzaileak desegin behar du */
+function trySwapDelta(grid, r1, c1, r2, c2){
+  const cells = [[r1,c1],[r2,c2]];
+  const before = scoreAround(grid, cells);
+  const t = grid[r1][c1]; grid[r1][c1] = grid[r2][c2]; grid[r2][c2] = t;
+  return scoreAround(grid, cells) - before;
 }
 
 /* ---------- Eserlekuen egitura ---------- */
@@ -680,12 +670,11 @@ function optimize(){
     buildRel();
     ensureSeating(g);
     pushHistory();
-    const n = g.students.length;
     const rs = rowSeatsOf(g);
     const nRows = rs.length;
     const lockedSet = new Set(g.locked);
-    const attempts = n<=10 ? 900 : n<=20 ? 450 : n<=30 ? 200 : 90;
-    let best = null, bestScore = -Infinity;
+    const TIME_MS = 1300; // saiakera kopuru finkoaren ordez, denbora-aurrekontua
+    let best = null, bestScore = -Infinity, tried = 0;
 
     const lockedPos = []; // [r,c,id] gaur egungo posizioetan
     for(let r=0;r<nRows;r++)for(let c=0;c<rs[r];c++){
@@ -695,15 +684,18 @@ function optimize(){
     const lockedIds = new Set(lockedPos.map(p=>p[2]));
     const freeIds = g.students.map(s=>s.id).filter(id=>!lockedIds.has(id));
 
-    for(let t=0;t<attempts;t++){
+    const baseGrid = ()=>{
       const grid = rs.map(len => Array(len).fill(null));
       for(const [r,c,id] of lockedPos) grid[r][c] = id;
-      const shuffled = [...freeIds].sort(()=>Math.random()-0.5);
+      return grid;
+    };
+    const fillWith = (grid, ids)=>{
       let k=0;
       for(let r=0;r<nRows;r++)for(let c=0;c<rs[r];c++)
-        if(!grid[r][c] && k<shuffled.length) grid[r][c] = shuffled[k++];
-
-      let sc = evalGrid(grid), improved = true;
+        if(!grid[r][c] && k<ids.length) grid[r][c] = ids[k++];
+    };
+    const hillClimb = grid=>{
+      let improved = true;
       while(improved){
         improved = false;
         for(let r1=0;r1<nRows;r1++)for(let c1=0;c1<rs[r1];c1++){
@@ -711,19 +703,38 @@ function optimize(){
           for(let r2=r1;r2<nRows;r2++)for(let c2=(r2===r1?c1+1:0);c2<rs[r2];c2++){
             if(grid[r2][c2] && lockedSet.has(grid[r2][c2])) continue;
             if(!grid[r1][c1] && !grid[r2][c2]) continue;
-            const t1=grid[r1][c1]; grid[r1][c1]=grid[r2][c2]; grid[r2][c2]=t1;
-            const sc2 = evalGrid(grid);
-            if(sc2 > sc){ sc = sc2; improved = true; }
-            else { const t2=grid[r1][c1]; grid[r1][c1]=grid[r2][c2]; grid[r2][c2]=t2; }
+            const d = trySwapDelta(grid, r1, c1, r2, c2);
+            if(d > 1e-9) improved = true;
+            else { const t=grid[r1][c1]; grid[r1][c1]=grid[r2][c2]; grid[r2][c2]=t; }
           }
         }
       }
+      return evalGrid(grid);
+    };
+
+    const tEnd = performance.now() + TIME_MS;
+    do{
+      const grid = baseGrid();
+      if(tried === 0){
+        // 1. saiakera: oraingo antolaketatik abiatu — emaitza inoiz ez da oraingoa baino okerragoa
+        const placed = new Set(lockedIds);
+        for(let r=0;r<nRows;r++)for(let c=0;c<rs[r];c++){
+          const id = g.seating[r]?.[c];
+          if(id && !placed.has(id) && !grid[r][c]){ grid[r][c] = id; placed.add(id); }
+        }
+        fillWith(grid, freeIds.filter(id=>!placed.has(id)));
+      } else {
+        fillWith(grid, [...freeIds].sort(()=>Math.random()-0.5));
+      }
+      const sc = hillClimb(grid);
       if(sc > bestScore){ bestScore = sc; best = grid; }
-    }
+      tried++;
+    }while(performance.now() < tEnd);
+
     g.seating = best;
     renderSeating(); save();
     btn.disabled = false; $('#genTxt').textContent = 'Antolaketa optimoa sortu';
-    toast('Antolaketa berria sortuta ✨ (puntuazioa: ' + bestScore + ')');
+    toast(`Antolaketa berria sortuta ✨ (${tried} saiakera, ${Math.round(bestScore)} puntu)`);
   }, 30);
 }
 
@@ -739,9 +750,18 @@ function computeMetrics(){
     if(ra===rb && Math.abs(ca-cb)===1) return hAdjC(Math.min(ca,cb)); // pasabideak hausten du
     return ca===cb && Math.abs(ra-rb)===1;
   };
-  let likesTot=0, likesOk=0, conf=0, frontBad=0;
+  const diagAdj = (a,b)=>{
+    const pa=pos.get(a), pb=pos.get(b);
+    if(!pa || !pb) return false;
+    return Math.abs(pa[0]-pb[0])===1 && Math.abs(pa[1]-pb[1])===1 && hAdjC(Math.min(pa[1],pb[1]));
+  };
+  let likesTot=0, likesOk=0, likesNear=0, conf=0, frontBad=0;
   for(const s of g.students){
-    for(const t of s.likes) if(pos.has(t)){ likesTot++; if(adj(s.id,t)) likesOk++; }
+    for(const t of s.likes) if(pos.has(t)){
+      likesTot++;
+      if(adj(s.id,t)) likesOk++;
+      else if(diagAdj(s.id,t)) likesNear++;
+    }
     if(s.front){ const p=pos.get(s.id); if(p && p[0]!==0) frontBad++; }
   }
   grid.forEach((row,r)=>row.forEach((id,c)=>{
@@ -749,16 +769,17 @@ function computeMetrics(){
     if(c<row.length-1 && row[c+1] && hAdjC(c) && classify(id,row[c+1])==='red') conf++;
     if(r<grid.length-1 && grid[r+1]?.[c] && classify(id,grid[r+1][c])==='red') conf++;
   }));
-  return {likesTot, likesOk, conf, frontBad, score:evalGrid(grid)};
+  return {likesTot, likesOk, likesNear, conf, frontBad, score:evalGrid(grid)};
 }
 function renderMetrics(){
   const m = computeMetrics();
   const parts = [];
-  parts.push(`<div class="metric ${m.likesTot && m.likesOk===m.likesTot ? 'good':''}">💚 Nahiak beteta: ${m.likesOk}/${m.likesTot}</div>`);
+  const near = m.likesNear ? ` <span style="font-weight:600; font-size:12px">(+${m.likesNear} diagonalean)</span>` : '';
+  parts.push(`<div class="metric ${m.likesTot && m.likesOk===m.likesTot ? 'good':''}">💚 Nahiak beteta: ${m.likesOk}/${m.likesTot}${near}</div>`);
   parts.push(`<div class="metric ${m.conf ? 'bad':'good'}">${m.conf ? '🔴' : '✅'} Gatazkak ondoan: ${m.conf}</div>`);
   if(G().students.some(s=>s.front))
     parts.push(`<div class="metric ${m.frontBad ? 'bad':'good'}">📌 Lehen lerroa: ${m.frontBad ? m.frontBad+' gaizki' : 'denak ondo'}</div>`);
-  parts.push(`<div class="metric neutral">Σ ${m.score} puntu</div>`);
+  parts.push(`<div class="metric neutral">Σ ${Math.round(m.score)} puntu</div>`);
   $('#metrics').innerHTML = parts.join('');
 }
 
@@ -885,7 +906,7 @@ function startDrag(e){
     if(tgtId && lockedSet.has(tgtId)){ el.classList.add('hint-zero'); badge.textContent='🔒'; return; }
     const sim = G().seating.map(row=>[...row]);
     const tmp = sim[tr][tc]; sim[tr][tc]=sim[drag.r][drag.c]; sim[drag.r][drag.c]=tmp;
-    const diff = evalGrid(sim) - base;
+    const diff = Math.round((evalGrid(sim) - base) * 10) / 10;
     if(diff>0){ el.classList.add('hint-pos'); badge.textContent='+'+diff; }
     else if(diff<0){ el.classList.add('hint-neg'); badge.textContent=diff; }
     else { el.classList.add('hint-zero'); badge.textContent='0'; }
@@ -1097,7 +1118,7 @@ $('#fileInput').addEventListener('change', e=>{
   e.target.value = '';
 });
 
-$('#pasteBtn').addEventListener('click', ()=>{
+function openPasteModal(){
   openModal(`
     <h3>📋 Itsatsi datuak</h3>
     <p class="desc">Kopiatu gelaxkak Excel / Google Sheets / Forms-eko erantzunen orritik (goiburua barne, ahal bada) eta itsatsi hemen (Ctrl+V).</p>
@@ -1116,7 +1137,8 @@ $('#pasteBtn').addEventListener('click', ()=>{
     const grid = lines.map(l=>l.split(delim).map(c=>c.trim()));
     openMappingModal(grid);
   });
-});
+}
+$('#pasteBtn').addEventListener('click', ()=>openPasteModal());
 
 /* ---------- Zutabeen mapaketa-laguntzailea ---------- */
 function guessMapping(grid){
@@ -1312,110 +1334,8 @@ $('#copyListBtn').addEventListener('click', async ()=>{
   }
 });
 
-$('#paperBtn').addEventListener('click', ()=>{
-  const g = G();
-  if(!g.students.length){ toast('Lehenik kargatu ikasleen zerrenda.'); return; }
-  const rows = g.students.map((s,i)=>
-    `<tr><td class="n">${i+1}</td><td>${esc(s.name)}</td><td class="c"></td><td class="c"></td><td class="c"></td></tr>`).join('');
-  const sheet = $('#paperSheet');
-  sheet.className = g.students.length>30 ? 'compact' : '';
-  sheet.innerHTML = `
-    <h1>🪑 Norekin eseri? — ${esc(g.name)}</h1>
-    <div class="sub">Ez idatzi izenik inon. Markatu laukiak bakarrik.</div>
-    <div class="box"><b>Jarraibideak:</b>
-      ① Bilatu <b>zure izena</b> zerrendan eta markatu <b>X</b> bat "NI NAIZ" zutabean. &nbsp;
-      ② Markatu <b>✓</b> gustura ondoan izango zenituzkeen <b>3 ikasle gehienez</b>. &nbsp;
-      ③ Nahi baduzu, markatu <b>✗</b> ondoan eseri nahi EZ zenituzkeen <b>2 gehienez</b>.
-    </div>
-    <table>
-      <tr><th></th><th>Ikaslea</th><th class="c">NI NAIZ (X)</th><th class="c">GUSTURA ✓ (max 3)</th><th class="c">EZ ✗ (max 2)</th></tr>
-      ${rows}
-    </table>`;
-  document.body.classList.add('print-paper');
-  window.print();
-});
-window.addEventListener('afterprint', ()=>document.body.classList.remove('print-paper'));
-
-/* ---------- Kiosko modua: gelan bertan bildu, gailua txandaka ---------- */
-const KIOSK_MAX_BAI = 3, KIOSK_MAX_EZ = 2;
-let kioskDone = new Set();
-
-$('#kioskBtn').addEventListener('click', ()=>{
-  if(G().students.length < 2){ toast('Lehenik kargatu ikasleen zerrenda.'); return; }
-  kioskDone = new Set();
-  $('#kiosk').style.display = 'block';
-  kioskNameScreen();
-});
-$('#kioskExit').addEventListener('click', ()=>{
-  if(!confirm('Bilketa amaitu eta aplikaziora itzuli?')) return;
-  $('#kiosk').style.display = 'none';
-  refreshAll();
-  toast(`✅ ${kioskDone.size} erantzun jasota.`);
-});
-
-function kioskNameScreen(){
-  $('#kioskTitle').innerHTML = 'Nor zara? — aukeratu zure izena';
-  $('#kioskBody').innerHTML = `<div class="kioskGrid">` +
-    G().students.map(s=>{
-      const done = kioskDone.has(s.id);
-      return `<button class="kName ${done?'done':''}" data-k="${s.id}" ${done?'disabled':''}>${esc(s.name)}${done?' ✓':''}</button>`;
-    }).join('') + `</div>
-    <p style="text-align:center; color:var(--muted); font-size:13.5px; margin-top:20px">
-      🔒 Zure erantzunak ez ditu beste ikasleek ikusiko. Erantzun ondoren, pasa gailua hurrengoari.
-    </p>`;
-  $('#kioskBody').querySelectorAll('[data-k]').forEach(b=>
-    b.addEventListener('click', ()=>kioskAnswerScreen(b.dataset.k)));
-}
-
-function kioskAnswerScreen(id){
-  const me = G().students.find(s=>s.id===id);
-  if(!me) return;
-  const others = G().students.filter(s=>s.id!==id);
-  const likes = new Set(), dislikes = new Set();
-  $('#kioskTitle').innerHTML = `Kaixo, <b>${esc(me.name)}</b>!`;
-  const chips = (mode) => others.map(o=>`<button data-pick="${o.id}" data-mode="${mode}">${esc(o.name)}</button>`).join('');
-  $('#kioskBody').innerHTML = `
-    <div class="kioskCard">
-      <h3 style="margin:0 0 4px; color:#1d5c3e">💚 Norekin egongo zinateke gustura eserita? <span style="font-size:13px; color:var(--muted); font-weight:600">(gehienez ${KIOSK_MAX_BAI})</span></h3>
-      <div class="chipPick" id="kPickG">${chips('g')}</div>
-      <h3 style="margin:14px 0 4px; color:#8e3030">⛔ Norekin ez zenuke eseri nahi? <span style="font-size:13px; color:var(--muted); font-weight:600">(gehienez ${KIOSK_MAX_EZ} — aukerakoa)</span></h3>
-      <div class="chipPick" id="kPickR">${chips('r')}</div>
-      <div class="foot">
-        <button class="btn gray" id="kBack">← Atzera</button>
-        <button class="btn green big" id="kSave">💾 Gorde eta pasa hurrengoari</button>
-      </div>
-    </div>`;
-  const refreshChips = ()=>{
-    $('#kioskBody').querySelectorAll('[data-pick]').forEach(b=>{
-      const oid = b.dataset.pick, mode = b.dataset.mode;
-      const mySet = mode==='g' ? likes : dislikes;
-      const max = mode==='g' ? KIOSK_MAX_BAI : KIOSK_MAX_EZ;
-      b.classList.toggle('on-'+mode, mySet.has(oid));
-      b.classList.toggle('maxed', !mySet.has(oid) && mySet.size>=max);
-    });
-  };
-  $('#kioskBody').querySelectorAll('[data-pick]').forEach(b=>{
-    b.addEventListener('click', ()=>{
-      const oid = b.dataset.pick, mode = b.dataset.mode;
-      const mySet = mode==='g' ? likes : dislikes;
-      const otherSet = mode==='g' ? dislikes : likes;
-      const max = mode==='g' ? KIOSK_MAX_BAI : KIOSK_MAX_EZ;
-      if(mySet.has(oid)) mySet.delete(oid);
-      else if(mySet.size < max){ mySet.add(oid); otherSet.delete(oid); }
-      refreshChips();
-    });
-  });
-  $('#kBack').addEventListener('click', kioskNameScreen);
-  $('#kSave').addEventListener('click', ()=>{
-    me.likes = [...likes]; me.dislikes = [...dislikes];
-    kioskDone.add(id);
-    save();
-    const giv = me.name.includes(',') ? me.name.split(',')[1].trim() : me.name;
-    $('#kioskTitle').textContent = '';
-    $('#kioskBody').innerHTML = `<div class="kioskThanks">✅ Eskerrik asko, ${esc(giv)}!<br>Pasa gailua hurrengoari.</div>`;
-    setTimeout(kioskNameScreen, 1700);
-  });
-}
+$('#uploadRespBtn').addEventListener('click', ()=>$('#fileInput').click());
+$('#pasteRespBtn').addEventListener('click', ()=>openPasteModal());
 
 /* ---------- Demo ---------- */
 $('#demoBtn').addEventListener('click', ()=>{
