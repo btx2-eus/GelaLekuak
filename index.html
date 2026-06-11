@@ -250,6 +250,28 @@ body.dragging .seat.glow-g, body.dragging .seat.glow-r, body.dragging .seat.drag
 }
 .guideStep a{color:var(--primary); font-weight:700}
 
+/* Soziograma */
+.sozioToolbar{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:14px}
+.sozioWrap{display:flex; gap:16px; flex-wrap:wrap; align-items:flex-start}
+#sozioSvgBox{flex:1 1 560px; min-width:300px}
+#sozioSvgBox svg{
+  width:100%; height:auto; background:var(--paper);
+  border:1.5px solid var(--line); border-radius:var(--radius);
+  touch-action:none; user-select:none; -webkit-user-select:none;
+}
+.sozioSide{flex:0 1 300px; display:flex; flex-direction:column; gap:10px; min-width:240px}
+.sozioCard{background:#f7ecdc; border:1px solid var(--line); border-radius:12px; padding:12px 14px; font-size:13.5px}
+.sozioCard h3{margin:0 0 6px; font-size:14px}
+.sozioCard ul{margin:0; padding-left:18px}
+.sozioCard li{margin-bottom:3px}
+svg .nd{cursor:grab}
+svg .nd text{pointer-events:none; font-family:system-ui,sans-serif}
+svg.focusing .ed{opacity:.06!important}
+svg.focusing .ed.hot{opacity:1!important}
+svg.focusing .nd{opacity:.22}
+svg.focusing .nd.hot{opacity:1}
+#sozioPrintHeader{display:none}
+
 /* Modalak */
 .overlay{
   position:fixed; inset:0; background:rgba(21,19,17,.55); display:none;
@@ -294,6 +316,10 @@ textarea#pasteArea{width:100%; min-height:180px; font-family:ui-monospace,monosp
   section.view{box-shadow:none; padding:0}
   #view-datuak{display:none!important}
   #view-gela{display:block!important}
+  body.print-sozio #view-gela{display:none!important}
+  body.print-sozio #view-soziograma{display:block!important}
+  body.print-sozio #sozioPrintHeader{display:block; margin-bottom:14px}
+  body.print-sozio .sozioSide{flex:1 1 100%}
   #printHeader{display:block; margin-bottom:14px}
   #printHeader h2{margin:0; font-size:20px}
   #printHeader .d{color:#555; font-size:13px}
@@ -331,6 +357,7 @@ textarea#pasteArea{width:100%; min-height:180px; font-family:ui-monospace,monosp
 <nav class="tabs">
   <button class="tab active" id="tab-datuak" onclick="showTab('datuak')">1 · Ikasleak eta datuak <span class="dot" id="warnDot"></span></button>
   <button class="tab" id="tab-gela" onclick="showTab('gela')">2 · Gelako mapa</button>
+  <button class="tab" id="tab-soziograma" onclick="showTab('soziograma')">3 · Soziograma</button>
 </nav>
 
 <main>
@@ -441,6 +468,20 @@ textarea#pasteArea{width:100%; min-height:180px; font-family:ui-monospace,monosp
     <span style="flex-basis:100%"></span>
     <span>🔮 <b>X-izpiak:</b> arrastatu ikasle bat lagunak (berdez) eta gatazkak (gorriz) ikusteko, eta zenbakiek esango dizute toki bakoitzak zenbat hobetzen duen.</span>
     <span>🔒 <b>Aingurak:</b> sakatu giltzarrapoa ikaslea bere tokian finkatzeko. · 👆 Klik labur batek ikaslearen fitxa irekitzen du.</span>
+  </div>
+</section>
+
+<!-- ===================== 3. SOZIOGRAMA ===================== -->
+<section class="view" id="view-soziograma">
+  <div id="sozioPrintHeader"><h2 id="sozioPrintTitle"></h2><div class="d" id="sozioPrintDate"></div></div>
+  <div class="sozioToolbar no-print">
+    <button class="btn" id="sozioShuffleBtn">🔀 Berrantolatu</button>
+    <button class="btn outline" id="sozioPrintBtn">🖨️ Inprimatu / PDF</button>
+    <span style="font-size:12.5px; color:var(--muted)">Arrastatu izenak · pasatu sagua ikasle baten gainetik bere harremanak isolatzeko · klik, fitxa irekitzeko</span>
+  </div>
+  <div class="sozioWrap">
+    <div id="sozioSvgBox"></div>
+    <div class="sozioSide" id="sozioSide"></div>
   </div>
 </section>
 </main>
@@ -1337,6 +1378,265 @@ $('#copyListBtn').addEventListener('click', async ()=>{
 $('#uploadRespBtn').addEventListener('click', ()=>$('#fileInput').click());
 $('#pasteRespBtn').addEventListener('click', ()=>openPasteModal());
 
+/* ---------- Soziograma (tutore/orientatzailearentzat) ---------- */
+const SOZIO_W = 920, SOZIO_H = 640;
+let sozioPos = null, sozioGroupId = null, sozioEls = null;
+
+function givOf(name){ return name.includes(',') ? name.split(',')[1].trim() : name; }
+
+function sozioEdges(){
+  const g = G();
+  const ids = new Set(g.students.map(s=>s.id));
+  const has = new Set();
+  for(const s of g.students){
+    for(const t of s.likes) if(ids.has(t)) has.add('L'+s.id+'>'+t);
+    for(const t of s.dislikes) if(ids.has(t)) has.add('D'+s.id+'>'+t);
+  }
+  const edges = [], seen = new Set();
+  for(const s of g.students){
+    for(const t of s.likes){
+      if(!ids.has(t)) continue;
+      const key = 'L' + (s.id<t ? s.id+'|'+t : t+'|'+s.id);
+      if(seen.has(key)) continue; seen.add(key);
+      edges.push({a:s.id, b:t, type:'like', mutual: has.has('L'+t+'>'+s.id)});
+    }
+    for(const t of s.dislikes){
+      if(!ids.has(t)) continue;
+      const key = 'D' + (s.id<t ? s.id+'|'+t : t+'|'+s.id);
+      if(seen.has(key)) continue; seen.add(key);
+      edges.push({a:s.id, b:t, type:'dislike', mutual: has.has('D'+t+'>'+s.id)});
+    }
+  }
+  return edges;
+}
+
+/* Fruchterman-Reingold moduko indar-banaketa: BAI loturek erakarri, EZ loturek urrundu */
+function layoutSozio(){
+  const stus = G().students, n = stus.length;
+  const W = SOZIO_W, H = SOZIO_H;
+  const pos = new Map();
+  stus.forEach((s,i)=>{
+    const ang = 2*Math.PI*i/n;
+    pos.set(s.id, {x: W/2 + W/4.5*Math.cos(ang) + Math.random()*30-15,
+                   y: H/2 + H/4.5*Math.sin(ang) + Math.random()*30-15});
+  });
+  const edges = sozioEdges();
+  const k = Math.sqrt(W*H/Math.max(n,1)) * 0.62;
+  const ITER = 280;
+  for(let it=0; it<ITER; it++){
+    const temp = (1 - it/ITER) * 22 + 2;
+    const disp = new Map(stus.map(s=>[s.id, {x:0, y:0}]));
+    for(let i=0;i<n;i++)for(let j=i+1;j<n;j++){
+      const A = pos.get(stus[i].id), B = pos.get(stus[j].id);
+      const dx = A.x-B.x, dy = A.y-B.y, d = Math.hypot(dx,dy)||0.01;
+      const f = k*k/d/d;
+      disp.get(stus[i].id).x += dx*f; disp.get(stus[i].id).y += dy*f;
+      disp.get(stus[j].id).x -= dx*f; disp.get(stus[j].id).y -= dy*f;
+    }
+    for(const e of edges){
+      const A = pos.get(e.a), B = pos.get(e.b);
+      const dx = A.x-B.x, dy = A.y-B.y, d = Math.hypot(dx,dy)||0.01;
+      if(e.type==='like'){
+        const f = d/k * (e.mutual ? 1.6 : 1);
+        disp.get(e.a).x -= dx*f; disp.get(e.a).y -= dy*f;
+        disp.get(e.b).x += dx*f; disp.get(e.b).y += dy*f;
+      } else if(d < k*2){ // EZ: aldarapen gehigarria, gertu daudenean bakarrik
+        const f = k*k/d/d;
+        disp.get(e.a).x += dx*f; disp.get(e.a).y += dy*f;
+        disp.get(e.b).x -= dx*f; disp.get(e.b).y -= dy*f;
+      }
+    }
+    for(const s of stus){
+      const p = pos.get(s.id), dv = disp.get(s.id);
+      // erdirako grabitatea: sakabanatutako osagaiak barrura ekarri
+      dv.x += (W/2 - p.x) * 1.8;
+      dv.y += (H/2 - p.y) * 1.8;
+      const dl = Math.hypot(dv.x,dv.y)||0.01;
+      const step = Math.min(dl, temp);
+      p.x = Math.max(56, Math.min(W-56, p.x + dv.x/dl*step));
+      p.y = Math.max(48, Math.min(H-52, p.y + dv.y/dl*step));
+    }
+  }
+  // birzentratu eta eskalatu, mihisea polito betetzeko
+  const xs = [...pos.values()].map(p=>p.x), ys = [...pos.values()].map(p=>p.y);
+  const cx = (Math.min(...xs)+Math.max(...xs))/2, cy = (Math.min(...ys)+Math.max(...ys))/2;
+  const spanX = Math.max(...xs)-Math.min(...xs)||1, spanY = Math.max(...ys)-Math.min(...ys)||1;
+  const scale = Math.min((W-150)/spanX, (H-130)/spanY, 1.5);
+  for(const p of pos.values()){
+    p.x = W/2 + (p.x-cx)*scale;
+    p.y = H/2 + (p.y-cy)*scale;
+  }
+  return pos;
+}
+
+function renderSociogram(force){
+  buildRel();
+  const g = G();
+  const box = $('#sozioSvgBox'), side = $('#sozioSide');
+  if(g.students.length < 2){
+    box.innerHTML = `<div class="emptyState" style="padding:60px 20px">Soziograma marrazteko, kargatu ikasleak eta haien nahiak (1. fitxa).</div>`;
+    side.innerHTML = '';
+    return;
+  }
+  const stale = force || !sozioPos || sozioGroupId !== g.id || g.students.some(s=>!sozioPos.has(s.id));
+  if(stale){ sozioPos = layoutSozio(); sozioGroupId = g.id; }
+
+  const edges = sozioEdges();
+  const inLikes = new Map(), inDis = new Map();
+  for(const s of g.students){
+    for(const t of s.likes) inLikes.set(t, (inLikes.get(t)||0)+1);
+    for(const t of s.dislikes) inDis.set(t, (inDis.get(t)||0)+1);
+  }
+  const radii = new Map(g.students.map(s=>[s.id, Math.min(22, 10 + (inLikes.get(s.id)||0)*2.2)]));
+
+  const edgeLine = e=>{
+    const A = sozioPos.get(e.a), B = sozioPos.get(e.b);
+    const dx = B.x-A.x, dy = B.y-A.y, d = Math.hypot(dx,dy)||0.01;
+    const rb = radii.get(e.b) + (e.mutual ? 2 : 8);
+    const ra = radii.get(e.a) + 2;
+    return {x1: A.x + dx/d*ra, y1: A.y + dy/d*ra, x2: B.x - dx/d*rb, y2: B.y - dy/d*rb};
+  };
+  const edgeAttrs = e=> e.type==='like'
+    ? `stroke="var(--green)" stroke-width="${e.mutual?3.6:1.8}" opacity="${e.mutual?.95:.55}"${e.mutual?'':' marker-end="url(#arrG)"'}`
+    : `stroke="var(--red)" stroke-width="${e.mutual?2.8:1.7}" stroke-dasharray="6 4" opacity=".75"${e.mutual?'':' marker-end="url(#arrR)"'}`;
+
+  const edgesHtml = edges.map((e,i)=>{
+    const p = edgeLine(e);
+    return `<line class="ed" data-i="${i}" x1="${p.x1.toFixed(1)}" y1="${p.y1.toFixed(1)}" x2="${p.x2.toFixed(1)}" y2="${p.y2.toFixed(1)}" ${edgeAttrs(e)}/>`;
+  }).join('');
+
+  const nodesHtml = g.students.map(s=>{
+    const p = sozioPos.get(s.id), r = radii.get(s.id);
+    const nDis = inDis.get(s.id)||0, nLik = inLikes.get(s.id)||0;
+    const stroke = nDis ? 'var(--red)' : (nLik ? 'var(--green)' : 'var(--neutral)');
+    const dash = nLik===0 && !nDis ? ' stroke-dasharray="4 3"' : '';
+    const badge = nDis ? `<circle cx="${r*0.8}" cy="${-r*0.8}" r="7.5" fill="var(--red)"/><text x="${r*0.8}" y="${-r*0.8+3.2}" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">${nDis}</text>` : '';
+    return `<g class="nd" data-id="${s.id}" transform="translate(${p.x.toFixed(1)},${p.y.toFixed(1)})">
+      <title>${esc(s.name)} — 💚 ${nLik} jasota · ⛔ ${nDis} jasota</title>
+      <circle r="${r}" fill="var(--card)" stroke="${stroke}" stroke-width="${nDis?2.6:2.2}"${dash}/>
+      ${s.front ? `<text y="3.5" text-anchor="middle" font-size="${r*0.9}">📌</text>` : ''}
+      ${badge}
+      <text y="${r+13}" text-anchor="middle" font-size="11.5" font-weight="700" fill="var(--ink)">${esc(givOf(s.name))}</text>
+      <text y="${r+24}" text-anchor="middle" font-size="9" fill="var(--muted)">${esc(s.name.includes(',') ? s.name.split(',')[0].trim() : '')}</text>
+    </g>`;
+  }).join('');
+
+  box.innerHTML = `<svg id="sozioSvg" viewBox="0 0 ${SOZIO_W} ${SOZIO_H}" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arrG" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="var(--green)"/>
+      </marker>
+      <marker id="arrR" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="var(--red)"/>
+      </marker>
+    </defs>
+    <g id="sozioEdges">${edgesHtml}</g>
+    <g id="sozioNodes">${nodesHtml}</g>
+  </svg>`;
+
+  sozioEls = {
+    svg: box.querySelector('svg'),
+    nodes: new Map([...box.querySelectorAll('.nd')].map(el=>[el.dataset.id, el])),
+    edges: edges.map((e,i)=>({e, el: box.querySelector(`.ed[data-i="${i}"]`)})),
+    radii, edgeLine,
+  };
+  renderSozioSide(inLikes, inDis, edges);
+  $('#sozioPrintTitle').textContent = '🕸️ ' + g.name + ' — soziograma';
+  $('#sozioPrintDate').textContent = new Date().toLocaleDateString('eu-ES', {year:'numeric',month:'long',day:'numeric'}) + ' · GelaLekuak · tutore/orientatzailearentzat';
+}
+
+function renderSozioSide(inLikes, inDis, edges){
+  const g = G();
+  const name = id => g.students.find(s=>s.id===id)?.name || '?';
+  const top = m => [...m.entries()].filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]).slice(0,3);
+  const stars = top(inLikes);
+  const rejected = top(inDis);
+  const isolated = g.students.filter(s=>!(inLikes.get(s.id)>0));
+  const mutuals = edges.filter(e=>e.type==='like' && e.mutual);
+  const li = arr => arr.map(x=>`<li>${x}</li>`).join('');
+  $('#sozioSide').innerHTML = `
+    <div class="sozioCard"><h3>⭐ Gehien aukeratuak</h3>
+      ${stars.length ? `<ul>${li(stars.map(([id,n])=>`<b>${esc(name(id))}</b> — ${n} aldiz`))}</ul>` : '<span style="color:var(--muted)">Daturik ez.</span>'}
+    </div>
+    <div class="sozioCard"><h3>🏝️ Inork aukeratu gabeak</h3>
+      ${isolated.length ? `<ul>${li(isolated.map(s=>esc(s.name)))}</ul>
+      <div style="font-size:12px; color:var(--muted); margin-top:6px">BAI bat ere jaso ez dutenak — arreta berezia merezi dute.</div>` : '<span style="color:#1d5c3e; font-weight:700">Denek jaso dute aukeraketaren bat 🎉</span>'}
+    </div>
+    <div class="sozioCard"><h3>⚠️ EZ gehien jaso dutenak</h3>
+      ${rejected.length ? `<ul>${li(rejected.map(([id,n])=>`<b>${esc(name(id))}</b> — ${n} aldiz`))}</ul>` : '<span style="color:var(--muted)">Inork ez du EZ-rik jaso.</span>'}
+    </div>
+    <div class="sozioCard"><h3>🤝 Elkarrekiko adiskidetasunak (${mutuals.length})</h3>
+      ${mutuals.length ? `<ul>${li(mutuals.map(e=>`${esc(givOf(name(e.a)))} ↔ ${esc(givOf(name(e.b)))}`))}</ul>` : '<span style="color:var(--muted)">Oraindik ez da elkarrekikorik agertu.</span>'}
+    </div>
+    <div class="sozioCard" style="background:var(--yellow-soft); border-color:var(--yellow)">
+      <b>🔐 Kontuz:</b> informazio sentikorra da — tutorearen eta orientatzailearen arteko lanerako, ez partekatu ikasle edo familiekin.
+    </div>`;
+}
+
+/* Soziogramaren interakzioa: arrastatu / nabarmendu / klik */
+let sozioDrag = null;
+function sozioUpdateNode(id){
+  const el = sozioEls.nodes.get(id);
+  const p = sozioPos.get(id);
+  el.setAttribute('transform', `translate(${p.x.toFixed(1)},${p.y.toFixed(1)})`);
+  for(const {e, el: ln} of sozioEls.edges){
+    if(e.a!==id && e.b!==id) continue;
+    const q = sozioEls.edgeLine(e);
+    ln.setAttribute('x1', q.x1.toFixed(1)); ln.setAttribute('y1', q.y1.toFixed(1));
+    ln.setAttribute('x2', q.x2.toFixed(1)); ln.setAttribute('y2', q.y2.toFixed(1));
+  }
+}
+function sozioSvgPoint(ev){
+  const r = sozioEls.svg.getBoundingClientRect();
+  return {x: (ev.clientX - r.left) * SOZIO_W / r.width, y: (ev.clientY - r.top) * SOZIO_H / r.height};
+}
+function sozioFocus(id){
+  sozioEls.svg.classList.add('focusing');
+  for(const {e, el} of sozioEls.edges) el.classList.toggle('hot', e.a===id || e.b===id);
+  const linked = new Set([id]);
+  for(const {e} of sozioEls.edges){ if(e.a===id) linked.add(e.b); if(e.b===id) linked.add(e.a); }
+  for(const [nid, el] of sozioEls.nodes) el.classList.toggle('hot', linked.has(nid));
+}
+function sozioUnfocus(){
+  if(!sozioEls) return;
+  sozioEls.svg.classList.remove('focusing');
+  sozioEls.svg.querySelectorAll('.hot').forEach(el=>el.classList.remove('hot'));
+}
+$('#sozioSvgBox').addEventListener('pointerdown', ev=>{
+  const nd = ev.target.closest('.nd'); if(!nd) return;
+  ev.preventDefault();
+  const p = sozioSvgPoint(ev), pos = sozioPos.get(nd.dataset.id);
+  sozioDrag = {id: nd.dataset.id, dx: pos.x - p.x, dy: pos.y - p.y, moved: false, x0: ev.clientX, y0: ev.clientY};
+});
+$('#sozioSvgBox').addEventListener('pointerover', ev=>{
+  const nd = ev.target.closest('.nd');
+  if(nd && !sozioDrag) sozioFocus(nd.dataset.id);
+});
+$('#sozioSvgBox').addEventListener('pointerout', ev=>{
+  if(!sozioDrag && !ev.relatedTarget?.closest?.('.nd')) sozioUnfocus();
+});
+document.addEventListener('pointermove', ev=>{
+  if(!sozioDrag) return;
+  if(Math.hypot(ev.clientX - sozioDrag.x0, ev.clientY - sozioDrag.y0) > 5) sozioDrag.moved = true;
+  const p = sozioSvgPoint(ev);
+  const pos = sozioPos.get(sozioDrag.id);
+  pos.x = Math.max(40, Math.min(SOZIO_W-40, p.x + sozioDrag.dx));
+  pos.y = Math.max(36, Math.min(SOZIO_H-44, p.y + sozioDrag.dy));
+  sozioUpdateNode(sozioDrag.id);
+});
+document.addEventListener('pointerup', ()=>{
+  if(!sozioDrag) return;
+  const {id, moved} = sozioDrag;
+  sozioDrag = null;
+  if(!moved){ sozioUnfocus(); openEditor(id); }
+});
+$('#sozioShuffleBtn').addEventListener('click', ()=>renderSociogram(true));
+$('#sozioPrintBtn').addEventListener('click', ()=>{
+  document.body.classList.add('print-sozio');
+  window.print();
+});
+window.addEventListener('afterprint', ()=>document.body.classList.remove('print-sozio'));
+
 /* ---------- Demo ---------- */
 $('#demoBtn').addEventListener('click', ()=>{
   const grp = newGroup('Adibidea (demo)');
@@ -1421,6 +1721,7 @@ function showTab(name){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   $('#tab-'+name).classList.add('active');
   $('#view-'+name).classList.add('active');
+  if(name==='soziograma') renderSociogram();
 }
 $('#layoutBtn').addEventListener('click', openLayoutModal);
 function openLayoutModal(){
@@ -1511,6 +1812,7 @@ function refreshAll(){
   renderWarnings();
   renderSeating();
   renderGroupSelect();
+  if($('#view-soziograma').classList.contains('active')) renderSociogram();
   save();
   const h = histories[G().id];
   $('#undoBtn').disabled = !(h && h.length);
