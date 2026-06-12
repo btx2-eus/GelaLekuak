@@ -15,7 +15,7 @@
   --red:#c44949; --red-soft:#f5dcd2;
   --yellow:#d99a3d; --yellow-soft:#f7e8cd;
   --primary:#4B262F; --primary-dark:#33181e; --primary-soft:#eed9c5;
-  --ink:#151311; --muted:#85705f; --line:#e0cab0;
+  --ink:#151311; --muted:#6e5a49; --line:#e0cab0;
   --bg:#EED3BA; --card:#FBF2E4; --paper:#FFFBF2;
   --neutral:#d9c1a4;
   --w:122px; --h:64px;
@@ -109,12 +109,12 @@ section.view.active{display:block}
 .card{
   background:#f7ecdc; border:1px solid var(--line); border-radius:var(--radius); padding:18px;
 }
-.card h2{margin:0 0 6px; font-size:16px; display:flex; align-items:center; gap:8px}
-.card .desc{font-size:13px; color:var(--muted); margin:0 0 14px}
+.card h2{margin:0 0 6px; font-size:17px; display:flex; align-items:center; gap:8px}
+.card .desc{font-size:14px; color:var(--muted); margin:0 0 14px; line-height:1.5}
 
 button.btn{
   background:var(--primary); color:#fff; border:none; border-radius:10px;
-  padding:10px 16px; font-size:14px; font-weight:700; cursor:pointer;
+  padding:10px 16px; font-size:14.5px; font-weight:700; cursor:pointer; min-height:40px;
   display:inline-flex; align-items:center; gap:8px; transition:transform .12s, box-shadow .12s;
 }
 button.btn:hover:not(:disabled){transform:translateY(-1px); box-shadow:0 6px 14px rgba(75,38,47,.3)}
@@ -153,7 +153,7 @@ input[type=text]:focus, textarea:focus{outline:2px solid var(--primary-soft); bo
   border:1px solid var(--line); background:var(--paper); margin-bottom:7px; cursor:pointer;
 }
 .stuRow:hover{border-color:var(--primary); box-shadow:0 2px 8px rgba(75,38,47,.15)}
-.stuRow .nm{font-weight:700; font-size:14px; min-width:150px}
+.stuRow .nm{font-weight:700; font-size:15px; min-width:150px}
 .stuRow .chips{flex:1; display:flex; flex-wrap:wrap; gap:4px}
 .chip{
   font-size:11.5px; padding:2px 8px; border-radius:99px; font-weight:600;
@@ -212,6 +212,17 @@ input[type=text]:focus, textarea:focus{outline:2px solid var(--primary-soft); bo
   transition:box-shadow .15s, opacity .2s, background .2s;
 }
 .seat.empty{background:transparent; border:3px dashed var(--neutral); box-shadow:none; cursor:default; color:#94a3b8; font-size:12px}
+.blockBtn{
+  position:absolute; top:3px; right:3px; border:none; background:transparent;
+  font-size:12px; cursor:pointer; opacity:0; transition:opacity .15s; padding:3px;
+}
+.seat.empty:hover .blockBtn{opacity:.7}
+.blockBtn:hover{opacity:1!important}
+.seat.blockedSeat{
+  background:repeating-linear-gradient(45deg,#e3d5c2,#e3d5c2 8px,#dccbb4 8px,#dccbb4 16px);
+  border:3px dashed #a98f74; box-shadow:none; cursor:pointer;
+  color:#8a7560; font-size:17px; opacity:.8;
+}
 .seat .label{text-align:center; line-height:1.15; padding:0 4px; pointer-events:none; overflow:hidden}
 .seat .label .sur{font-size:10.5px; color:var(--muted); font-weight:600}
 .seat .label .giv{font-size:14px; font-weight:800}
@@ -301,6 +312,79 @@ body.dragging .seat.glow-g, body.dragging .seat.glow-r, body.dragging .seat.drag
 .sozioCard h3{margin:0 0 6px; font-size:14px}
 .sozioCard ul{margin:0; padding-left:18px}
 .sozioCard li{margin-bottom:3px}
+/* 3 pausoko fluxua (stepper) */
+#stepper{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:16px}
+.stepBox{
+  display:flex; gap:11px; align-items:center; text-align:left; cursor:pointer;
+  background:var(--card); border:1.5px solid var(--line); border-radius:12px; padding:11px 14px;
+}
+.stepBox:hover{border-color:var(--primary)}
+.stepBox.current{border-color:var(--primary); box-shadow:0 0 0 2px var(--primary-soft)}
+.stepBox .sNum{
+  width:30px; height:30px; border-radius:99px; flex:none; font-weight:800; font-size:14px;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--primary-soft); color:var(--primary-dark);
+}
+.stepBox.done .sNum{background:var(--green); color:#fff}
+.stepBox.warn .sNum{background:var(--yellow); color:#fff}
+.stepBox .sTxt{min-width:0}
+.stepBox .sTxt b{display:block; font-size:14px; line-height:1.2}
+.stepBox .sTxt span{font-size:12.5px; color:var(--muted)}
+.stepBox.done .sTxt span{color:#1d5c3e; font-weight:600}
+.stepBox.warn .sTxt span{color:#8a5a14; font-weight:700}
+@media(max-width:920px){#stepper{grid-template-columns:1fr}}
+
+/* Hasierako pantaila */
+#emptyHero{max-width:660px; margin:20px auto; text-align:center}
+#emptyHero h2{font-size:23px; margin:18px 0}
+.privacyNote{
+  display:inline-block; background:var(--green-soft); border:1.5px solid var(--green);
+  color:#1d5c3e; border-radius:99px; padding:8px 16px; font-size:14px; font-weight:600;
+}
+.privacyNote.small{display:block; border-radius:9px; padding:7px 11px; font-size:12.5px; margin-bottom:10px; text-align:left}
+.heroActions{display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-bottom:22px}
+.demoBox{
+  display:flex; gap:14px; align-items:center; text-align:left; flex-wrap:wrap;
+  background:var(--green-soft); border:2px solid var(--green); border-radius:14px; padding:16px 18px;
+}
+.demoBox b{font-size:16px}
+.demoBox span{font-size:13.5px; color:#3c5547}
+.moreOpt{margin-top:18px; text-align:left}
+
+/* Tolesgarriak (details) */
+details summary{
+  cursor:pointer; font-weight:700; font-size:14px; color:var(--primary-dark);
+  padding:9px 12px; background:var(--primary-soft); border-radius:9px; list-style:none;
+  display:flex; align-items:center; gap:8px; user-select:none;
+}
+details summary::before{content:'▸'; transition:transform .15s}
+details[open] summary::before{transform:rotate(90deg)}
+details summary:hover{filter:brightness(.97)}
+.hintTxt{font-size:12.5px; color:var(--muted)}
+
+/* Hautapen-barra (klik bidezko mugimendua) */
+#selBar{
+  display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+  background:var(--primary-soft); border:2px solid var(--primary); border-radius:12px;
+  padding:10px 14px; margin-bottom:12px; font-size:14.5px;
+}
+.seat.selSeat{outline:3px solid var(--primary); outline-offset:3px}
+
+/* Esaldi gidariak */
+.microTxt{font-size:13px; color:var(--muted); margin:-6px 0 14px; font-style:italic}
+
+/* Berrikuspen-panela */
+#reviewPanel{margin-top:18px}
+.reviewBox{background:var(--paper); border:1.5px solid var(--line); border-radius:12px; padding:16px 18px; max-width:860px}
+.reviewBox h3{margin:0 0 4px; font-size:16px}
+.reviewBox .rvSub{font-size:12.5px; color:var(--muted); font-style:italic; margin-bottom:12px}
+.rvItem{display:flex; gap:9px; align-items:flex-start; padding:6px 0; font-size:14px; border-top:1px solid var(--line)}
+.rvItem .rvIc{flex:none; width:22px; text-align:center}
+.rvItem.ok{color:#1d5c3e}
+.rvItem.warn{color:#8a5a14; font-weight:600}
+.rvItem.bad{color:#8e3030; font-weight:600}
+.rvItem .chip{font-weight:600}
+
 /* Insight-txartelak (soziograma) */
 .cohesionCard{
   background:var(--paper); border:1.5px solid var(--line); border-radius:12px;
@@ -353,6 +437,32 @@ body.dragging .seat.glow-g, body.dragging .seat.glow-r, body.dragging .seat.drag
   border:none; background:var(--red); color:#fff; width:17px; height:17px; border-radius:99px;
   cursor:pointer; font-size:11px; line-height:1; display:inline-flex; align-items:center; justify-content:center;
 }
+
+/* Txostena */
+.report{background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:22px}
+.rHead{display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; border-bottom:2px solid var(--line); padding-bottom:14px; margin-bottom:16px}
+.rHead h2{margin:0; font-size:19px}
+.rDate{font-size:12px; color:var(--muted); margin-top:3px}
+.rScore{display:flex; align-items:center; gap:12px}
+.rScore span:first-child{display:block; font-size:11px; color:var(--muted); font-weight:700}
+.rScore strong{font-size:26px; color:var(--primary); font-family:'Poppins',system-ui,sans-serif}
+.rScore strong small{font-size:13px; color:var(--muted)}
+.rGrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:0 20px}
+.rGrid article{border-right:1px solid var(--line); padding-right:18px; min-width:0}
+.rGrid article:last-child{border-right:0; padding-right:0}
+.rGrid h3{margin:0 0 8px; font-size:13.5px}
+.rGrid ul{margin:0; padding-left:17px; font-size:12.5px; line-height:1.55}
+.rLbl{margin:9px 0 5px; font-size:11.5px; font-weight:800; color:var(--muted); text-transform:uppercase; letter-spacing:.4px}
+.rNote{margin:4px 0; font-size:12px; color:var(--muted)}
+.planTbl{border-collapse:collapse; width:100%}
+.planTbl td{
+  border:1px solid var(--line); padding:5px 7px; font-size:11.5px; font-weight:700;
+  text-align:center; background:#fff; min-width:64px;
+}
+.planTbl td small{display:block; font-weight:500; font-size:9px; color:var(--muted)}
+.planTbl td.emp{background:transparent}
+.planTbl td.blk{background:repeating-linear-gradient(45deg,#eadbc6,#eadbc6 6px,#e0cdb2 6px,#e0cdb2 12px); color:#a98f74}
+.rFoot{margin-top:14px; font-size:11.5px; color:var(--muted); border-top:1px solid var(--line); padding-top:10px}
 
 svg .nd{cursor:grab}
 svg .nd text{pointer-events:none; font-family:system-ui,sans-serif}
@@ -460,11 +570,16 @@ textarea#pasteArea{width:100%; min-height:180px; font-family:ui-monospace,monosp
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><line x1="6" x2="6" y1="3" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>
       <span>Soziograma<small>Harremanen sarea</small></span>
     </button>
+    <button class="tab" id="tab-txostena" onclick="showTab('txostena')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
+      <span>Txostena<small>Irakasle-taldearentzat</small></span>
+    </button>
   </nav>
 
   <div class="sidefoot">
     <button class="iconbtn" id="exportBtn" title="Gorde datu guztiak fitxategi batean"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg> Gorde fitxategian</button>
     <label class="iconbtn" style="cursor:pointer" title="Lehenago gordetako fitxategia kargatu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg> Berreskuratu<input type="file" id="importJsonInput" accept=".json"></label>
+    <button class="iconbtn" id="clearDataBtn" title="Talde honetako datu guztiak ezabatu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Garbitu datuak</button>
   </div>
 </aside>
 
@@ -478,42 +593,67 @@ textarea#pasteArea{width:100%; min-height:180px; font-family:ui-monospace,monosp
 </header>
 
 <main>
+<div id="stepper" class="no-print"></div>
+
 <!-- ===================== 1. DATUAK ===================== -->
 <section class="view active" id="view-datuak">
-  <div class="cards">
 
-    <div class="card">
-      <h2>📥 1 · Ikasleen zerrenda kargatu</h2>
-      <p class="desc">Lehen pausoa: kargatu ikasleen izenak (nahirik gabe nahikoa da). Gero, Google Forms galdetegiaren erantzunek beteko dituzte nahiak (2. txartela).</p>
-      <div class="importgrid">
-        <div class="step">
-          <b class="num">A</b>
-          <div style="flex:1">
-            <b>Excel / CSV fitxategia igo</b><br>
-            <span style="font-size:12px;color:var(--muted)">Google Forms-eko erantzunen esportazioa, adibidez.</span>
+  <!-- Hasierako pantaila (daturik gabe) -->
+  <div id="emptyHero" style="display:none">
+    <div class="privacyNote">🔒 Datuak zure nabigatzailean bakarrik gordetzen dira. Ez da ezer zerbitzarira bidaltzen.</div>
+    <h2>Has gaitezen: kargatu zure ikasleen zerrenda</h2>
+    <div class="heroActions">
+      <button class="btn big" id="pasteHeroBtn">📋 Itsatsi ikasleen zerrenda</button>
+      <button class="btn big outline" id="uploadHeroBtn">📂 Igo Excel / CSV fitxategia</button>
+    </div>
+    <div class="demoBox">
+      <div style="flex:1"><b>Ez dakizu nondik hasi?</b><br><span>Probatu adibide-talde batekin — zure daturik gabe, dena lasai esploratzeko.</span></div>
+      <button class="btn green big" id="demoHeroBtn">🎲 Probatu demoarekin</button>
+    </div>
+    <details class="moreOpt">
+      <summary>Aukera gehiago</summary>
+      <p style="display:flex; gap:10px; align-items:center; flex-wrap:wrap"><button class="btn outline" id="templateHeroBtn">⬇️ Txantiloia deskargatu</button> <span>Excel hutsa adibideekin: bete, gorde eta igo.</span></p>
+      <p>Edo gehitu ikasleak eskuz, banan-banan, zerrenda kargatu ondoren agertuko den txartelean.</p>
+    </details>
+  </div>
+
+  <div class="cards" id="dataCards">
+
+    <div class="card" id="importCard">
+      <h2>📥 Inportatu datu gehiago</h2>
+      <div class="privacyNote small">🔒 Datuak zure nabigatzailean bakarrik gordetzen dira.</div>
+      <details>
+        <summary>Inportazio-aukerak</summary>
+        <div class="importgrid" style="margin-top:12px">
+          <div class="step">
+            <b class="num">A</b>
+            <div style="flex:1">
+              <b>Excel / CSV fitxategia igo</b><br>
+              <span class="hintTxt">Google Forms-eko erantzunen esportazioa, adibidez.</span>
+            </div>
+            <label class="filebtn">📂 Igo fitxategia<input type="file" id="fileInput" accept=".csv,.xlsx,.xls"></label>
           </div>
-          <label class="filebtn">📂 Igo fitxategia<input type="file" id="fileInput" accept=".csv,.xlsx,.xls"></label>
-        </div>
-        <div class="step">
-          <b class="num">B</b>
-          <div style="flex:1">
-            <b>Kopiatu eta itsatsi</b><br>
-            <span style="font-size:12px;color:var(--muted)">Kopiatu gelaxkak Excel / Google Sheets-etik eta itsatsi zuzenean.</span>
+          <div class="step">
+            <b class="num">B</b>
+            <div style="flex:1">
+              <b>Kopiatu eta itsatsi</b><br>
+              <span class="hintTxt">Kopiatu gelaxkak Excel / Google Sheets-etik eta itsatsi zuzenean.</span>
+            </div>
+            <button class="btn" id="pasteBtn">📋 Itsatsi datuak</button>
           </div>
-          <button class="btn" id="pasteBtn">📋 Itsatsi datuak</button>
-        </div>
-        <div class="step">
-          <b class="num">C</b>
-          <div style="flex:1">
-            <b>Txantiloia deskargatu</b><br>
-            <span style="font-size:12px;color:var(--muted)">Excel hutsa adibideekin: bete, gorde eta igo.</span>
+          <div class="step">
+            <b class="num">C</b>
+            <div style="flex:1">
+              <b>Txantiloia deskargatu</b><br>
+              <span class="hintTxt">Excel hutsa adibideekin: bete, gorde eta igo.</span>
+            </div>
+            <button class="btn outline" id="templateBtn">⬇️ Txantiloia</button>
           </div>
-          <button class="btn outline" id="templateBtn">⬇️ Txantiloia</button>
+          <div style="margin-top:4px">
+            <button class="btn gray" id="demoBtn">🎲 Probatu adibide-talde batekin</button>
+          </div>
         </div>
-      </div>
-      <div style="margin-top:14px; text-align:center">
-        <button class="btn gray" id="demoBtn">🎲 Probatu adibide-talde batekin</button>
-      </div>
+      </details>
     </div>
 
     <div class="card">
@@ -527,9 +667,14 @@ textarea#pasteArea{width:100%; min-height:180px; font-family:ui-monospace,monosp
     </div>
 
     <div class="card" id="guideCard">
-      <h2>🗳️ 2 · Google Forms galdetegia: sortu → esportatu → igo</h2>
+      <h2>💞 Harremanak / nahiak</h2>
+      <div id="relStatus"></div>
+      <p class="desc">Modurik zuzenena: <b>egin klik ikasle batengan</b> (ondoko zerrendan) eta markatu bere nahiak txip bidez.<br><i>Harremanak laguntza dira, ez etiketa finkoak.</i></p>
+      <details>
+      <summary>Nahiak Google Forms bidez jaso nahi dituzu?</summary>
+      <div style="margin-top:12px">
       <div class="guideNote">
-        <b>Arau nagusia:</b> ikasleek <b>inoiz ez</b> dute izenik eskuz idazten ("Inhar" / "Inar" arazoa). Galdera guztiak zerrenda itxiekin sortzen dira — horregatik kargatu behar da lehenik ikasleen zerrenda (1. txartela).
+        <b>Arau nagusia:</b> ikasleek <b>inoiz ez</b> dute izenik eskuz idazten ("Inhar" / "Inar" arazoa). Galdera guztiak zerrenda itxiekin sortzen dira — horregatik kargatu behar da lehenik ikasleen zerrenda.
       </div>
       <div class="guideStep"><b class="num">1</b><div><b>Sortu galdetegia</b> — <a href="https://forms.google.com" target="_blank" rel="noopener">forms.google.com</a> → <i>Hutsik</i>. Hiru galdera, hauek bezala:
         <ul style="margin:6px 0 6px 16px; padding:0; font-size:13px">
@@ -550,6 +695,8 @@ textarea#pasteArea{width:100%; min-height:180px; font-family:ui-monospace,monosp
           <button class="btn outline" id="pasteRespBtn">📋 Itsatsi erantzunak</button>
         </div>
       </div></div>
+      </div>
+      </details>
     </div>
 
     <div class="card" id="warnCard" style="display:none">
@@ -566,17 +713,22 @@ textarea#pasteArea{width:100%; min-height:180px; font-family:ui-monospace,monosp
   <div id="printHeader"><h2 id="printTitle"></h2><div class="d" id="printDate"></div></div>
 
   <div class="maptoolbar no-print">
-    <button class="btn outline" id="layoutBtn">🪑 Gelaren egitura <span id="layoutSummary" style="font-weight:600; font-size:12.5px"></span></button>
-    <button class="btn big" id="generateBtn">✨ <span id="genTxt">Antolaketa optimoa sortu</span></button>
+    <button class="btn big" id="generateBtn">✨ <span id="genTxt">Sortu lehen proposamena</span></button>
     <button class="btn gray" id="undoBtn" disabled>↩️ Desegin</button>
+    <button class="btn outline" id="conflictsBtn">⚠️ Ikusi gatazkak</button>
     <div style="flex:1"></div>
+    <button class="btn outline" id="layoutBtn">🪑 Gelaren egitura <span id="layoutSummary" style="font-weight:600; font-size:12.5px"></span></button>
     <button class="btn outline" id="printBtn">🖨️ Inprimatu / PDF</button>
   </div>
 
+  <div id="selBar" class="no-print" style="display:none"></div>
   <div id="constraintBar" class="no-print"></div>
   <div class="metrics" id="metrics"></div>
+  <div class="microTxt no-print">Algoritmoak proposatzen du; <b>tutoreak erabakitzen du</b>. Mapa hau abiapuntua da, ez azken epaia.</div>
   <div class="arbela" id="arbela">🧑‍🏫 &nbsp;ARBELA · IRAKASLEA</div>
   <div id="seatGrid" class="grid"></div>
+
+  <div id="reviewPanel" class="no-print"></div>
 
   <div class="legend no-print">
     <span><span class="sw" style="border-color:var(--green)"></span> BAI elkarren ondoan</span>
@@ -601,6 +753,16 @@ textarea#pasteArea{width:100%; min-height:180px; font-family:ui-monospace,monosp
     <div id="sozioSvgBox"></div>
     <div class="sozioSide" id="sozioSide"></div>
   </div>
+</section>
+
+<!-- ===================== 4. TXOSTENA ===================== -->
+<section class="view" id="view-txostena">
+  <div class="maptoolbar no-print">
+    <span style="font-size:13px; color:var(--muted)">Orri bakarreko laburpena irakasle-taldearekin edo orientatzailearekin partekatzeko. Inprimatu edo gorde PDF gisa.</span>
+    <div style="flex:1"></div>
+    <button class="btn big" id="reportPrintBtn">🖨️ Inprimatu / PDF</button>
+  </div>
+  <div id="reportBody"></div>
 </section>
 </main>
 </div><!-- /workspace -->
@@ -659,7 +821,9 @@ const histories = {}; // taldeko desegite-pilak (memorian soilik)
 function newGroup(name){
   // rowSeats=null → automatikoa (4 errenkada); groupSize: 0 jarraian, 2 binaka, 3 hirunaka
   // keepApart: tutoreak ezarritako "banandu beharreko" bikoteak [[idA,idB],...]
-  return {id:uid(), name, rowSeats:null, groupSize:2, students:[], seating:[], locked:[], pending:[], keepApart:[]};
+  // blockedSeats: erabili ezin diren eserlekuak ['r:c',...] (gela irregularretarako)
+  // optimized: lehen proposamena sortu da; touched: eskuzko aldaketak daude
+  return {id:uid(), name, rowSeats:null, groupSize:2, students:[], seating:[], locked:[], pending:[], keepApart:[], blockedSeats:[], optimized:false, touched:false};
 }
 function load(){
   try{
@@ -671,6 +835,9 @@ function load(){
           if(!('rowSeats' in g)) g.rowSeats = null;
           if(!('groupSize' in g)) g.groupSize = 0;
           if(!('keepApart' in g)) g.keepApart = [];
+          if(!('blockedSeats' in g)) g.blockedSeats = [];
+          if(!('optimized' in g)) g.optimized = !!g.seating?.length;
+          if(!('touched' in g)) g.touched = false;
         }
         return st;
       }
@@ -705,11 +872,13 @@ const hAdjC = c => GS===0 || ((c+1) % GS !== 0);
 /* ---------- Harremanen cachea ---------- */
 let rel = new Map(); // id -> {like:Set, dislike:Set, front, name, ref}
 let KEEP = new Set(); // tutorearen "banandu" bikoteak: 'idA|idB' gako ordenatuak
+let BLK = new Set();  // blokeatutako eserlekuak: 'r:c'
 const pairK = (a,b) => a < b ? a+'|'+b : b+'|'+a;
 function buildRel(){
   rel = new Map();
   GS = G().groupSize || 0;
   KEEP = new Set((G().keepApart||[]).map(([a,b])=>pairK(a,b)));
+  BLK = new Set(G().blockedSeats||[]);
   for(const s of G().students){
     rel.set(s.id, {like:new Set(s.likes), dislike:new Set(s.dislikes), front:!!s.front, name:s.name, ref:s});
   }
@@ -790,9 +959,17 @@ function ensureSeating(g){
   g = g || G();
   const ids = g.students.map(s=>s.id);
   const idSet = new Set(ids);
-  // Eskuz finkatutako egiturak eserleku gutxiegi baditu, zabaldu errenkada laburrenak
+  // Egituratik kanpo geratu diren blokeoak garbitu
+  const rs0 = rowSeatsOf(g);
+  g.blockedSeats = (g.blockedSeats||[]).filter(k=>{
+    const [r,c] = k.split(':').map(Number);
+    return r < rs0.length && c < rs0[r];
+  });
+  const blk = new Set(g.blockedSeats);
+  // Eserleku erabilgarri gutxiegi badaude, zabaldu errenkada laburrenak
+  if(blk.size && !g.rowSeats?.length) g.rowSeats = [...rs0]; // auto-modua gauzatu, zabaldu ahal izateko
   if(g.rowSeats?.length){
-    let total = g.rowSeats.reduce((a,b)=>a+b,0);
+    let total = g.rowSeats.reduce((a,b)=>a+b,0) - blk.size;
     while(total < ids.length){
       const i = g.rowSeats.indexOf(Math.min(...g.rowSeats));
       g.rowSeats[i]++; total++;
@@ -805,12 +982,12 @@ function ensureSeating(g){
   for(let r=0;r<Math.min(old.length, grid.length);r++)
     for(let c=0;c<Math.min(old[r]?.length||0, grid[r].length);c++){
       const id = old[r][c];
-      if(id && idSet.has(id) && !placed.has(id)){ grid[r][c]=id; placed.add(id); }
+      if(id && idSet.has(id) && !placed.has(id) && !blk.has(r+':'+c)){ grid[r][c]=id; placed.add(id); }
     }
   const free = ids.filter(id=>!placed.has(id));
   for(let r=0;r<grid.length && free.length;r++)
     for(let c=0;c<grid[r].length && free.length;c++)
-      if(!grid[r][c]) grid[r][c] = free.shift();
+      if(!grid[r][c] && !blk.has(r+':'+c)) grid[r][c] = free.shift();
   g.seating = grid;
   g.locked = (g.locked||[]).filter(id=>idSet.has(id));
 }
@@ -862,15 +1039,17 @@ function optimize(){
     const fillWith = (grid, ids)=>{
       let k=0;
       for(let r=0;r<nRows;r++)for(let c=0;c<rs[r];c++)
-        if(!grid[r][c] && k<ids.length) grid[r][c] = ids[k++];
+        if(!grid[r][c] && !BLK.has(r+':'+c) && k<ids.length) grid[r][c] = ids[k++];
     };
     const hillClimb = grid=>{
       let improved = true;
       while(improved){
         improved = false;
         for(let r1=0;r1<nRows;r1++)for(let c1=0;c1<rs[r1];c1++){
+          if(BLK.has(r1+':'+c1)) continue;
           if(grid[r1][c1] && lockedSet.has(grid[r1][c1])) continue;
           for(let r2=r1;r2<nRows;r2++)for(let c2=(r2===r1?c1+1:0);c2<rs[r2];c2++){
+            if(BLK.has(r2+':'+c2)) continue;
             if(grid[r2][c2] && lockedSet.has(grid[r2][c2])) continue;
             if(!grid[r1][c1] && !grid[r2][c2]) continue;
             const d = trySwapDelta(grid, r1, c1, r2, c2);
@@ -902,9 +1081,11 @@ function optimize(){
     }while(performance.now() < tEnd);
 
     g.seating = best;
-    renderSeating(); save();
-    btn.disabled = false; $('#genTxt').textContent = 'Antolaketa optimoa sortu';
-    toast(`Antolaketa berria sortuta ✨ (${tried} saiakera, ${Math.round(bestScore)} puntu)`);
+    g.optimized = true; g.touched = false;
+    renderSeating(); renderStepper(); save();
+    btn.disabled = false;
+    const m2 = computeMetrics();
+    toast(`✨ Proposamena sortuta: ${m2.likesOk}/${m2.likesTot} nahi beteta · ${m2.conf} gatazka ondoan — berrikusi behean.`);
   }, 30);
 }
 
@@ -935,21 +1116,33 @@ function computeMetrics(){
     if(s.front){ const p=pos.get(s.id); if(p && p[0]!==0) frontBad++; }
   }
   let keepBad = 0;
+  const confPairs = [];
   grid.forEach((row,r)=>row.forEach((id,c)=>{
     if(!id) return;
     const R = (c<row.length-1 && hAdjC(c)) ? row[c+1] : null;
     const B = r<grid.length-1 ? grid[r+1]?.[c] : null;
-    if(R){ if(classify(id,R)==='red') conf++; if(KEEP.has(pairK(id,R))) keepBad++; }
-    if(B){ if(classify(id,B)==='red') conf++; if(KEEP.has(pairK(id,B))) keepBad++; }
+    if(R){ if(classify(id,R)==='red'){ conf++; confPairs.push([id,R]); } if(KEEP.has(pairK(id,R))) keepBad++; }
+    if(B){ if(classify(id,B)==='red'){ conf++; confPairs.push([id,B]); } if(KEEP.has(pairK(id,B))) keepBad++; }
   }));
-  return {likesTot, likesOk, likesNear, conf, keepBad, frontBad, score:evalGrid(grid)};
+  // gatazka-lotura guztiak datuetan (bikote bakanak)
+  const seenD = new Set();
+  let confLinks = 0;
+  for(const s of g.students) for(const t of s.dislikes){
+    if(!rel.has(t)) continue;
+    const k = pairK(s.id, t);
+    if(!seenD.has(k)){ seenD.add(k); confLinks++; }
+  }
+  return {likesTot, likesOk, likesNear, conf, confPairs, confLinks, keepBad, frontBad, score:evalGrid(grid)};
 }
 function renderMetrics(){
   const m = computeMetrics();
   const parts = [];
   const near = m.likesNear ? ` <span style="font-weight:600; font-size:12px">(+${m.likesNear} diagonalean)</span>` : '';
   parts.push(`<div class="metric ${m.likesTot && m.likesOk===m.likesTot ? 'good':''}">💚 Nahiak beteta: ${m.likesOk}/${m.likesTot}${near}</div>`);
-  parts.push(`<div class="metric ${m.conf ? 'bad':'good'}">${m.conf ? '🔴' : '✅'} Gatazkak ondoan: ${m.conf}</div>`);
+  if(m.confLinks)
+    parts.push(`<div class="metric ${m.conf ? 'bad':'good'}">${m.conf ? '🔴' : '🛡️'} Gatazkak saihestuta: ${m.confLinks-m.conf}/${m.confLinks}</div>`);
+  if(G().locked.length)
+    parts.push(`<div class="metric neutral">🔒 Ainguratuta: ${G().locked.length}</div>`);
   if(G().students.some(s=>s.front))
     parts.push(`<div class="metric ${m.frontBad ? 'bad':'good'}">📌 Lehen lerroa: ${m.frontBad ? m.frontBad+' gaizki' : 'denak ondo'}</div>`);
   if(G().keepApart?.length)
@@ -964,6 +1157,17 @@ const colorFor = c => c==='red' ? 'var(--red)' : c==='green' ? 'var(--green)' : 
 function renderSeating(){
   buildRel();
   const g = G();
+  clearSel(true);
+  if(!g.students.length){
+    $('#seatGrid').innerHTML = `<div class="emptyState" style="padding:50px 30px">
+      Oraindik ez dago ikaslerik. Hasi 1. pausoan: kargatu ikasleen zerrenda.<br><br>
+      <button class="btn" onclick="showTab('datuak')">← Ikasleak kargatu</button></div>`;
+    $('#metrics').innerHTML = '';
+    $('#reviewPanel').innerHTML = '';
+    $('#layoutSummary').textContent = '';
+    return;
+  }
+  $('#genTxt').textContent = g.optimized ? 'Berrantolatu' : 'Sortu lehen proposamena';
   ensureSeating(g);
   const grid = g.seating;
   const lockedSet = new Set(g.locked);
@@ -977,7 +1181,8 @@ function renderSeating(){
   const html = grid.map((row,r)=>{
     const cells = row.map((id,c)=>{
       const aisle = (GS>0 && c>0 && c%GS===0) ? '<div class="aisle"></div>' : '';
-      if(!id) return `${aisle}<div class="seat empty" data-r="${r}" data-c="${c}">Hutsik</div>`;
+      if(BLK.has(r+':'+c)) return `${aisle}<div class="seat blockedSeat" data-blkoff="${r}:${c}" title="Eserleku blokeatuta — egin klik desblokeatzeko">🚫</div>`;
+      if(!id) return `${aisle}<div class="seat empty" data-r="${r}" data-c="${c}">Hutsik<button class="blockBtn" data-blkon="${r}:${c}" title="Eserlekua blokeatu (ez da existitzen / ezin da erabili)">🚫</button></div>`;
       const st = rel.get(id);
       const nb = {
         T: r>0 ? grid[r-1]?.[c] : null,
@@ -1006,19 +1211,84 @@ function renderSeating(){
   }).join('');
   $('#seatGrid').innerHTML = html;
   renderMetrics();
+  renderReview();
   $('#printTitle').textContent = '🪑 ' + g.name + ' — gelako mapa';
   $('#printDate').textContent = new Date().toLocaleDateString('eu-ES', {year:'numeric',month:'long',day:'numeric'}) + ' · GelaLekuak';
 }
 
+/* ---------- Klik bidezko mugimendua (arrastatzearen alternatiba) ---------- */
+let sel = null;
+function clearSel(){
+  sel = null;
+  const bar = $('#selBar');
+  if(bar) bar.style.display = 'none';
+  document.querySelectorAll('.seat.selSeat').forEach(el=>el.classList.remove('selSeat'));
+}
+function seatTap(r, c){
+  const g = G();
+  const id = g.seating[r]?.[c] || null;
+  if(!sel){
+    if(!id) return;
+    if(new Set(g.locked).has(id)){ openEditor(id); return; } // ainguratuak: fitxa zuzenean
+    sel = {r, c, id};
+    document.querySelector(`.seat[data-r="${r}"][data-c="${c}"]`)?.classList.add('selSeat');
+    const nm = rel.get(id)?.name || '';
+    const bar = $('#selBar');
+    bar.style.display = 'flex';
+    bar.innerHTML = `<span><b>👤 ${esc(nm)}</b> aukeratuta — egin klik helmugako eserlekuan (hutsik = <b>mugitu</b> · beteta = <b>trukatu</b>)</span>
+      <div style="flex:1"></div>
+      <button class="btn outline" id="selEdit">✏️ Fitxa ireki</button>
+      <button class="btn gray" id="selCancel">✖ Utzi</button>`;
+    $('#selEdit').addEventListener('click', ()=>{ const i = sel.id; clearSel(); openEditor(i); });
+    $('#selCancel').addEventListener('click', ()=>clearSel());
+    return;
+  }
+  if(sel.r===r && sel.c===c){ clearSel(); return; }
+  if(id && new Set(g.locked).has(id)){ toast('🔒 Helmugako ikaslea ainguratuta dago.'); return; }
+  pushHistory();
+  const tmp = g.seating[r][c];
+  g.seating[r][c] = g.seating[sel.r][sel.c];
+  g.seating[sel.r][sel.c] = tmp;
+  g.touched = true;
+  clearSel();
+  renderSeating(); renderStepper(); save();
+  toast(tmp ? '🔁 Trukatuta. Desegin nahi? ↩️' : '➡️ Mugituta. Desegin nahi? ↩️');
+}
+
 /* ---------- Arrastatzea (pointer events: ukipena + sagua) ---------- */
 let drag = null;
+function toggleBlockSeat(key, block){
+  const g = G();
+  if(block){
+    if(!g.rowSeats?.length) g.rowSeats = [...rowSeatsOf(g)]; // auto-modua gauzatu
+    g.blockedSeats = g.blockedSeats || [];
+    g.blockedSeats.push(key);
+    toast('🚫 Eserlekua blokeatuta — egin klik berriro desblokeatzeko.');
+  } else {
+    g.blockedSeats = (g.blockedSeats||[]).filter(k=>k!==key);
+  }
+  ensureSeating(g); renderSeating(); save();
+}
 $('#seatGrid').addEventListener('pointerdown', e => {
+  const blkOn = e.target.closest('[data-blkon]');
+  if(blkOn){ e.preventDefault(); toggleBlockSeat(blkOn.dataset.blkon, true); return; }
+  const blkOff = e.target.closest('[data-blkoff]');
+  if(blkOff){
+    e.preventDefault();
+    if(sel){ toast('🚫 Eserleku hori blokeatuta dago — aukeratu beste bat.'); return; }
+    toggleBlockSeat(blkOff.dataset.blkoff, false);
+    return;
+  }
   const lockBtn = e.target.closest('.lockbtn');
   if(lockBtn){ e.preventDefault(); toggleLock(lockBtn.dataset.lock); return; }
   const seat = e.target.closest('.seat');
-  if(!seat || seat.classList.contains('empty')) return;
+  if(!seat) return;
+  if(seat.classList.contains('empty')){
+    if(sel) seatTap(+seat.dataset.r, +seat.dataset.c); // hutsik dagoenera mugitu
+    return;
+  }
   const id = seat.dataset.id;
-  if(new Set(G().locked).has(id)) { drag = {tapOnly:true, id}; return; }
+  if(new Set(G().locked).has(id)) { drag = {tapOnly:true, r:+seat.dataset.r, c:+seat.dataset.c}; return; }
   e.preventDefault();
   drag = {id, r:+seat.dataset.r, c:+seat.dataset.c, el:seat, x0:e.clientX, y0:e.clientY, started:false};
 });
@@ -1036,11 +1306,10 @@ document.addEventListener('pointermove', e => {
 });
 document.addEventListener('pointerup', e => {
   if(!drag) return;
-  if(drag.tapOnly){ openEditor(drag.id); drag=null; return; }
-  if(!drag.started){ openEditor(drag.id); drag=null; return; }
+  if(drag.tapOnly || !drag.started){ const {r,c}=drag; drag=null; seatTap(r,c); return; }
   const seat = document.elementFromPoint(e.clientX, e.clientY)?.closest('.seat');
   endDragVisuals();
-  if(seat && seat!==drag.el){
+  if(seat && seat!==drag.el && !seat.classList.contains('blockedSeat')){
     const tr=+seat.dataset.r, tc=+seat.dataset.c;
     const tgtId = G().seating[tr][tc];
     if(tgtId && new Set(G().locked).has(tgtId)){
@@ -1050,13 +1319,15 @@ document.addEventListener('pointerup', e => {
       const g=G(), tmp=g.seating[tr][tc];
       g.seating[tr][tc]=g.seating[drag.r][drag.c];
       g.seating[drag.r][drag.c]=tmp;
-      renderSeating(); save();
+      g.touched = true;
+      renderSeating(); renderStepper(); save();
     }
   }
   drag = null;
 });
 function startDrag(e){
   drag.started = true;
+  clearSel();
   document.body.classList.add('dragging');
   drag.el.classList.add('dragSrc');
   const ghost = drag.el.cloneNode(true);
@@ -1069,6 +1340,7 @@ function startDrag(e){
   const base = evalGrid(G().seating);
   const lockedSet = new Set(G().locked);
   document.querySelectorAll('#seatGrid .seat').forEach(el=>{
+    if(el.classList.contains('blockedSeat')) return;
     const tr=+el.dataset.r, tc=+el.dataset.c;
     if(tr===drag.r && tc===drag.c) return;
     const tgtId = el.dataset.id || null;
@@ -1107,9 +1379,13 @@ function nameOf(id){ return G().students.find(s=>s.id===id)?.name || '?'; }
 
 function renderStudents(){
   const g = G();
+  // Hasierako pantaila (daturik gabe) ⇄ lan-txartelak
+  $('#emptyHero').style.display = g.students.length ? 'none' : 'block';
+  $('#dataCards').style.display = g.students.length ? '' : 'none';
+  renderRelStatus();
   $('#stuCount').textContent = g.students.length ? `(${g.students.length})` : '';
   if(!g.students.length){
-    $('#studentList').innerHTML = `<div class="emptyState">Oraindik ez dago ikaslerik.<br>⬅️ Kargatu datuak, edo gehitu ikasleak eskuz goian.</div>`;
+    $('#studentList').innerHTML = `<div class="emptyState">Oraindik ez dago ikaslerik.</div>`;
     return;
   }
   $('#studentList').innerHTML = g.students.map(s=>{
@@ -1126,6 +1402,57 @@ function renderStudents(){
     </div>`;
   }).join('');
 }
+function renderRelStatus(){
+  const g = G();
+  const el = $('#relStatus');
+  if(!g.students.length){ el.innerHTML=''; return; }
+  let likeT=0, disT=0, noPref=0;
+  for(const s of g.students){
+    likeT += s.likes.length; disT += s.dislikes.length;
+    if(!s.likes.length && !s.dislikes.length) noPref++;
+  }
+  const bits = [
+    `<span class="chip g">💚 ${likeT} baiezko</span>`,
+    `<span class="chip r">⛔ ${disT} ezezko</span>`,
+  ];
+  if(noPref) bits.push(`<span class="chip">😶 ${noPref} ikasle nahirik gabe</span>`);
+  if(g.pending.length) bits.push(`<span class="chip" style="background:var(--yellow-soft); color:#8a5a14">⚠️ ${g.pending.length} izen argitzeke</span>`);
+  el.innerHTML = `<div class="iChips" style="margin-bottom:10px">${bits.join('')}</div>`;
+}
+
+/* 3 pausoko fluxuaren egoera */
+function renderStepper(){
+  const g = G();
+  const n = g.students.length;
+  let likeT=0, disT=0;
+  for(const s of g.students){ likeT += s.likes.length; disT += s.dislikes.length; }
+  const pend = g.pending.length;
+  const s1 = n ? ['done', `${n} kargatuta ✓`] : ['todo', 'kargatu gabe'];
+  const s2 = !n ? ['todo', '—']
+    : pend ? ['warn', `${pend} izen argitzeke`]
+    : (likeT+disT) ? ['done', `${likeT} baiezko · ${disT} ezezko`]
+    : ['todo', 'nahirik ez oraindik'];
+  let s3 = ['todo', '—'];
+  if(n){
+    const m = computeMetrics();
+    const issues = m.conf + (m.keepBad||0) + (m.frontBad||0);
+    s3 = !g.optimized ? ['todo', 'sortu gabe']
+      : issues ? ['warn', `${issues} kontu berrikusteko`]
+      : ['done', g.touched ? 'eskuz findua ✓' : 'prest ✓'];
+  }
+  const view = document.querySelector('.view.active')?.id || '';
+  const cur1 = view==='view-datuak' && !n, cur2 = view==='view-datuak' && n>0, cur3 = view==='view-gela';
+  const box = (i, title, [cls,txt], target, current) => `
+    <button class="stepBox ${cls} ${current?'current':''}" onclick="showTab('${target}')">
+      <span class="sNum">${cls==='done' ? '✓' : i}</span>
+      <span class="sTxt"><b>${title}</b><span>${txt}</span></span>
+    </button>`;
+  $('#stepper').innerHTML =
+    box(1, 'Ikasleak kargatu', s1, 'datuak', cur1) +
+    box(2, 'Harremanak / nahiak zehaztu', s2, 'datuak', cur2) +
+    box(3, 'Mapa sortu eta findu', s3, 'gela', cur3);
+}
+
 $('#studentList').addEventListener('click', e=>{
   const del = e.target.closest('[data-del]');
   if(del){
@@ -1531,6 +1858,61 @@ $('#copyListBtn').addEventListener('click', async ()=>{
 $('#uploadRespBtn').addEventListener('click', ()=>$('#fileInput').click());
 $('#pasteRespBtn').addEventListener('click', ()=>openPasteModal());
 
+/* ---------- Berrikuspen-panela: proposamena aztertzen lagundu ---------- */
+function renderReview(){
+  const g = G();
+  const panel = $('#reviewPanel');
+  if(!g.students.length){ panel.innerHTML=''; return; }
+  if(!g.optimized){
+    panel.innerHTML = `<div class="reviewBox"><h3>🔎 Berrikusi proposamena</h3>
+      <div class="rvSub">Mapa sortu ondoren agertuko dira hemen berrikusi beharrekoak.</div>
+      <div class="rvItem"><span class="rvIc">✨</span><span>Sakatu goian <b>«Sortu lehen proposamena»</b> hasteko.</span></div></div>`;
+    return;
+  }
+  const m = computeMetrics();
+  const nm = id => rel.get(id)?.name || '?';
+  const inLikes = new Map();
+  for(const s of g.students) for(const t of s.likes) inLikes.set(t,(inLikes.get(t)||0)+1);
+  const noPref = g.students.filter(s=>!s.likes.length && !s.dislikes.length);
+  const isolated = g.students.filter(s=>!(inLikes.get(s.id)>0));
+  const items = [];
+  const it = (cls, ic, html) => items.push(`<div class="rvItem ${cls}"><span class="rvIc">${ic}</span><span>${html}</span></div>`);
+
+  if(m.conf) it('bad','🔴', `<b>${m.conf} gatazka konpondu gabe:</b> ${m.confPairs.map(([a,b])=>`${esc(givOf(nm(a)))} ⇄ ${esc(givOf(nm(b)))}`).join(' · ')}. Mugitu eskuz edo sakatu Berrantolatu.`);
+  else it('ok','✅', 'Ez dago gatazkarik elkarren ondoan.');
+  if(m.keepBad) it('bad','🚫', `${m.keepBad} murrizketa urratuta — sakatu Berrantolatu.`);
+  if(m.frontBad) it('warn','📌', `${m.frontBad} ikasle lehen lerroko beharra bete gabe.`);
+  if(g.pending.length) it('warn','⚠️', `${g.pending.length} izen argitzeke daude (Datuak fitxan) — nahi horiek ez dira kontuan hartzen ari.`);
+  if(noPref.length) it('warn','😶', `Nahirik gabeko ikasleak (${noPref.length}): ${noPref.slice(0,6).map(s=>esc(givOf(s.name))).join(', ')}${noPref.length>6?'…':''} — beraien erantzunak falta dira?`);
+  if(isolated.length) it('warn','🏝️', `Inork aukeratu gabeak (${isolated.length}): ${isolated.slice(0,6).map(s=>esc(givOf(s.name))).join(', ')}${isolated.length>6?'…':''} — begiratu soziograma.`);
+  else it('ok','💚', 'Ikasle guztiek jaso dute aukeraketaren bat.');
+  if(g.locked.length) it('ok','🔒', `Ainguratuta: ${g.locked.map(id=>esc(givOf(nm(id)))).join(', ')}.`);
+  if(g.blockedSeats?.length) it('ok','🚫', `${g.blockedSeats.length} eserleku blokeatuta.`);
+  if(g.touched) it('ok','✋', 'Eskuzko aldaketak eginda — zure irizpidea aplikatuta.');
+
+  panel.innerHTML = `<div class="reviewBox">
+    <h3>🔎 Berrikusi proposamena</h3>
+    <div class="rvSub">Mapa hau abiapuntua da, ez azken epaia — zuk ezagutzen duzu gela.</div>
+    ${items.join('')}
+  </div>`;
+}
+
+/* "Ikusi gatazkak": ondoan dauden gatazkak une batez nabarmendu */
+$('#conflictsBtn').addEventListener('click', ()=>{
+  const m = computeMetrics();
+  if(!m.confPairs.length){ toast('✅ Ez dago gatazkarik elkarren ondoan.'); return; }
+  const ids = new Set(m.confPairs.flat());
+  document.body.classList.add('dragging'); // gainerakoak ilundu
+  document.querySelectorAll('#seatGrid .seat[data-id]').forEach(el=>{
+    if(ids.has(el.dataset.id)) el.classList.add('glow-r');
+  });
+  toast(`🔴 ${m.confPairs.length} gatazka ondoan — gorriz nabarmenduta.`);
+  setTimeout(()=>{
+    document.body.classList.remove('dragging');
+    document.querySelectorAll('#seatGrid .seat.glow-r').forEach(el=>el.classList.remove('glow-r'));
+  }, 3000);
+});
+
 /* ---------- Tutorearen murrizketak: banandu beharreko bikoteak ---------- */
 function renderConstraints(){
   const g = G();
@@ -1724,13 +2106,20 @@ function renderSociogram(force){
     edges: edges.map((e,i)=>({e, el: box.querySelector(`.ed[data-i="${i}"]`)})),
     radii, edgeLine,
   };
-  renderSozioSide(inLikes, inDis, edges);
+  renderSozioSide();
   $('#sozioPrintTitle').textContent = '🕸️ ' + g.name + ' — soziograma';
   $('#sozioPrintDate').textContent = new Date().toLocaleDateString('eu-ES', {year:'numeric',month:'long',day:'numeric'}) + ' · GelaLekuak · tutore/orientatzailearentzat';
 }
 
-function renderSozioSide(inLikes, inDis, edges){
+/* Analisi soziometriko partekatua: soziogramaren panelak eta txostenak erabiltzen dute */
+function computeSozioStats(){
   const g = G();
+  const edges = sozioEdges();
+  const inLikes = new Map(), inDis = new Map();
+  for(const s of g.students){
+    for(const t of s.likes) inLikes.set(t, (inLikes.get(t)||0)+1);
+    for(const t of s.dislikes) inDis.set(t, (inDis.get(t)||0)+1);
+  }
   const name = id => g.students.find(s=>s.id===id)?.name || '?';
   const top = m => [...m.entries()].filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]).slice(0,3);
   const stars = top(inLikes);
@@ -1738,7 +2127,6 @@ function renderSozioSide(inLikes, inDis, edges){
   const isolated = g.students.filter(s=>!(inLikes.get(s.id)>0));
   const mutuals = edges.filter(e=>e.type==='like' && e.mutual);
 
-  /* Kohesio-indizea eta arrisku-maila */
   const posLinks = edges.filter(e=>e.type==='like').length;
   const confLinks = edges.filter(e=>e.type==='dislike').length;
   const m = computeMetrics();
@@ -1746,7 +2134,6 @@ function renderSozioSide(inLikes, inDis, edges){
   const [riskTxt, riskCls] = (m.conf >= 3 || isolated.length >= 5) ? ['Arrisku handia','bad']
     : (m.conf > 0 || isolated.length >= 3) ? ['Arrisku ertaina','warn'] : ['Arrisku txikia','good'];
 
-  /* Iradokizun automatikoak */
   const sugg = [];
   g.seating.forEach((row,r)=>row.forEach((id,c)=>{
     if(!id) return;
@@ -1766,6 +2153,12 @@ function renderSozioSide(inLikes, inDis, edges){
     .sort((a,b)=>(posTotal.get(b.id)||0)-(posTotal.get(a.id)||0)).slice(0,2);
   for(const s of bridges)
     sugg.push(`🌉 <b>${esc(s.name)}</b> ikasle "zubia" da (${posTotal.get(s.id)} lotura positibo) — baliagarria taldeak nahasteko.`);
+
+  return {name, stars, rejected, isolated, mutuals, cohesion, riskTxt, riskCls, sugg, bridges, m, posLinks, confLinks};
+}
+
+function renderSozioSide(){
+  const {name, stars, rejected, isolated, mutuals, cohesion, riskTxt, riskCls, sugg} = computeSozioStats();
 
   const card = (cls, icon, title, count, body) => `
     <div class="insightCard ${cls}">
@@ -1863,10 +2256,100 @@ $('#sozioPrintBtn').addEventListener('click', ()=>{
   document.body.classList.add('print-sozio');
   window.print();
 });
-window.addEventListener('afterprint', ()=>document.body.classList.remove('print-sozio'));
+window.addEventListener('afterprint', ()=>document.body.classList.remove('print-sozio','print-report'));
+
+/* ---------- Txostena (irakasle-taldearentzat) ---------- */
+function renderReport(){
+  buildRel();
+  const g = G();
+  const body = $('#reportBody');
+  if(g.students.length < 2){
+    body.innerHTML = `<div class="emptyState" style="padding:60px 20px">Txostena sortzeko, kargatu ikasleak eta haien nahiak (Datuak fitxa).</div>`;
+    return;
+  }
+  ensureSeating(g);
+  const st = computeSozioStats();
+  const dateTxt = new Date().toLocaleDateString('eu-ES', {year:'numeric', month:'long', day:'numeric'});
+  const chips = arr => arr.length ? `<div class="iChips">${arr.join('')}</div>` : '<p class="rNote">— ezer ez —</p>';
+  const chip = (txt, cls='') => `<span class="chip ${cls}">${txt}</span>`;
+  const planRows = g.seating.map((row,r)=>'<tr>'+row.map((id,c)=>{
+    if(BLK.has(r+':'+c)) return '<td class="blk">✕</td>';
+    if(!id) return '<td class="emp"></td>';
+    const s = rel.get(id);
+    return `<td>${esc(givOf(s.name))}<small>${esc(s.name.includes(',') ? s.name.split(',')[0].trim() : '')}</small></td>`;
+  }).join('')+'</tr>').join('');
+
+  body.innerHTML = `
+  <div class="report">
+    <div class="rHead">
+      <div>
+        <h2>🪑 ${esc(g.name)} — gelaren txosten soziometrikoa</h2>
+        <div class="rDate">${dateTxt} · GelaLekuak · konfidentziala, irakasle-taldearentzat</div>
+      </div>
+      <div class="rScore">
+        <div><span>Kohesioa</span><strong>${st.cohesion}<small>/100</small></strong></div>
+        <span class="riskBadge ${st.riskCls}">${st.riskTxt}</span>
+      </div>
+    </div>
+    <div class="rGrid">
+      <article>
+        <h3>📊 Laburpena</h3>
+        <ul>
+          <li><b>${g.students.length}</b> ikasle</li>
+          <li>Nahiak beteta mapan: <b>${st.m.likesOk}/${st.m.likesTot}</b>${st.m.likesNear ? ` (+${st.m.likesNear} diagonalean)` : ''}</li>
+          <li>Gatazkak ondoan: <b>${st.m.conf}</b></li>
+          <li>Lotura positiboak: <b>${st.posLinks}</b> · gatazka-loturak: <b>${st.confLinks}</b></li>
+          <li>Elkarrekiko adiskidetasunak: <b>${st.mutuals.length}</b></li>
+          ${g.keepApart?.length ? `<li>Tutorearen murrizketak: <b>${g.keepApart.length}</b> (${st.m.keepBad ? st.m.keepBad+' urratuta' : 'denak beteta'})</li>` : ''}
+        </ul>
+      </article>
+      <article>
+        <h3>⚠️ Arreta behar dutenak</h3>
+        <p class="rLbl">Inork aukeratu gabeak:</p>
+        ${chips(st.isolated.map(s=>chip(esc(s.name))))}
+        <p class="rLbl">EZ gehien jaso dutenak:</p>
+        ${chips(st.rejected.map(([id,n])=>chip(`${esc(st.name(id))} · ${n}`,'r')))}
+      </article>
+      <article>
+        <h3>💪 Indarguneak</h3>
+        <p class="rLbl">Gehien aukeratuak:</p>
+        ${chips(st.stars.map(([id,n])=>chip(`${esc(st.name(id))} · ${n}`,'g')))}
+        <p class="rLbl">Ikasle "zubiak":</p>
+        ${chips(st.bridges.map(s=>chip(esc(s.name),'g')))}
+        <p class="rLbl">Elkarrekikoak:</p>
+        ${chips(st.mutuals.slice(0,6).map(e=>chip(`${esc(givOf(st.name(e.a)))} ↔ ${esc(givOf(st.name(e.b)))}`)))}
+      </article>
+      <article>
+        <h3>💡 Iradokizunak</h3>
+        ${st.sugg.length ? `<ul class="iList">${st.sugg.map(s=>`<li>${s}</li>`).join('')}</ul>` : '<p class="rNote">Ez dago iradokizun berezirik — egoera orekatua.</p>'}
+      </article>
+    </div>
+    <h3 style="margin:18px 0 8px">🗺️ Gelako planoa (arbela goian)</h3>
+    <table class="planTbl">${planRows}</table>
+    <div class="rFoot">🔐 Datu sentikorrak: soziograma-erantzunetan oinarritua. Erabili tutoretza/orientazio lanerako bakarrik; ez partekatu ikasle edo familiekin.</div>
+  </div>`;
+}
+$('#reportPrintBtn').addEventListener('click', ()=>{
+  renderReport();
+  document.body.classList.add('print-report');
+  window.print();
+});
 
 /* ---------- Demo ---------- */
-$('#demoBtn').addEventListener('click', ()=>{
+$('#demoBtn').addEventListener('click', loadDemo);
+$('#demoHeroBtn').addEventListener('click', loadDemo);
+$('#pasteHeroBtn').addEventListener('click', ()=>openPasteModal());
+$('#uploadHeroBtn').addEventListener('click', ()=>$('#fileInput').click());
+$('#templateHeroBtn').addEventListener('click', ()=>$('#templateBtn').click());
+$('#clearDataBtn').addEventListener('click', ()=>{
+  const g = G();
+  if(!confirm(`"${g.name}" taldeko datu GUZTIAK ezabatu nahi dituzu? (ikasleak, nahiak, mapa...)`)) return;
+  Object.assign(g, {students:[], seating:[], locked:[], pending:[], keepApart:[], blockedSeats:[], rowSeats:null, optimized:false, touched:false});
+  delete histories[g.id];
+  refreshAll();
+  toast('🧹 Taldea garbituta — hutsetik has zaitezke.');
+});
+function loadDemo(){
   const grp = newGroup('Adibidea (demo)');
   state.groups.push(grp); state.activeId = grp.id;
   const names = ['Agirre, June','Aldai, Markel','Arruti, Nahia','Bengoetxea, Oier','Etxeberria, Ane','Garmendia, Unax','Goikoetxea, Irati','Ibarra, Aimar','Lasa, Maddi','Lopez, Danel','Mendizabal, Uxue','Otaegi, Eneko','Perez, Naroa','Sagastume, Ibai','Urkiola, Alaitz','Zabala, Telmo','Zubeldia, Lore','Etxarri, Peru'];
@@ -1880,8 +2363,8 @@ $('#demoBtn').addEventListener('click', ()=>{
   stus[4].front = true; stus[13].front = true;
   grp.students = stus.sort((a,b)=>a.name.localeCompare(b.name,'eu'));
   refreshAll(); renderGroupSelect();
-  toast('🎲 Adibide-taldea sortuta · joan "2 · Gelako mapa" fitxara eta sakatu ✨');
-});
+  toast('🎲 Adibide-taldea sortuta · joan "Gelako mapa"ra eta sakatu ✨ Sortu lehen proposamena');
+}
 
 /* ---------- Taldeak ---------- */
 function renderGroupSelect(){
@@ -1933,6 +2416,9 @@ $('#importJsonInput').addEventListener('change', e=>{
         if(!('rowSeats' in g)) g.rowSeats = null;
         if(!('groupSize' in g)) g.groupSize = 0;
         if(!('keepApart' in g)) g.keepApart = [];
+        if(!('blockedSeats' in g)) g.blockedSeats = [];
+        if(!('optimized' in g)) g.optimized = !!g.seating?.length;
+        if(!('touched' in g)) g.touched = false;
         state.groups.push(g);
       }
       state.activeId = state.groups[state.groups.length-1].id;
@@ -1949,6 +2435,7 @@ const VIEW_TITLES = {
   datuak: ['Datuak', 'Ikasleen zerrenda eta inportazioa'],
   gela: ['Gelako mapa', 'Aulki-banaketa optimoa'],
   soziograma: ['Soziograma', 'Harremanen sarea — tutore eta orientatzailearentzat'],
+  txostena: ['Txostena', 'Irakasle-taldearentzako laburpen inprimagarria'],
 };
 function showTab(name){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -1957,7 +2444,9 @@ function showTab(name){
   $('#view-'+name).classList.add('active');
   $('#viewTitle').textContent = VIEW_TITLES[name][0];
   $('#viewSub').textContent = VIEW_TITLES[name][1];
+  renderStepper();
   if(name==='soziograma') renderSociogram();
+  if(name==='txostena') renderReport();
 }
 $('#layoutBtn').addEventListener('click', openLayoutModal);
 function openLayoutModal(){
@@ -2003,15 +2492,20 @@ function openLayoutModal(){
       }
       return `<div class="mr">${cells}</div>`;
     }).join('');
-    const total = rs.reduce((a,b)=>a+b,0);
+    const blocked = (g.blockedSeats||[]).filter(k=>{
+      const [r,c] = k.split(':').map(Number);
+      return r < rs.length && c < rs[r];
+    }).length;
+    const total = rs.reduce((a,b)=>a+b,0) - blocked;
+    const blkTxt = blocked ? ` (${blocked} blokeatuta kenduta)` : '';
     const t = $('#seatTally');
     if(total >= n){
       t.className='seatTally ok';
-      t.textContent = `✅ ${total} eserleku · ${n} ikasle` + (total>n ? ` (${total-n} hutsik geldituko dira)` : '');
+      t.textContent = `✅ ${total} eserleku erabilgarri${blkTxt} · ${n} ikasle` + (total>n ? ` (${total-n} hutsik geldituko dira)` : '');
       $('#layoutSave').disabled = false;
     } else {
       t.className='seatTally ko';
-      t.textContent = `⚠️ ${total} eserleku bakarrik, eta ${n} ikasle — ${n-total} falta dira`;
+      t.textContent = `⚠️ ${total} eserleku erabilgarri bakarrik${blkTxt}, eta ${n} ikasle — ${n-total} falta dira`;
       $('#layoutSave').disabled = true;
     }
   };
@@ -2049,7 +2543,9 @@ function refreshAll(){
   renderSeating();
   renderConstraints();
   renderGroupSelect();
+  renderStepper();
   if($('#view-soziograma').classList.contains('active')) renderSociogram();
+  if($('#view-txostena').classList.contains('active')) renderReport();
   save();
   const h = histories[G().id];
   $('#undoBtn').disabled = !(h && h.length);
