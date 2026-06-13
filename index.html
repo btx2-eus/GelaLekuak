@@ -18,14 +18,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  /* Paleta: Obsidian Ink · Velvet Curfew · Almond Hearth */
-  --green:#2e8f62; --green-soft:#e0efe1;
-  --red:#c44949; --red-soft:#f5dcd2;
-  --yellow:#d99a3d; --yellow-soft:#f7e8cd;
-  --primary:#4B262F; --primary-dark:#33181e; --primary-soft:#eed9c5;
-  --ink:#151311; --muted:#6e5a49; --line:#e0cab0;
-  --bg:#EED3BA; --card:#FBF2E4; --paper:#FFFBF2;
-  --neutral:#d9c1a4;
+  /* Paleta: Teal moderna (errefinatua) — marka teala, semantika bereizita */
+  --green:#15803d; --green-soft:#dcfce7;   /* BAI / positiboa */
+  --red:#b42318; --red-soft:#fee4e2;        /* EZ / gatazka */
+  --yellow:#f59e0b; --yellow-soft:#fef3c7;  /* neutroa / azentua (anbar) */
+  --primary:#0f766e; --primary-dark:#115e59; --primary-soft:#ccfbf1;
+  --spark:#2dd4bf;                          /* teal-400: fokua, nabarmentzea */
+  --ink:#17212b; --muted:#5b6573; --line:#dbe4e1;
+  --bg:#eef2f1; --card:#ffffff; --paper:#f6f8f7;
+  --neutral:#cbd5d1;
+  --sidebar:#12201f; --sidebar-active:#1f3d3a;
+  --shadow:0 1px 2px rgba(16,24,40,.04), 0 4px 12px rgba(16,24,40,.06);
+  --shadow-lg:0 10px 30px rgba(16,24,40,.14);
   --w:122px; --h:64px;
   --radius:14px;
 }
@@ -40,42 +44,42 @@ h1,h2,h3,.btn,.tab,label.filebtn,.iconbtn,.arbela{
 /* ---- Aplikazio-oskola: albo-barra + goiko barra ---- */
 .shell{min-height:100vh; display:grid; grid-template-columns:252px minmax(0,1fr)}
 .sidebar{
-  background:linear-gradient(180deg,#151311 0%,#221318 70%,#2c161c 100%);
-  color:#ecd9c5; padding:20px 14px; display:flex; flex-direction:column; gap:18px;
+  background:linear-gradient(180deg,#12201f 0%,#16302c 70%,#1a3a35 100%);
+  color:#d7e3e0; padding:20px 14px; display:flex; flex-direction:column; gap:18px;
   position:sticky; top:0; height:100vh; overflow:auto;
 }
 .brand{display:flex; gap:10px; align-items:center; padding:0 6px}
 .brand .logo{font-size:26px; line-height:1}
 .brand h1{margin:0; font-size:19px; color:#fff}
-.brand .sub{font-size:11px; color:#c4a181}
+.brand .sub{font-size:11px; color:#8fa6a1}
 .groupcard{
-  background:linear-gradient(145deg,#4B262F,#371b22); border-radius:12px; padding:12px;
+  background:linear-gradient(145deg,#1f3d3a,#16302c); border-radius:12px; padding:12px;
   box-shadow:0 10px 24px rgba(0,0,0,.3);
 }
-.groupcard label{font-size:10.5px; letter-spacing:1.5px; font-weight:800; color:#e3c3a3; display:block; margin-bottom:7px}
+.groupcard label{font-size:10.5px; letter-spacing:1.5px; font-weight:800; color:#9fb8b2; display:block; margin-bottom:7px}
 .groupcard select{
   width:100%; border:none; border-radius:8px; padding:9px 10px; font-size:14px;
   font-weight:700; color:var(--ink); background:var(--paper);
 }
 .grouprow{display:flex; gap:6px; margin-top:8px}
 .iconbtn{
-  background:rgba(238,211,186,.12); border:1px solid rgba(238,211,186,.22); color:#ecd9c5;
+  background:rgba(45,212,191,.10); border:1px solid rgba(215,227,224,.20); color:#d7e3e0;
   border-radius:9px; padding:7px 10px; font-size:12.5px; cursor:pointer; font-weight:600;
   display:inline-flex; align-items:center; justify-content:center; gap:7px;
 }
-.iconbtn:hover{background:rgba(238,211,186,.25)}
+.iconbtn:hover{background:rgba(45,212,191,.20)}
 .grouprow .iconbtn{flex:1}
 .nav{display:grid; gap:4px}
 .nav .tab{
   display:grid; grid-template-columns:24px 1fr auto; align-items:center; gap:11px;
   width:100%; text-align:left; background:transparent; border:none; cursor:pointer;
-  color:#dcc4aa; padding:11px 10px; border-radius:10px; font-size:14px; font-weight:700;
+  color:#c2d2ce; padding:11px 10px; border-radius:10px; font-size:14px; font-weight:700;
 }
 .nav .tab svg{opacity:.85}
-.nav .tab small{display:block; font-family:Inter,system-ui,sans-serif; font-weight:500; font-size:11px; color:#a98b6f; margin-top:1px; letter-spacing:0}
-.nav .tab:hover{background:rgba(238,211,186,.08)}
-.nav .tab.active{background:rgba(238,211,186,.14); color:#fff; box-shadow:inset 3px 0 0 var(--bg)}
-.nav .tab.active small{color:#cfae90}
+.nav .tab small{display:block; font-family:Inter,system-ui,sans-serif; font-weight:500; font-size:11px; color:#8fa6a1; margin-top:1px; letter-spacing:0}
+.nav .tab:hover{background:rgba(215,227,224,.08)}
+.nav .tab.active{background:rgba(45,212,191,.14); color:#fff; box-shadow:inset 3px 0 0 var(--spark)}
+.nav .tab.active small{color:#a9c0bb}
 .tab .dot{
   background:var(--red); color:#fff; border-radius:99px; font-size:11px;
   min-width:19px; height:19px; line-height:19px; text-align:center;
@@ -84,15 +88,15 @@ h1,h2,h3,.btn,.tab,label.filebtn,.iconbtn,.arbela{
 .tab .dot.show{display:inline-block}
 .sidefoot{margin-top:auto; display:grid; gap:6px}
 .sidefoot .iconbtn{justify-content:flex-start}
-.credit{margin-top:10px; padding-top:10px; border-top:1px solid rgba(238,211,186,.18); font-size:11px; color:#b89a7e; line-height:1.6}
-.credit b{color:#dcc4aa; font-weight:700}
-.credit a{color:#b89a7e; text-decoration:none}
-.credit a:hover{color:#ecd9c5; text-decoration:underline}
+.credit{margin-top:10px; padding-top:10px; border-top:1px solid rgba(215,227,224,.16); font-size:11px; color:#8fa6a1; line-height:1.6}
+.credit b{color:#c2d2ce; font-weight:700}
+.credit a{color:#8fa6a1; text-decoration:none}
+.credit a:hover{color:#d7e3e0; text-decoration:underline}
 @media(max-width:920px){.credit{display:none}}
 .workspace{min-width:0; display:flex; flex-direction:column}
 .topbar{
   position:sticky; top:0; z-index:5; min-height:62px;
-  background:rgba(238,211,186,.9); backdrop-filter:blur(10px);
+  background:rgba(238,242,241,.85); backdrop-filter:blur(10px);
   border-bottom:1.5px solid var(--line);
   display:flex; align-items:center; gap:14px; padding:10px 24px; flex-wrap:wrap;
 }
@@ -104,7 +108,7 @@ h1,h2,h3,.btn,.tab,label.filebtn,.iconbtn,.arbela{
 }
 .save-status svg{color:var(--green)}
 main{padding:18px 22px 60px}
-section.view{display:none; background:var(--card); border-radius:var(--radius); padding:20px; box-shadow:0 2px 14px rgba(15,23,42,.06)}
+section.view{display:none; background:transparent; padding:2px}
 section.view.active{display:block}
 @media(max-width:920px){
   .shell{grid-template-columns:1fr}
@@ -120,7 +124,8 @@ section.view.active{display:block}
 
 .cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(330px,1fr)); gap:16px}
 .card{
-  background:#f7ecdc; border:1px solid var(--line); border-radius:var(--radius); padding:18px;
+  background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:18px;
+  box-shadow:var(--shadow);
 }
 .card h2{margin:0 0 6px; font-size:17px; display:flex; align-items:center; gap:8px}
 .card .desc{font-size:14px; color:var(--muted); margin:0 0 14px; line-height:1.5}
@@ -130,10 +135,10 @@ button.btn{
   padding:10px 16px; font-size:14.5px; font-weight:700; cursor:pointer; min-height:40px;
   display:inline-flex; align-items:center; gap:8px; transition:transform .12s, box-shadow .12s;
 }
-button.btn:hover:not(:disabled){transform:translateY(-1px); box-shadow:0 6px 14px rgba(75,38,47,.3)}
-button.btn:disabled{background:#c9b49c; cursor:not-allowed}
+button.btn:hover:not(:disabled){transform:translateY(-1px); box-shadow:0 6px 14px rgba(15,118,110,.28)}
+button.btn:disabled{background:#c3d0cc; cursor:not-allowed}
 button.btn.green{background:var(--ink)}
-button.btn.gray{background:#a3866d}
+button.btn.gray{background:#7c8a92}
 button.btn.outline{background:var(--paper); color:var(--primary-dark); border:2px solid var(--primary)}
 button.btn.danger{background:var(--red)}
 button.btn.big{font-size:15px; padding:12px 20px}
@@ -165,14 +170,14 @@ input[type=text]:focus, textarea:focus{outline:2px solid var(--primary-soft); bo
   display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:10px;
   border:1px solid var(--line); background:var(--paper); margin-bottom:7px; cursor:pointer;
 }
-.stuRow:hover{border-color:var(--primary); box-shadow:0 2px 8px rgba(75,38,47,.15)}
+.stuRow:hover{border-color:var(--primary); box-shadow:0 2px 8px rgba(16,24,40,.10)}
 .stuRow .nm{font-weight:700; font-size:15px; min-width:150px}
 .stuRow .chips{flex:1; display:flex; flex-wrap:wrap; gap:4px}
 .chip{
   font-size:11.5px; padding:2px 8px; border-radius:99px; font-weight:600;
 }
-.chip.g{background:var(--green-soft); color:#1d5c3e}
-.chip.r{background:var(--red-soft); color:#8e3030}
+.chip.g{background:var(--green-soft); color:#166534}
+.chip.r{background:var(--red-soft); color:#912018}
 .chip.front{background:var(--primary-soft); color:var(--primary-dark)}
 .stuRow .mini{
   background:none; border:none; cursor:pointer; font-size:15px; opacity:.55; padding:4px;
@@ -194,7 +199,7 @@ input[type=text]:focus, textarea:focus{outline:2px solid var(--primary-soft); bo
 /* Gela-mapa */
 .maptoolbar{
   display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:14px;
-  background:#f7ecdc; border:1px solid var(--line); border-radius:var(--radius); padding:12px 14px;
+  background:#f3f7f6; border:1px solid var(--line); border-radius:var(--radius); padding:12px 14px;
 }
 .maptoolbar label{font-size:13.5px; font-weight:600}
 .metrics{
@@ -204,12 +209,12 @@ input[type=text]:focus, textarea:focus{outline:2px solid var(--primary-soft); bo
   border-radius:10px; padding:8px 14px; font-size:14px; font-weight:700; background:var(--paper);
   border:1.5px solid var(--line); display:flex; gap:7px; align-items:center;
 }
-.metric.good{border-color:var(--green); background:var(--green-soft); color:#1d5c3e}
-.metric.bad{border-color:var(--red); background:var(--red-soft); color:#8e3030}
+.metric.good{border-color:var(--green); background:var(--green-soft); color:#166534}
+.metric.bad{border-color:var(--red); background:var(--red-soft); color:#912018}
 .metric.neutral{color:var(--muted)}
 
 .arbela{
-  background:linear-gradient(120deg,#151311,#3a2228); color:var(--bg); border-radius:10px;
+  background:linear-gradient(120deg,#12201f,#1f3d3a); color:var(--bg); border-radius:10px;
   text-align:center; padding:9px; font-weight:800; letter-spacing:2px; font-size:14px;
   margin-bottom:16px; max-width:var(--gridw,900px);
 }
@@ -221,7 +226,7 @@ input[type=text]:focus, textarea:focus{outline:2px solid var(--primary-soft); bo
   width:var(--w); height:var(--h);
   display:flex; align-items:center; justify-content:center;
   user-select:none; -webkit-user-select:none; touch-action:none; cursor:grab;
-  box-shadow:0 3px 0 rgba(75,38,47,.16), 0 7px 12px rgba(21,19,17,.08); /* mahai-hanken itzala */
+  box-shadow:0 2px 0 rgba(16,24,40,.06), 0 6px 14px rgba(16,24,40,.08); /* mahai-hanken itzala */
   transition:box-shadow .15s, opacity .2s, background .2s;
 }
 .seat.empty{background:transparent; border:3px dashed var(--neutral); box-shadow:none; cursor:default; color:#94a3b8; font-size:12px}
@@ -232,9 +237,9 @@ input[type=text]:focus, textarea:focus{outline:2px solid var(--primary-soft); bo
 .seat.empty:hover .blockBtn{opacity:.7}
 .blockBtn:hover{opacity:1!important}
 .seat.blockedSeat{
-  background:repeating-linear-gradient(45deg,#e3d5c2,#e3d5c2 8px,#dccbb4 8px,#dccbb4 16px);
-  border:3px dashed #a98f74; box-shadow:none; cursor:pointer;
-  color:#8a7560; font-size:17px; opacity:.8;
+  background:repeating-linear-gradient(45deg,#e3e9e7,#e3e9e7 8px,#d4ddda 8px,#d4ddda 16px);
+  border:3px dashed #8aa39d; box-shadow:none; cursor:pointer;
+  color:#8aa39d; font-size:17px; opacity:.8;
 }
 .seat .label{text-align:center; line-height:1.15; padding:0 4px; pointer-events:none; overflow:hidden}
 .seat .label .sur{font-size:10.5px; color:var(--muted); font-weight:600}
@@ -243,11 +248,11 @@ input[type=text]:focus, textarea:focus{outline:2px solid var(--primary-soft); bo
 .lockbtn{
   position:absolute; top:-10px; right:-10px; width:24px; height:24px; border-radius:50%;
   border:none; cursor:pointer; font-size:11px; z-index:6;
-  background:#e8d2b6; color:#85705f; opacity:0; transition:opacity .15s;
+  background:#e6eeec; color:#5b6573; opacity:0; transition:opacity .15s;
   display:flex; align-items:center; justify-content:center;
 }
 .seat:hover .lockbtn{opacity:1}
-.seat.locked .lockbtn{opacity:1; background:#151311; color:var(--bg)}
+.seat.locked .lockbtn{opacity:1; background:#12201f; color:var(--bg)}
 .frontbadge{
   position:absolute; top:-9px; left:-9px; background:var(--primary); color:#fff;
   font-size:10px; font-weight:800; border-radius:99px; padding:2px 6px; z-index:6;
@@ -261,13 +266,13 @@ input[type=text]:focus, textarea:focus{outline:2px solid var(--primary-soft); bo
 .seat.hint-pos .hintbadge{display:flex; background:var(--green)}
 .seat.hint-neg .hintbadge{display:flex; background:var(--red)}
 .seat.hint-zero .hintbadge{display:flex; background:#94a3b8}
-.seat.hint-pos{background:#eaf3e4}
-.seat.hint-neg{background:#f8e6da}
+.seat.hint-pos{background:#e7f6ec}
+.seat.hint-neg{background:#fdeceb}
 body.dragging .seat:not(.dragSrc){cursor:copy}
 body.dragging .seat{opacity:.45}
 body.dragging .seat.glow-g, body.dragging .seat.glow-r, body.dragging .seat.dragSrc, body.dragging .seat.dropHover{opacity:1}
-.seat.glow-g{box-shadow:0 0 18px 5px rgba(46,143,98,.55)!important; border-color:var(--green)!important}
-.seat.glow-r{box-shadow:0 0 18px 5px rgba(196,73,73,.55)!important; border-color:var(--red)!important}
+.seat.glow-g{box-shadow:0 0 18px 5px rgba(21,128,61,.5)!important; border-color:var(--green)!important}
+.seat.glow-r{box-shadow:0 0 18px 5px rgba(180,35,24,.5)!important; border-color:var(--red)!important}
 .seat.dragSrc{opacity:.35!important}
 .seat.dropHover{outline:3px solid var(--primary); outline-offset:3px}
 .ghost{
@@ -296,8 +301,8 @@ body.dragging .seat.glow-g, body.dragging .seat.glow-r, body.dragging .seat.drag
 .miniPrev .ms{width:18px; height:11px; border-radius:2px; background:var(--primary-soft); border:1px solid var(--primary); flex:none}
 .miniPrev .ma{width:10px; flex:none}
 .seatTally{font-size:14px; font-weight:700; padding:8px 12px; border-radius:8px}
-.seatTally.ok{background:var(--green-soft); color:#1d5c3e}
-.seatTally.ko{background:var(--red-soft); color:#8e3030}
+.seatTally.ok{background:var(--green-soft); color:#166534}
+.seatTally.ko{background:var(--red-soft); color:#912018}
 
 /* Gida */
 .guideStep{display:flex; gap:10px; margin-bottom:10px; font-size:13.5px; line-height:1.45}
@@ -310,6 +315,30 @@ body.dragging .seat.glow-g, body.dragging .seat.glow-r, body.dragging .seat.drag
   padding:10px 12px; font-size:13px; margin-bottom:12px;
 }
 .guideStep a{color:var(--primary); font-weight:700}
+.pathTabs{display:flex; gap:6px; margin:12px 0 4px}
+.pathTab{
+  border:1.5px solid var(--line); background:var(--card); color:var(--muted);
+  border-radius:9px; padding:8px 14px; font-size:13.5px; font-weight:700; cursor:pointer;
+}
+.pathTab.active{border-color:var(--primary); background:var(--primary-soft); color:var(--primary-dark)}
+.scriptSteps{counter-reset:ss; margin:0; padding:0; list-style:none}
+.scriptSteps li{position:relative; padding:0 0 12px 34px; font-size:13.5px; line-height:1.5}
+.scriptSteps li::before{
+  counter-increment:ss; content:counter(ss);
+  position:absolute; left:0; top:0; width:24px; height:24px; border-radius:99px;
+  background:var(--primary); color:#fff; font-weight:800; font-size:12px;
+  display:flex; align-items:center; justify-content:center;
+}
+.scriptSteps li b a{color:var(--primary-dark)}
+.codeBox{
+  position:relative; background:#12201f; color:#d7e3e0; border-radius:10px;
+  padding:12px 14px; margin:8px 0; font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:12px; line-height:1.5; max-height:230px; overflow:auto; white-space:pre;
+}
+.copyCodeBtn{
+  position:sticky; top:0; float:right; background:var(--green); color:#fff; border:none;
+  border-radius:7px; padding:6px 12px; font-size:12.5px; font-weight:700; cursor:pointer;
+}
 
 /* Soziograma */
 .sozioToolbar{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:14px}
@@ -321,7 +350,7 @@ body.dragging .seat.glow-g, body.dragging .seat.glow-r, body.dragging .seat.drag
   touch-action:none; user-select:none; -webkit-user-select:none;
 }
 .sozioSide{flex:0 1 300px; display:flex; flex-direction:column; gap:10px; min-width:240px}
-.sozioCard{background:#f7ecdc; border:1px solid var(--line); border-radius:12px; padding:12px 14px; font-size:13.5px}
+.sozioCard{background:#f3f7f6; border:1px solid var(--line); border-radius:12px; padding:12px 14px; font-size:13.5px}
 .sozioCard h3{margin:0 0 6px; font-size:14px}
 .sozioCard ul{margin:0; padding-left:18px}
 .sozioCard li{margin-bottom:3px}
@@ -343,8 +372,8 @@ body.dragging .seat.glow-g, body.dragging .seat.glow-r, body.dragging .seat.drag
 .stepBox .sTxt{min-width:0}
 .stepBox .sTxt b{display:block; font-size:14px; line-height:1.2}
 .stepBox .sTxt span{font-size:12.5px; color:var(--muted)}
-.stepBox.done .sTxt span{color:#1d5c3e; font-weight:600}
-.stepBox.warn .sTxt span{color:#8a5a14; font-weight:700}
+.stepBox.done .sTxt span{color:#166534; font-weight:600}
+.stepBox.warn .sTxt span{color:#92400e; font-weight:700}
 @media(max-width:920px){#stepper{grid-template-columns:1fr}}
 
 /* Hasierako pantaila */
@@ -352,7 +381,7 @@ body.dragging .seat.glow-g, body.dragging .seat.glow-r, body.dragging .seat.drag
 #emptyHero h2{font-size:23px; margin:18px 0}
 .privacyNote{
   display:inline-block; background:var(--green-soft); border:1.5px solid var(--green);
-  color:#1d5c3e; border-radius:99px; padding:8px 16px; font-size:14px; font-weight:600;
+  color:#166534; border-radius:99px; padding:8px 16px; font-size:14px; font-weight:600;
 }
 .privacyNote.small{display:block; border-radius:9px; padding:7px 11px; font-size:12.5px; margin-bottom:10px; text-align:left}
 .heroActions{display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-bottom:22px}
@@ -361,7 +390,7 @@ body.dragging .seat.glow-g, body.dragging .seat.glow-r, body.dragging .seat.drag
   background:var(--green-soft); border:2px solid var(--green); border-radius:14px; padding:16px 18px;
 }
 .demoBox b{font-size:16px}
-.demoBox span{font-size:13.5px; color:#3c5547}
+.demoBox span{font-size:13.5px; color:#285e4a}
 .moreOpt{margin-top:18px; text-align:left}
 
 /* Tolesgarriak (details) */
@@ -393,9 +422,9 @@ details summary:hover{filter:brightness(.97)}
 .reviewBox .rvSub{font-size:12.5px; color:var(--muted); font-style:italic; margin-bottom:12px}
 .rvItem{display:flex; gap:9px; align-items:flex-start; padding:6px 0; font-size:14px; border-top:1px solid var(--line)}
 .rvItem .rvIc{flex:none; width:22px; text-align:center}
-.rvItem.ok{color:#1d5c3e}
-.rvItem.warn{color:#8a5a14; font-weight:600}
-.rvItem.bad{color:#8e3030; font-weight:600}
+.rvItem.ok{color:#166534}
+.rvItem.warn{color:#92400e; font-weight:600}
+.rvItem.bad{color:#912018; font-weight:600}
 .rvItem .chip{font-weight:600}
 
 /* Insight-txartelak (soziograma) */
@@ -407,9 +436,9 @@ details summary:hover{filter:brightness(.97)}
 .cohesionCard strong{font-size:30px; color:var(--primary); font-family:'Poppins',system-ui,sans-serif; line-height:1.1}
 .cohesionCard strong small{font-size:14px; color:var(--muted)}
 .riskBadge{border-radius:8px; padding:7px 11px; font-size:12px; font-weight:900; text-transform:uppercase; letter-spacing:.5px}
-.riskBadge.good{background:var(--green-soft); color:#1d5c3e}
-.riskBadge.warn{background:var(--yellow-soft); color:#8a5a14}
-.riskBadge.bad{background:var(--red-soft); color:#8e3030}
+.riskBadge.good{background:var(--green-soft); color:#166534}
+.riskBadge.warn{background:var(--yellow-soft); color:#92400e}
+.riskBadge.bad{background:var(--red-soft); color:#912018}
 .insightCard{
   display:grid; grid-template-columns:42px 1fr; gap:12px; align-items:start;
   border:1px solid var(--line); border-radius:12px; padding:13px 14px; background:var(--paper);
@@ -417,12 +446,12 @@ details summary:hover{filter:brightness(.97)}
 .insightCard.success{background:var(--green-soft)}
 .insightCard.warning{background:var(--yellow-soft)}
 .insightCard.danger{background:var(--red-soft)}
-.insightCard.info{background:#f0e7f5}
-.insightCard.purple{background:#efe3ef}
+.insightCard.info{background:#e7f1f4}
+.insightCard.purple{background:#e9eef2}
 .iIcon{
   width:38px; height:38px; border-radius:99px; background:rgba(255,255,255,.75);
   display:flex; align-items:center; justify-content:center; font-size:18px;
-  box-shadow:0 1px 3px rgba(21,19,17,.12);
+  box-shadow:0 1px 3px rgba(16,24,40,.14);
 }
 .iHead{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:6px}
 .iHead strong{font-size:13.5px}
@@ -444,7 +473,7 @@ details summary:hover{filter:brightness(.97)}
 .constraintRow select{max-width:185px}
 .kchip{
   display:inline-flex; align-items:center; gap:6px; background:#fff; border:1.5px solid var(--red);
-  color:#8e3030; border-radius:99px; padding:4px 10px; font-size:12.5px; font-weight:700;
+  color:#912018; border-radius:99px; padding:4px 10px; font-size:12.5px; font-weight:700;
 }
 .kchip button{
   border:none; background:var(--red); color:#fff; width:17px; height:17px; border-radius:99px;
@@ -474,7 +503,7 @@ details summary:hover{filter:brightness(.97)}
 }
 .planTbl td small{display:block; font-weight:500; font-size:9px; color:var(--muted)}
 .planTbl td.emp{background:transparent}
-.planTbl td.blk{background:repeating-linear-gradient(45deg,#eadbc6,#eadbc6 6px,#e0cdb2 6px,#e0cdb2 12px); color:#a98f74}
+.planTbl td.blk{background:repeating-linear-gradient(45deg,#e3e9e7,#e3e9e7 6px,#d4ddda 6px,#d4ddda 12px); color:#8aa39d}
 .rFoot{margin-top:14px; font-size:11.5px; color:var(--muted); border-top:1px solid var(--line); padding-top:10px}
 
 svg .nd{cursor:grab}
@@ -487,7 +516,7 @@ svg.focusing .nd.hot{opacity:1}
 
 /* Modalak */
 .overlay{
-  position:fixed; inset:0; background:rgba(21,19,17,.55); display:none;
+  position:fixed; inset:0; background:rgba(16,24,40,.5); display:none;
   align-items:flex-start; justify-content:center; padding:40px 16px; z-index:100; overflow:auto;
 }
 .overlay.open{display:flex}
@@ -507,8 +536,8 @@ svg.focusing .nd.hot{opacity:1}
 .choiceMapRow{display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:13px}
 .choiceMapRow .cmCol{flex:1 1 160px; min-width:0; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .choiceMapRow label{display:inline-flex; align-items:center; gap:3px; font-weight:600; cursor:pointer}
-.choiceMapRow .cmL{color:#1d5c3e}
-.choiceMapRow .cmD{color:#8e3030}
+.choiceMapRow .cmL{color:#166534}
+.choiceMapRow .cmD{color:#912018}
 .chipPick{display:flex; flex-wrap:wrap; gap:6px; margin:8px 0 14px}
 .chipPick button{
   border:1.5px solid var(--line); background:var(--paper); border-radius:99px; padding:5px 12px;
@@ -521,7 +550,7 @@ textarea#pasteArea{width:100%; min-height:180px; font-family:ui-monospace,monosp
 /* Toast */
 #toast{
   position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(80px);
-  background:#151311; color:var(--bg); padding:12px 22px; border-radius:99px; font-size:14px;
+  background:#12201f; color:var(--bg); padding:12px 22px; border-radius:99px; font-size:14px;
   font-weight:600; box-shadow:0 10px 30px rgba(0,0,0,.3); transition:transform .25s; z-index:200;
 }
 #toast.show{transform:translateX(-50%) translateY(0)}
@@ -700,15 +729,30 @@ textarea#pasteArea{width:100%; min-height:180px; font-family:ui-monospace,monosp
       <div class="guideNote">
         <b>Arau nagusia:</b> ikasleek <b>inoiz ez</b> dute izenik eskuz idazten ("Inhar" / "Inar" arazoa). Galdera guztiak zerrenda itxiekin sortzen dira — horregatik kargatu behar da lehenik ikasleen zerrenda.
       </div>
-      <div class="guideStep"><b class="num">1</b><div><b>Sortu galdetegia</b> — <a href="https://forms.google.com" target="_blank" rel="noopener">forms.google.com</a> → <i>Hutsik</i>. <b>Hiru galdera bakarrik</b>:
+
+      <div class="pathTabs">
+        <button class="pathTab active" data-path="auto">⚡ Automatikoa (gomendatua)</button>
+        <button class="pathTab" data-path="manual">✋ Eskuz</button>
+      </div>
+
+      <!-- BIDE AUTOMATIKOA -->
+      <div class="pathBody" id="path-auto">
+        <p class="desc" style="margin-top:10px">Aplikazioak <b>galdetegi osoa sortzeko gidoi bat</b> prestatuko du, zure ikasleen izenak barruan dituela. Ez duzu Forms-en ezer konfiguratu behar — kopiatu, itsatsi eta sakatu "Run". Galdetegia zure Google Drive-n agertuko da, dena prest.</p>
+        <button class="btn green big" id="genScriptBtn">⚡ Sortu nire Forms galdetegia</button>
+        <p style="font-size:12.5px; color:var(--muted); margin-top:8px">Behin sortuta, bidali ikasleei (Classroom/posta), eta erantzunak jasota, itzuli hona <b>«Itsatsi/Igo erantzunak»</b> egitera (ikus "Eskuz" → 3. pausoa).</p>
+      </div>
+
+      <!-- BIDE ESKUZKOA -->
+      <div class="pathBody" id="path-manual" style="display:none">
+      <div class="guideStep" style="margin-top:10px"><b class="num">1</b><div><b>Sortu galdetegia</b> — <a href="https://forms.google.com" target="_blank" rel="noopener">forms.google.com</a> → <i>Hutsik</i>. <b>Hiru galdera bakarrik</b>:
         <ul style="margin:6px 0 6px 16px; padding:0; font-size:13px">
           <li><b>«Nor zara?»</b> — mota: <i>Goitibeherakoa</i> · <i>Derrigorrezkoa</i> ✓<br>
             Aukerak jartzeko: sakatu behean <b>Kopiatu zerrenda</b>, eta Forms-en <b>itsatsi lehen aukeraren gainean</b> — lerro bakoitza aukera bihurtuko da automatikoki.</li>
           <li><b>«Norekin egongo zinateke gustura eserita?»</b> — mota: <i>Kontrol-laukiak (koadroak)</i> · aukera berberak (itsatsi berriro) · ⋮ menuan: <i>Erantzunak balioztatzea → Hautatu gehienez → 3</i></li>
           <li><b>«Norekin ez zenuke eseri nahi?»</b> — <i>Kontrol-laukiak (koadroak)</i> · balioztatzea: gehienez 2 · derrigorrezkoa EZ markatu</li>
         </ul>
-        <div class="guideNote" style="background:var(--green-soft); border-color:var(--green); color:#3c5547; margin:4px 0 8px">
-          ✅ <b>Gomendioa: erabili "Kontrol-laukiak" (koadroak), ez goitibeherako bat aukera bakoitzeko.</b> Galdera bakar batean ikasleak 3 lagun marka ditzake (eta gehienez 3ra muga dezakezu). Horrela Excel-ak <b>zutabe bana</b> izango du BAI eta EZ-rako, garbiago. Goitibeherako bereiziek (1., 2., 3. galdera...) zutabe asko sortzen dituzte — horiek ere onartzen ditu aplikazioak, baina koadroak errazagoak dira.
+        <div class="guideNote" style="background:var(--green-soft); border-color:var(--green); color:#285e4a; margin:4px 0 8px">
+          ✅ <b>Gomendioa: erabili "Kontrol-laukiak" (koadroak), ez goitibeherako bat aukera bakoitzeko.</b> Galdera bakar batean ikasleak 3 lagun marka ditzake (eta gehienez 3ra muga dezakezu). Horrela Excel-ak <b>zutabe bana</b> izango du BAI eta EZ-rako, garbiago.
         </div>
         <button class="btn" id="copyListBtn">📋 Kopiatu zerrenda</button>
       </div></div>
@@ -717,11 +761,14 @@ textarea#pasteArea{width:100%; min-height:180px; font-family:ui-monospace,monosp
         Forms-en: <i>Erantzunak</i> fitxa → Sheets ikono berdea (<i>Ikusi Kalkulu-orrietan</i>) → <i>Fitxategia → Deskargatu → Microsoft Excel (.xlsx)</i> edo <i>Balio komaz bereiziak (.csv)</i> — biak balio dute → sakatu behean <b>Igo erantzunak</b>.<br>
         <span style="font-size:12.5px; color:var(--muted)">Bizkorrago: Sheets-en dena hautatu (Ctrl+A / ⌘A), kopiatu, eta hemen <b>Itsatsi erantzunak</b>.</span><br>
         Igotzean aukeratu <b>«Gehitu / nahiak eguneratu»</b> — izenak zerrenda itxikoak direnez, automatikoki lotuko dira.
-        <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap">
-          <button class="btn green" id="uploadRespBtn">📂 Igo erantzunak (.xlsx / .csv)</button>
-          <button class="btn outline" id="pasteRespBtn">📋 Itsatsi erantzunak</button>
-        </div>
       </div></div>
+      </div>
+
+      <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; border-top:1px solid var(--line); padding-top:12px">
+        <span style="font-size:13px; font-weight:700; align-self:center">Erantzunak prest dituzunean:</span>
+        <button class="btn green" id="uploadRespBtn">📂 Igo erantzunak (.xlsx / .csv)</button>
+        <button class="btn outline" id="pasteRespBtn">📋 Itsatsi erantzunak</button>
+      </div>
       </div>
       </details>
     </div>
@@ -1443,7 +1490,7 @@ function renderRelStatus(){
     `<span class="chip r">⛔ ${disT} ezezko</span>`,
   ];
   if(noPref) bits.push(`<span class="chip">😶 ${noPref} ikasle nahirik gabe</span>`);
-  if(g.pending.length) bits.push(`<span class="chip" style="background:var(--yellow-soft); color:#8a5a14">⚠️ ${g.pending.length} izen argitzeke</span>`);
+  if(g.pending.length) bits.push(`<span class="chip" style="background:var(--yellow-soft); color:#92400e">⚠️ ${g.pending.length} izen argitzeke</span>`);
   el.innerHTML = `<div class="iChips" style="margin-bottom:10px">${bits.join('')}</div>`;
 }
 
@@ -1604,9 +1651,9 @@ function openEditor(id){
     <p class="desc">Aldatu izena, markatu norekin egon nahi duen (💚) edo ez (⛔), eta beharrezko baldintzak.</p>
     <div class="mapRow"><label>Izena:</label><input type="text" id="edName" value="${esc(s.name)}" style="flex:1"></div>
     <div class="mapRow"><label><input type="checkbox" id="edFront" ${s.front?'checked':''}> 📌 Lehen lerroan eseri behar du</label></div>
-    <div style="font-weight:700; font-size:14px; color:#1d5c3e">💚 Norekin BAI:</div>
+    <div style="font-weight:700; font-size:14px; color:#166534">💚 Norekin BAI:</div>
     <div class="chipPick" id="pickG">${chipsHtml('g')}</div>
-    <div style="font-weight:700; font-size:14px; color:#8e3030">⛔ Norekin EZ:</div>
+    <div style="font-weight:700; font-size:14px; color:#912018">⛔ Norekin EZ:</div>
     <div class="chipPick" id="pickR">${chipsHtml('r')}</div>
     <div class="foot">
       <button class="btn gray" onclick="closeModal()">Utzi</button>
@@ -1946,6 +1993,83 @@ $('#copyListBtn').addEventListener('click', async ()=>{
 $('#uploadRespBtn').addEventListener('click', ()=>$('#fileInput').click());
 $('#pasteRespBtn').addEventListener('click', ()=>openPasteModal());
 
+/* Bide automatikoa / eskuzkoa aldatu */
+document.querySelectorAll('.pathTab').forEach(t=>t.addEventListener('click', ()=>{
+  document.querySelectorAll('.pathTab').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  const p = t.dataset.path;
+  $('#path-auto').style.display = p==='auto' ? '' : 'none';
+  $('#path-manual').style.display = p==='manual' ? '' : 'none';
+}));
+
+/* Google Apps Script gidoia sortu, ikasleen izenak barruan */
+function buildFormsScript(){
+  const g = G();
+  const izenak = g.students.map(s=>s.name);
+  const title = `GelaLekuak — Norekin eseri? (${g.name})`;
+  return `function sortuGaldetegia() {
+  // ====== Ikasleen zerrenda (itxia — ez da izenik eskuz idazten) ======
+  var izenak = ${JSON.stringify(izenak)};
+
+  var f = FormApp.create(${JSON.stringify(title)});
+  f.setDescription('Markatu zure izena eta norekin egongo zinatekeen gustura (edo ez). '
+    + 'Ez idatzi izenik: aukeratu beti zerrendatik.');
+  f.setCollectEmail(true);
+  f.setLimitOneResponsePerUser(true);
+
+  // 1) Nor zara? (goitibeherakoa, derrigorrezkoa)
+  f.addListItem()
+    .setTitle('Nor zara?')
+    .setRequired(true)
+    .setChoiceValues(izenak);
+
+  // 2) Norekin BAI (koadroak, gehienez 3)
+  f.addCheckboxItem()
+    .setTitle('Norekin egongo zinateke gustura eserita? (gehienez 3)')
+    .setRequired(true)
+    .setChoiceValues(izenak)
+    .setValidation(FormApp.createCheckboxValidation().requireSelectAtMost(3).build());
+
+  // 3) Norekin EZ (koadroak, gehienez 2, aukerakoa)
+  f.addCheckboxItem()
+    .setTitle('Norekin ez zenuke eseri nahi? (gehienez 2, aukerakoa)')
+    .setChoiceValues(izenak)
+    .setValidation(FormApp.createCheckboxValidation().requireSelectAtMost(2).build());
+
+  Logger.log('✅ Galdetegia sortuta!');
+  Logger.log('✏️ Editatzeko: ' + f.getEditUrl());
+  Logger.log('📨 Ikasleei bidaltzeko: ' + f.getPublishedUrl());
+}`;
+}
+
+$('#genScriptBtn').addEventListener('click', ()=>{
+  const g = G();
+  if(g.students.length < 2){ toast('Lehenik kargatu ikasleen zerrenda (1. pausoa).'); return; }
+  const code = buildFormsScript();
+  openModal(`
+    <h3>⚡ Zure Google Forms galdetegia — pausoz pauso</h3>
+    <p class="desc">Honek galdetegi osoa sortuko du zure Drive-n, <b>${g.students.length} ikasleen izenekin</b> eta dena konfiguratuta. Ez duzu Forms-en ezer ukitu behar.</p>
+    <ol class="scriptSteps">
+      <li>Ireki <b><a href="https://script.google.com/home/projects/create" target="_blank" rel="noopener">script.google.com</a></b> (zure eskolako kontuarekin) → proiektu berri bat irekiko da.</li>
+      <li>Ezabatu agertzen den kode guztia, eta <b>itsatsi hau</b> bere lekuan:
+        <div class="codeBox"><button class="copyCodeBtn" id="copyCodeBtn">📋 Kopiatu</button>${esc(code)}</div>
+      </li>
+      <li>Sakatu goian <b>Exekutatu</b> (▶ "Run"). Lehen aldian Google-k <b>baimena</b> eskatuko dizu: onartu zure kontuarekin (segurua da, zure gidoia da).</li>
+      <li>Behean, <b>Exekuzio-erregistroa</b>n, bi esteka agertuko dira: bata galdetegia <i>editatzeko</i>, bestea <i>ikasleei bidaltzeko</i>.</li>
+      <li>Bidali ikasleei (Classroom/posta). Erantzunak jasota, itzuli hona eta sakatu <b>«Igo/Itsatsi erantzunak»</b>.</li>
+    </ol>
+    <div class="foot"><button class="btn" onclick="closeModal()">Ondo, itxi</button></div>
+  `);
+  $('#copyCodeBtn').addEventListener('click', async ()=>{
+    try{ await navigator.clipboard.writeText(code); $('#copyCodeBtn').textContent='✓ Kopiatuta'; toast('📋 Gidoia kopiatuta — itsatsi script.google.com-en.'); }
+    catch(e){
+      const box = $('#modalBox .codeBox'); const sel = window.getSelection(); const rng = document.createRange();
+      rng.selectNodeContents(box); sel.removeAllRanges(); sel.addRange(rng);
+      toast('Hautatuta — sakatu Ctrl+C kopiatzeko.');
+    }
+  });
+});
+
 /* ---------- Berrikuspen-panela: proposamena aztertzen lagundu ---------- */
 function renderReview(){
   const g = G();
@@ -2268,7 +2392,7 @@ function renderSozioSide(){
       stars.length ? chips(stars.map(([id,n])=>chip(`${esc(name(id))} · ${n}`,'g'))) : '<div class="iNote">Daturik ez.</div>')}
     ${card(isolated.length?'warning':'success','🏝️','Inork aukeratu gabeak', isolated.length,
       isolated.length ? chips(isolated.map(s=>chip(esc(s.name)))) + '<div class="iNote">BAI bat ere jaso ez dutenak — arreta berezia.</div>'
-        : '<div class="iNote" style="color:#1d5c3e; font-weight:700">Denek jaso dute aukeraketaren bat 🎉</div>')}
+        : '<div class="iNote" style="color:#166534; font-weight:700">Denek jaso dute aukeraketaren bat 🎉</div>')}
     ${card(rejected.length?'danger':'success','⚠️','EZ gehien jaso dutenak', rejected.length || null,
       rejected.length ? chips(rejected.map(([id,n])=>chip(`${esc(name(id))} · ${n}`,'r'))) : '<div class="iNote">Inork ez du EZ-rik jaso.</div>')}
     ${card('info','🤝','Elkarrekiko adiskidetasunak', mutuals.length,
