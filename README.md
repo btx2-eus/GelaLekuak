@@ -28,3 +28,9 @@ Datu guztiak **nabigatzailean bakarrik** gordetzen dira (localStorage). Ez da ez
 ## Teknikoki
 
 HTML fitxategi bakarra (`index.html`), menpekotasun bakarra [SheetJS](https://sheetjs.com/) (CDN) Excel fitxategiak irakurtzeko. Euskaraz. "Obsidian Ink / Velvet Curfew / Almond Hearth" paleta.
+
+## Egilea eta lizentzia
+
+Egilea: **Luken San Sebastián** ([luken@lasalledonostia.com](mailto:luken@lasalledonostia.com))
+
+Lizentzia: **[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.eu)** (Aitortu — EzKomertziala — PartekatuBerdin). Libre zara erabili, kopiatu eta moldatzeko, betiere egilea aitortuta, helburu ez-komertzialetarako, eta eratorritako lanak lizentzia berarekin partekatuta. Ikus [LICENSE](LICENSE).

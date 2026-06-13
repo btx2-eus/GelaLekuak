@@ -4,6 +4,14 @@
 <meta charset="UTF-8" />
 <title>GelaLekuak · Tutorearen aulki-antolatzailea</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="author" content="Luken San Sebastián (luken@lasalledonostia.com)" />
+<meta name="license" content="CC BY-NC-SA 4.0" />
+<!--
+  GelaLekuak — tutoreentzako aulki-antolatzailea
+  © 2026 Luken San Sebastián (luken@lasalledonostia.com)
+  Lizentzia: Creative Commons Aitortu-EzKomertziala-PartekatuBerdin 4.0 (CC BY-NC-SA 4.0)
+  https://creativecommons.org/licenses/by-nc-sa/4.0/deed.eu
+-->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -76,6 +84,11 @@ h1,h2,h3,.btn,.tab,label.filebtn,.iconbtn,.arbela{
 .tab .dot.show{display:inline-block}
 .sidefoot{margin-top:auto; display:grid; gap:6px}
 .sidefoot .iconbtn{justify-content:flex-start}
+.credit{margin-top:10px; padding-top:10px; border-top:1px solid rgba(238,211,186,.18); font-size:11px; color:#b89a7e; line-height:1.6}
+.credit b{color:#dcc4aa; font-weight:700}
+.credit a{color:#b89a7e; text-decoration:none}
+.credit a:hover{color:#ecd9c5; text-decoration:underline}
+@media(max-width:920px){.credit{display:none}}
 .workspace{min-width:0; display:flex; flex-direction:column}
 .topbar{
   position:sticky; top:0; z-index:5; min-height:62px;
@@ -586,6 +599,11 @@ textarea#pasteArea{width:100%; min-height:180px; font-family:ui-monospace,monosp
     <button class="iconbtn" id="exportBtn" title="Gorde datu guztiak fitxategi batean"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg> Gorde fitxategian</button>
     <label class="iconbtn" style="cursor:pointer" title="Lehenago gordetako fitxategia kargatu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg> Berreskuratu<input type="file" id="importJsonInput" accept=".json"></label>
     <button class="iconbtn" id="clearDataBtn" title="Talde honetako datu guztiak ezabatu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Garbitu datuak</button>
+    <div class="credit">
+      <b>Luken San Sebastián</b><br>
+      <a href="mailto:luken@lasalledonostia.com">luken@lasalledonostia.com</a><br>
+      <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.eu" target="_blank" rel="noopener" title="Aitortu — Ez komertziala — Partekatu berdin 4.0">CC BY-NC-SA 4.0</a>
+    </div>
   </div>
 </aside>
 
@@ -2396,7 +2414,8 @@ function renderReport(){
     </div>
     <h3 style="margin:18px 0 8px">🗺️ Gelako planoa (arbela goian)</h3>
     <table class="planTbl">${planRows}</table>
-    <div class="rFoot">🔐 Datu sentikorrak: soziograma-erantzunetan oinarritua. Erabili tutoretza/orientazio lanerako bakarrik; ez partekatu ikasle edo familiekin.</div>
+    <div class="rFoot">🔐 Datu sentikorrak: soziograma-erantzunetan oinarritua. Erabili tutoretza/orientazio lanerako bakarrik; ez partekatu ikasle edo familiekin.<br>
+    <span style="opacity:.8">GelaLekuak · Luken San Sebastián (luken@lasalledonostia.com) · CC BY-NC-SA 4.0</span></div>
   </div>`;
 }
 $('#reportPrintBtn').addEventListener('click', ()=>{
