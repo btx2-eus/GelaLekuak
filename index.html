@@ -490,6 +490,12 @@ svg.focusing .nd.hot{opacity:1}
 .previewTbl{width:100%; border-collapse:collapse; font-size:12px; margin:10px 0; overflow:hidden; border-radius:8px}
 .previewTbl th{background:var(--primary-soft); color:var(--primary-dark); padding:5px 7px; text-align:left}
 .previewTbl td{border-bottom:1px solid var(--line); padding:4px 7px; max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.choiceMap{display:flex; flex-direction:column; gap:5px; max-height:220px; overflow:auto; border:1px solid var(--line); border-radius:9px; padding:8px; background:var(--paper); width:100%}
+.choiceMapRow{display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:13px}
+.choiceMapRow .cmCol{flex:1 1 160px; min-width:0; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.choiceMapRow label{display:inline-flex; align-items:center; gap:3px; font-weight:600; cursor:pointer}
+.choiceMapRow .cmL{color:#1d5c3e}
+.choiceMapRow .cmD{color:#8e3030}
 .chipPick{display:flex; flex-wrap:wrap; gap:6px; margin:8px 0 14px}
 .chipPick button{
   border:1.5px solid var(--line); background:var(--paper); border-radius:99px; padding:5px 12px;
@@ -676,13 +682,16 @@ textarea#pasteArea{width:100%; min-height:180px; font-family:ui-monospace,monosp
       <div class="guideNote">
         <b>Arau nagusia:</b> ikasleek <b>inoiz ez</b> dute izenik eskuz idazten ("Inhar" / "Inar" arazoa). Galdera guztiak zerrenda itxiekin sortzen dira — horregatik kargatu behar da lehenik ikasleen zerrenda.
       </div>
-      <div class="guideStep"><b class="num">1</b><div><b>Sortu galdetegia</b> — <a href="https://forms.google.com" target="_blank" rel="noopener">forms.google.com</a> → <i>Hutsik</i>. Hiru galdera, hauek bezala:
+      <div class="guideStep"><b class="num">1</b><div><b>Sortu galdetegia</b> — <a href="https://forms.google.com" target="_blank" rel="noopener">forms.google.com</a> → <i>Hutsik</i>. <b>Hiru galdera bakarrik</b>:
         <ul style="margin:6px 0 6px 16px; padding:0; font-size:13px">
           <li><b>«Nor zara?»</b> — mota: <i>Goitibeherakoa</i> · <i>Derrigorrezkoa</i> ✓<br>
             Aukerak jartzeko: sakatu behean <b>Kopiatu zerrenda</b>, eta Forms-en <b>itsatsi lehen aukeraren gainean</b> — lerro bakoitza aukera bihurtuko da automatikoki.</li>
-          <li><b>«Norekin egongo zinateke gustura eserita?»</b> — mota: <i>Kontrol-laukiak</i> · aukera berberak (itsatsi berriro) · ⋮ menuan: <i>Erantzunak balioztatzea → Hautatu gehienez → 3</i></li>
-          <li><b>«Norekin ez zenuke eseri nahi?»</b> — <i>Kontrol-laukiak</i> · balioztatzea: gehienez 2 · derrigorrezkoa EZ markatu</li>
+          <li><b>«Norekin egongo zinateke gustura eserita?»</b> — mota: <i>Kontrol-laukiak (koadroak)</i> · aukera berberak (itsatsi berriro) · ⋮ menuan: <i>Erantzunak balioztatzea → Hautatu gehienez → 3</i></li>
+          <li><b>«Norekin ez zenuke eseri nahi?»</b> — <i>Kontrol-laukiak (koadroak)</i> · balioztatzea: gehienez 2 · derrigorrezkoa EZ markatu</li>
         </ul>
+        <div class="guideNote" style="background:var(--green-soft); border-color:var(--green); color:#3c5547; margin:4px 0 8px">
+          ✅ <b>Gomendioa: erabili "Kontrol-laukiak" (koadroak), ez goitibeherako bat aukera bakoitzeko.</b> Galdera bakar batean ikasleak 3 lagun marka ditzake (eta gehienez 3ra muga dezakezu). Horrela Excel-ak <b>zutabe bana</b> izango du BAI eta EZ-rako, garbiago. Goitibeherako bereiziek (1., 2., 3. galdera...) zutabe asko sortzen dituzte — horiek ere onartzen ditu aplikazioak, baina koadroak errazagoak dira.
+        </div>
         <button class="btn" id="copyListBtn">📋 Kopiatu zerrenda</button>
       </div></div>
       <div class="guideStep"><b class="num">2</b><div><b>Bidali ikasleei</b> (Classroom edo posta bidez). Ezarpenetan, aktibatu <i>«Mugatu erantzun 1era»</i>, ikasle bakoitzak behin bakarrik erantzun dezan.</div></div>
@@ -701,7 +710,7 @@ textarea#pasteArea{width:100%; min-height:180px; font-family:ui-monospace,monosp
 
     <div class="card" id="warnCard" style="display:none">
       <h2>⚠️ Argitu beharreko izenak</h2>
-      <p class="desc">Izen hauek ezin izan dira automatikoki lotu (gaizki idatzita, anbiguoak...). Lotu eskuz edo baztertu — bestela nahi horiek <b>ez dira kontuan hartuko</b>.</p>
+      <p class="desc">Izen hauek ezin izan dira automatikoki lotu — gehienetan, <b>galdetegia bete ez duten ikasleak</b> dira (beste batzuek aukeratu dituzte). Gehitu ikasle berri gisa, lotu daudenekin, edo baztertu — bestela aukeraketa horiek <b>ez dira kontuan hartuko</b>.</p>
       <div id="warnList"></div>
     </div>
 
@@ -1499,39 +1508,65 @@ function renderWarnings(){
     dot.classList.remove('show');
     return;
   }
-  dot.textContent = g.pending.length; dot.classList.add('show');
+  // Izen bera (raw) hainbat ikaslek aukeratua bada, behin bakarrik erakutsi
+  const groups = [];
+  const byRaw = new Map();
+  for(const p of g.pending){
+    const key = normCore(p.raw);
+    if(!byRaw.has(key)){ const grp = {raw:p.raw, items:[], candidates:p.candidates||[]}; byRaw.set(key, grp); groups.push(grp); }
+    byRaw.get(key).items.push(p);
+  }
+  dot.textContent = groups.length; dot.classList.add('show');
   $('#warnCard').style.display='block';
-  $('#warnList').innerHTML = g.pending.map((p,i)=>{
-    const by = nameOf(p.by);
-    const fieldTxt = p.field==='likes' ? '💚 BAI' : '⛔ EZ';
-    const cands = p.candidates || [];
+  const looksFullName = s => (s||'').includes(',');
+  $('#warnList').innerHTML = groups.map((grp,i)=>{
+    const cands = grp.candidates;
     const opts = ['<option value="">— aukeratu ikaslea —</option>']
       .concat(cands.map(id=>`<option value="${id}">⭐ ${esc(nameOf(id))}</option>`))
-      .concat(g.students.filter(s=>!cands.includes(s.id) && s.id!==p.by)
+      .concat(g.students.filter(s=>!cands.includes(s.id))
         .map(s=>`<option value="${s.id}">${esc(s.name)}</option>`)).join('');
+    const whoCount = grp.items.length;
+    const whoTxt = whoCount===1 ? `<b>${esc(nameOf(grp.items[0].by))}</b>-k aukeratua` : `<b>${whoCount} ikaslek</b> aukeratua`;
     return `<div class="warnItem">
-      <span><b>${esc(by)}</b>-k «<b>${esc(p.raw)}</b>» idatzi du (${fieldTxt}). Nor da?</span>
+      <span>«<b>${esc(grp.raw)}</b>» — ${whoTxt}, baina ez dago zerrendan. Nor da?</span>
       <select class="inp" data-warnsel="${i}">${opts}</select>
       <button class="btn green" data-warnok="${i}" style="padding:7px 12px">Lotu</button>
+      ${looksFullName(grp.raw) ? `<button class="btn" data-warnadd="${i}" style="padding:7px 12px; background:var(--ink)">➕ Ikasle berri</button>` : ''}
       <button class="btn gray" data-warnno="${i}" style="padding:7px 12px">Baztertu</button>
     </div>`;
   }).join('');
+  $('#warnList')._groups = groups;
+}
+function linkPendingGroup(grp, targetId){
+  const g = G();
+  for(const p of grp.items){
+    const stu = g.students.find(s=>s.id===p.by);
+    if(stu && targetId!==p.by && !stu[p.field].includes(targetId)) stu[p.field].push(targetId);
+  }
+  g.pending = g.pending.filter(p=>!grp.items.includes(p));
 }
 $('#warnList').addEventListener('click', e=>{
   const ok = e.target.closest('[data-warnok]');
+  const add = e.target.closest('[data-warnadd]');
   const no = e.target.closest('[data-warnno]');
   const g = G();
+  const groups = $('#warnList')._groups || [];
   if(ok){
-    const i = +ok.dataset.warnok;
-    const sel = document.querySelector(`[data-warnsel="${i}"]`);
+    const grp = groups[+ok.dataset.warnok];
+    const sel = document.querySelector(`[data-warnsel="${ok.dataset.warnok}"]`);
     if(!sel.value){ toast('Aukeratu ikasle bat zerrendan.'); return; }
-    const p = g.pending[i];
-    const stu = g.students.find(s=>s.id===p.by);
-    if(stu && !stu[p.field].includes(sel.value) && sel.value!==p.by) stu[p.field].push(sel.value);
-    g.pending.splice(i,1);
-    refreshAll(); toast('Lotuta ✓');
+    linkPendingGroup(grp, sel.value);
+    refreshAll(); toast(`Lotuta ✓ (${grp.items.length} aukeraketa)`);
+  } else if(add){
+    const grp = groups[+add.dataset.warnadd];
+    const stu = {id:uid(), name:grp.raw, likes:[], dislikes:[], front:false};
+    g.students.push(stu);
+    g.students.sort((a,b)=>a.name.localeCompare(b.name,'eu'));
+    linkPendingGroup(grp, stu.id);
+    refreshAll(); toast(`✅ "${grp.raw}" ikasle berri gisa gehituta eta lotuta.`);
   } else if(no){
-    g.pending.splice(+no.dataset.warnno, 1);
+    const grp = groups[+no.dataset.warnno];
+    g.pending = g.pending.filter(p=>!grp.items.includes(p));
     refreshAll();
   }
 });
@@ -1662,17 +1697,24 @@ function parseDelimited(text){
 }
 
 /* ---------- Zutabeen mapaketa-laguntzailea ---------- */
+const isMetaHeader = h => /marca temporal|timestamp|fecha|correo|email|erabiltzaile|helbide elektronik/.test(h);
 function guessMapping(grid){
   const header = (grid[0]||[]).map(h=>normCore(h));
   const find = re => header.findIndex(h=>re.test(h));
-  const looksHeader = header.some(h=>/izen|abizen|nahi|bai|ez|name/.test(h));
-  let full = find(/izen[- ]?abizen|izena eta abizena|izen osoa|nor zara/);
-  let sur  = find(/^abizen|abizenak/);
+  const looksHeader = header.some(h=>/izen|abizen|nahi|bai|\bez\b|name|aukeratu|eseri|nor zara|ni naiz/.test(h));
+  let full = find(/izen[- ]?abizen|izena eta abizena|izen osoa|nor zara|ni naiz|nombre y apellido|alumno/);
+  let sur  = find(/^abizen|abizenak|apellido/);
   let giv  = (()=>{ for(let i=0;i<header.length;i++){ if(i!==full && i!==sur && /izen/.test(header[i]) && !/abizen|erabiltzaile|helbide/.test(header[i])) return i; } return -1; })();
-  let likes = find(/norekin bai|\bbai\b|nahiago|gustura/);
-  let dislikes = find(/norekin ez|ez zenuke|ez nuke|\bez\b/);
-  if(dislikes===likes) dislikes = -1;
-  return {looksHeader, full, sur, giv, likes, dislikes};
+  // Aukera-zutabe guztiak (BAI eta EZ) detektatu — Google Forms-ek galdera bakoitza zutabe batean jartzen du
+  const likesCols=[], dislikesCols=[];
+  header.forEach((h,i)=>{
+    if(i===full || i===sur || i===giv || isMetaHeader(h)) return;
+    const dislike = /\bez\b|ez esertz|ez zenuke|ez nuke|norekin ez|saihestu|evitar|no sentar|rechaz/.test(h);
+    const like = /eseri nahi|nahi duzun|norekin bai|\bbai\b|nahiago|gustura|gustora|gustaria|sentarse|elegir.*sentar/.test(h);
+    if(dislike) dislikesCols.push(i);
+    else if(like) likesCols.push(i);
+  });
+  return {looksHeader, full, sur, giv, likesCols, dislikesCols};
 }
 function openMappingModal(grid){
   grid = grid.filter(r=>r && r.some(c=>(c??'').toString().trim()));
@@ -1686,6 +1728,23 @@ function openMappingModal(grid){
   const prevRows = grid.slice(0, 5).map(r=>
     `<tr>${Array.from({length:Math.min(nCols,8)},(_,i)=>`<td>${esc((r[i]??'')+'')}</td>`).join('')}</tr>`).join('');
   const twoColGuess = gss.sur!==-1 && gss.giv!==-1;
+  // Aukera-zutabeen zerrenda (BAI/EZ/ez erabili), izen- eta meta-zutabeak kanpo
+  const likeSet = new Set(gss.likesCols), disSet = new Set(gss.dislikesCols);
+  const choiceCols = [];
+  for(let i=0;i<nCols;i++){
+    if(i===gss.full || i===gss.sur || i===gss.giv) continue;
+    if(isMetaHeader(normCore(grid[0]?.[i]||''))) continue;
+    choiceCols.push(i);
+  }
+  const choiceRows = choiceCols.map(i=>{
+    const st = likeSet.has(i) ? 'like' : disSet.has(i) ? 'dislike' : 'none';
+    return `<div class="choiceMapRow">
+      <span class="cmCol" title="${esc((grid[0]?.[i]??'')+'')}">${colName(i)}</span>
+      <label class="cmL"><input type="radio" name="cm${i}" value="like" ${st==='like'?'checked':''}> 💚 BAI</label>
+      <label class="cmD"><input type="radio" name="cm${i}" value="dislike" ${st==='dislike'?'checked':''}> ⛔ EZ</label>
+      <label><input type="radio" name="cm${i}" value="none" ${st==='none'?'checked':''}> —</label>
+    </div>`;
+  }).join('') || `<div style="font-size:13px; color:var(--muted)">Ez da nahi-zutaberik atzeman. Izenak bakarrik inportatuko dira.</div>`;
   openModal(`
     <h3>🧭 Zutabeak egiaztatu</h3>
     <p class="desc">Esan zein zutabetan dagoen informazio bakoitza. Saiatu naiz asmatzen — egiaztatu eta zuzendu behar bada.</p>
@@ -1705,8 +1764,10 @@ function openMappingModal(grid){
     <div class="mapRow" id="rowOne" style="${twoColGuess?'display:none':''}">
       <label>Izen osoa:</label><select class="inp" id="mFull">${colOpts(gss.full===-1 ? (gss.giv!==-1?gss.giv:0) : gss.full)}</select>
     </div>
-    <div class="mapRow"><label>💚 Norekin BAI:</label><select class="inp" id="mLikes">${colOpts(gss.likes, true)}</select></div>
-    <div class="mapRow"><label>⛔ Norekin EZ:</label><select class="inp" id="mDislikes">${colOpts(gss.dislikes, true)}</select></div>
+    <div class="mapRow" style="flex-direction:column; align-items:stretch; gap:6px">
+      <label>Nahien zutabeak <span style="font-weight:500; color:var(--muted)">— markatu zein den BAI eta zein EZ (Forms-ek galdera bakoitza zutabe batean jartzen du)</span></label>
+      <div class="choiceMap" id="choiceMap">${choiceRows}</div>
+    </div>
     ${G().students.length ? `<div class="mapRow"><label>Dauden ikasleak:</label>
       <label><input type="radio" name="mMerge" value="append" checked> Gehitu / nahiak eguneratu</label>
       <label><input type="radio" name="mMerge" value="replace"> Ordeztu dena</label>
@@ -1722,11 +1783,17 @@ function openMappingModal(grid){
     $('#rowOne').style.display = two ? 'none' : '';
   }));
   $('#mGo').addEventListener('click', ()=>{
+    const likesCols=[], dislikesCols=[];
+    for(const i of choiceCols){
+      const v = document.querySelector(`input[name=cm${i}]:checked`)?.value;
+      if(v==='like') likesCols.push(i);
+      else if(v==='dislike') dislikesCols.push(i);
+    }
     applyMapping(grid, {
       header: $('#mHeader').checked,
       two: document.querySelector('input[name=mMode]:checked').value==='two',
       sur:+($('#mSur')?.value ?? 0), giv:+($('#mGiv')?.value ?? 1), full:+($('#mFull')?.value ?? 0),
-      likes:+$('#mLikes').value, dislikes:+$('#mDislikes').value,
+      likesCols, dislikesCols,
       merge: document.querySelector('input[name=mMerge]:checked')?.value || 'replace',
     });
   });
@@ -1741,8 +1808,10 @@ function splitCellNames(cell, tryResolve){
   if(txt.includes(';')) return txt.split(';').map(x=>x.trim()).filter(Boolean);
   if(!txt.includes(',')) return [txt];
   const parts = txt.split(',').map(x=>x.trim()).filter(Boolean);
-  if(parts.length===2 && tryResolve(txt)) return [txt];
-  if(parts.length>=2 && parts.length%2===0){
+  // Bi zati = "Abizena, Izena" izen oso bat (goitibeherako gelaxka edo aukera bakarra)
+  if(parts.length===2) return [txt];
+  // Zati bikoiti gehiago = "Abizena, Izena, Abizena, Izena..." (koadroak, hainbat aukera)
+  if(parts.length>=4 && parts.length%2===0){
     const pairs = [];
     let allOk = true;
     for(let i=0;i<parts.length;i+=2){
@@ -1770,8 +1839,8 @@ function applyMapping(grid, m){
     }
     base.push({
       name,
-      likesCell: m.likes>=0 ? r[m.likes] : '',
-      dislikesCell: m.dislikes>=0 ? r[m.dislikes] : '',
+      likesCells: (m.likesCols||[]).map(ci=>r[ci]).filter(x=>(x??'').toString().trim()),
+      dislikesCells: (m.dislikesCols||[]).map(ci=>r[ci]).filter(x=>(x??'').toString().trim()),
     });
   }
   if(!base.length){ toast('Ez da ikaslerik aurkitu — egiaztatu zutabeak.'); return; }
@@ -1785,11 +1854,11 @@ function applyMapping(grid, m){
   for(const b of base){
     const existing = students.find(s=>keyFull(s.name)===keyFull(b.name));
     if(existing){ // ikaslea badago: nahiak eguneratu (Forms erantzunen fluxua)
-      existing._likesCell = b.likesCell; existing._dislikesCell = b.dislikesCell;
+      existing._likesCells = b.likesCells; existing._dislikesCells = b.dislikesCells;
       toResolve.push(existing); updated++;
       continue;
     }
-    const stu = {id:uid(), name:b.name, likes:[], dislikes:[], front:false, _likesCell:b.likesCell, _dislikesCell:b.dislikesCell};
+    const stu = {id:uid(), name:b.name, likes:[], dislikes:[], front:false, _likesCells:b.likesCells, _dislikesCells:b.dislikesCells};
     students.push(stu); toResolve.push(stu); added++;
   }
   // Indizeak eraiki izenak ebazteko
@@ -1813,21 +1882,22 @@ function applyMapping(grid, m){
   const tryResolve = label => !!resolve(label).id;
   const resolveIds = new Set(toResolve.map(s=>s.id));
   g.pending = g.pending.filter(p=>!resolveIds.has(p.by));
+  const hasLikes = (m.likesCols||[]).length, hasDis = (m.dislikesCols||[]).length;
   let unresolved = 0;
   for(const s of toResolve){
-    if(m.likes>=0) s.likes = [];
-    if(m.dislikes>=0) s.dislikes = [];
-    for(const raw of splitCellNames(s._likesCell, tryResolve)){
+    if(hasLikes) s.likes = [];
+    if(hasDis) s.dislikes = [];
+    for(const cell of s._likesCells||[]) for(const raw of splitCellNames(cell, tryResolve)){
       const r = resolve(raw);
-      if(r.id && r.id!==s.id){ if(!s.likes.includes(r.id)) s.likes.push(r.id); }
+      if(r.id && r.id!==s.id){ if(!s.likes.includes(r.id) && !s.dislikes.includes(r.id)) s.likes.push(r.id); }
       else if(!r.id){ g.pending.push({by:s.id, field:'likes', raw, candidates:r.candidates}); unresolved++; }
     }
-    for(const raw of splitCellNames(s._dislikesCell, tryResolve)){
+    for(const cell of s._dislikesCells||[]) for(const raw of splitCellNames(cell, tryResolve)){
       const r = resolve(raw);
-      if(r.id && r.id!==s.id){ if(!s.dislikes.includes(r.id)) s.dislikes.push(r.id); }
+      if(r.id && r.id!==s.id){ if(!s.dislikes.includes(r.id) && !s.likes.includes(r.id)) s.dislikes.push(r.id); }
       else if(!r.id){ g.pending.push({by:s.id, field:'dislikes', raw, candidates:r.candidates}); unresolved++; }
     }
-    delete s._likesCell; delete s._dislikesCell;
+    delete s._likesCells; delete s._dislikesCells;
   }
   students.sort((a,b)=>a.name.localeCompare(b.name,'eu'));
   g.students = students;
