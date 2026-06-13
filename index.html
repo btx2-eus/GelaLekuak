@@ -41,6 +41,11 @@ body{
 h1,h2,h3,.btn,.tab,label.filebtn,.iconbtn,.arbela{
   font-family:'Poppins',system-ui,sans-serif; letter-spacing:.2px;
 }
+/* Teklatuzko nabigaziorako foku ikusgaia (irisgarritasuna) */
+:focus-visible{outline:3px solid #e8902a; outline-offset:2px; border-radius:6px}
+.tab:focus-visible{outline-offset:-3px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important; animation:none!important}}
+.sr-only{position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0}
 /* ---- Aplikazio-oskola: albo-barra + goiko barra ---- */
 .shell{min-height:100vh; display:grid; grid-template-columns:252px minmax(0,1fr)}
 .sidebar{
@@ -384,6 +389,7 @@ body.dragging .seat.glow-g, body.dragging .seat.glow-r, body.dragging .seat.drag
   color:#166534; border-radius:99px; padding:8px 16px; font-size:14px; font-weight:600;
 }
 .privacyNote.small{display:block; border-radius:9px; padding:7px 11px; font-size:12.5px; margin-bottom:10px; text-align:left}
+.privacyWarn{display:inline-block; margin-top:5px; color:#8a5a14; font-weight:600; font-size:13px}
 .heroActions{display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-bottom:22px}
 .demoBox{
   display:flex; gap:14px; align-items:center; text-align:left; flex-wrap:wrap;
@@ -596,11 +602,11 @@ textarea#pasteArea{width:100%; min-height:180px; font-family:ui-monospace,monosp
 
   <div class="groupcard">
     <label>TALDEA</label>
-    <select id="groupSel"></select>
+    <select id="groupSel" aria-label="Taldea aukeratu"></select>
     <div class="grouprow">
-      <button class="iconbtn" id="newGroupBtn" title="Talde berria"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M5 12h14"/><path d="M12 5v14"/></svg></button>
-      <button class="iconbtn" id="renameGroupBtn" title="Izena aldatu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.4 2.6a2.12 2.12 0 1 1 3 3L12 15l-4 1 1-4Z"/></svg></button>
-      <button class="iconbtn" id="delGroupBtn" title="Taldea ezabatu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+      <button class="iconbtn" id="newGroupBtn" title="Talde berria" aria-label="Talde berria sortu"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M5 12h14"/><path d="M12 5v14"/></svg></button>
+      <button class="iconbtn" id="renameGroupBtn" title="Izena aldatu" aria-label="Taldearen izena aldatu"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.4 2.6a2.12 2.12 0 1 1 3 3L12 15l-4 1 1-4Z"/></svg></button>
+      <button class="iconbtn" id="delGroupBtn" title="Taldea ezabatu" aria-label="Taldea ezabatu"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
     </div>
   </div>
 
@@ -653,7 +659,7 @@ textarea#pasteArea{width:100%; min-height:180px; font-family:ui-monospace,monosp
 
   <!-- Hasierako pantaila (daturik gabe) -->
   <div id="emptyHero" style="display:none">
-    <div class="privacyNote">🔒 Datuak zure nabigatzailean bakarrik gordetzen dira. Ez da ezer zerbitzarira bidaltzen.</div>
+    <div class="privacyNote" role="note">🔒 <b>Datuak gailu honetako nabigatzailean bakarrik</b> gordetzen dira. Ez da ezer zerbitzarira bidaltzen.<br><span class="privacyWarn">⚠️ Tutoretzako datu sentikorrak dira — <b>ez partekatu ikasleekin edo familiekin</b>.</span></div>
     <h2>Has gaitezen: kargatu zure ikasleen zerrenda</h2>
     <div class="heroActions">
       <button class="btn big" id="pasteHeroBtn">📋 Itsatsi ikasleen zerrenda</button>
@@ -674,7 +680,7 @@ textarea#pasteArea{width:100%; min-height:180px; font-family:ui-monospace,monosp
 
     <div class="card" id="importCard">
       <h2>📥 Inportatu datu gehiago</h2>
-      <div class="privacyNote small">🔒 Datuak zure nabigatzailean bakarrik gordetzen dira.</div>
+      <div class="privacyNote small" role="note">🔒 Datuak gailu honetan bakarrik gordetzen dira. <b>Datu sentikorrak: ez partekatu ikasle edo familiekin.</b></div>
       <details>
         <summary>Inportazio-aukerak</summary>
         <div class="importgrid" style="margin-top:12px">
@@ -1249,14 +1255,14 @@ function renderSeating(){
   const aislesIn = len => GS>0 ? Math.max(0, Math.ceil(len/GS)-1) : 0;
   const maxW = Math.max(...rs.map(len => len*134 - 12 + aislesIn(len)*38));
   $('#arbela').style.maxWidth = maxW+'px';
-  const gsTxt = GS===2 ? 'binaka' : GS===3 ? 'hirunaka' : 'jarraian';
+  const gsTxt = GS===2 ? 'binaka' : GS>=3 ? `${GS}ko uharteak` : 'jarraian';
   $('#layoutSummary').textContent = `· ${rs.length} errenkada (${rs.join('+')}) · ${gsTxt}`;
 
   const html = grid.map((row,r)=>{
     const cells = row.map((id,c)=>{
       const aisle = (GS>0 && c>0 && c%GS===0) ? '<div class="aisle"></div>' : '';
-      if(BLK.has(r+':'+c)) return `${aisle}<div class="seat blockedSeat" data-blkoff="${r}:${c}" title="Eserleku blokeatuta — egin klik desblokeatzeko">🚫</div>`;
-      if(!id) return `${aisle}<div class="seat empty" data-r="${r}" data-c="${c}">Hutsik<button class="blockBtn" data-blkon="${r}:${c}" title="Eserlekua blokeatu (ez da existitzen / ezin da erabili)">🚫</button></div>`;
+      if(BLK.has(r+':'+c)) return `${aisle}<div class="seat blockedSeat" role="button" tabindex="0" data-blkoff="${r}:${c}" title="Eserleku blokeatuta — egin klik desblokeatzeko" aria-label="Eserleku blokeatua — desblokeatu"><span aria-hidden="true">🚫</span></div>`;
+      if(!id) return `${aisle}<div class="seat empty" data-r="${r}" data-c="${c}"><span class="sr-only">Eserleku hutsa</span>Hutsik<button class="blockBtn" data-blkon="${r}:${c}" title="Eserlekua blokeatu (ez da existitzen / ezin da erabili)" aria-label="Eserlekua blokeatu"><span aria-hidden="true">🚫</span></button></div>`;
       const st = rel.get(id);
       const nb = {
         T: r>0 ? grid[r-1]?.[c] : null,
@@ -1273,12 +1279,13 @@ function renderSeating(){
       const label = parts
         ? `<div class="sur">${esc(parts[0].trim())}</div><div class="giv">${esc(parts[1].trim())}</div>`
         : `<div class="giv" style="font-size:13px">${esc(st.name)}</div>`;
-      const frontBadge = st.front ? `<div class="frontbadge ${r!==0?'miss':''}" title="Lehen lerroan behar du">📌1</div>` : '';
-      return `${aisle}<div class="seat ${locked?'locked':''}" data-r="${r}" data-c="${c}" data-id="${id}" style="${style}" title="${esc(st.name)}">
+      const frontBadge = st.front ? `<div class="frontbadge ${r!==0?'miss':''}" title="Lehen lerroan behar du" aria-label="Lehen lerroan eseri behar du"><span aria-hidden="true">📌1</span></div>` : '';
+      const ariaName = `${esc(st.name)}${st.front?', lehen lerrokoa':''}${locked?', ainguratuta':''}`;
+      return `${aisle}<div class="seat ${locked?'locked':''}" role="button" tabindex="0" data-r="${r}" data-c="${c}" data-id="${id}" style="${style}" title="${esc(st.name)}" aria-label="${ariaName}. Hautatu mugitzeko edo trukatzeko.">
         ${frontBadge}
-        <button class="lockbtn" title="${locked?'Aingura kendu':'Ainguratu (tokian finkatu)'}" data-lock="${id}">${locked?'🔒':'🔓'}</button>
+        <button class="lockbtn" title="${locked?'Aingura kendu':'Ainguratu (tokian finkatu)'}" aria-label="${esc(st.name)}: ${locked?'aingura kendu':'tokian ainguratu'}" data-lock="${id}"><span aria-hidden="true">${locked?'🔒':'🔓'}</span></button>
         <div class="label">${label}</div>
-        <div class="hintbadge"></div>
+        <div class="hintbadge" aria-hidden="true"></div>
       </div>`;
     }).join('');
     return `<div class="row">${cells}</div>`;
@@ -1343,6 +1350,14 @@ function toggleBlockSeat(key, block){
   }
   ensureSeating(g); renderSeating(); save();
 }
+// Teklatuz: eserlekuak Enter/Zuriunearekin hautatu (klik bidezko mugimendua)
+$('#seatGrid').addEventListener('keydown', e => {
+  if(e.key!=='Enter' && e.key!==' ') return;
+  const blkOff = e.target.closest('[data-blkoff]');
+  if(blkOff){ e.preventDefault(); if(!sel) toggleBlockSeat(blkOff.dataset.blkoff, false); return; }
+  const seat = e.target.closest('.seat[data-id]');
+  if(seat){ e.preventDefault(); seatTap(+seat.dataset.r, +seat.dataset.c); }
+});
 $('#seatGrid').addEventListener('pointerdown', e => {
   const blkOn = e.target.closest('[data-blkon]');
   if(blkOn){ e.preventDefault(); toggleBlockSeat(blkOn.dataset.blkon, true); return; }
@@ -1471,8 +1486,8 @@ function renderStudents(){
     return `<div class="stuRow" data-edit="${s.id}">
       <span class="nm">${esc(s.name)}</span>
       <span class="chips">${chips || '<span style="font-size:12px;color:var(--muted)">preferentziarik ez</span>'}</span>
-      <button class="mini" data-edit="${s.id}" title="Editatu">✏️</button>
-      <button class="mini" data-del="${s.id}" title="Ezabatu">🗑️</button>
+      <button class="mini" data-edit="${s.id}" title="Editatu" aria-label="${esc(s.name)} editatu"><span aria-hidden="true">✏️</span></button>
+      <button class="mini" data-del="${s.id}" title="Ezabatu" aria-label="${esc(s.name)} ezabatu"><span aria-hidden="true">🗑️</span></button>
     </div>`;
   }).join('');
 }
@@ -2096,7 +2111,7 @@ function renderReview(){
   if(m.frontBad) it('warn','📌', `${m.frontBad} ikasle lehen lerroko beharra bete gabe.`);
   if(g.pending.length) it('warn','⚠️', `${g.pending.length} izen argitzeke daude (Datuak fitxan) — nahi horiek ez dira kontuan hartzen ari.`);
   if(noPref.length) it('warn','😶', `Nahirik gabeko ikasleak (${noPref.length}): ${noPref.slice(0,6).map(s=>esc(givOf(s.name))).join(', ')}${noPref.length>6?'…':''} — beraien erantzunak falta dira?`);
-  if(isolated.length) it('warn','🏝️', `Inork aukeratu gabeak (${isolated.length}): ${isolated.slice(0,6).map(s=>esc(givOf(s.name))).join(', ')}${isolated.length>6?'…':''} — begiratu soziograma.`);
+  if(isolated.length) it('warn','🌱', `Arreta tutoretzan behar dutenak (${isolated.length}): ${isolated.slice(0,6).map(s=>esc(givOf(s.name))).join(', ')}${isolated.length>6?'…':''} — begiratu soziograma.`);
   else it('ok','💚', 'Ikasle guztiek jaso dute aukeraketaren bat.');
   if(g.locked.length) it('ok','🔒', `Ainguratuta: ${g.locked.map(id=>esc(givOf(nm(id)))).join(', ')}.`);
   if(g.blockedSeats?.length) it('ok','🚫', `${g.blockedSeats.length} eserleku blokeatuta.`);
@@ -2352,10 +2367,10 @@ function computeSozioStats(){
     const R = (c<row.length-1 && hAdjC(c)) ? row[c+1] : null;
     const B = r<g.seating.length-1 ? g.seating[r+1]?.[c] : null;
     for(const nb of [R,B]) if(nb && classify(id,nb)==='red' && sugg.length<4)
-      sugg.push(`🚫 <b>${esc(givOf(name(id)))}</b> eta <b>${esc(givOf(name(nb)))}</b> gatazkan daude eta ondoan eserita — banandu edo erabili 🚫 murrizketa.`);
+      sugg.push(`↔️ <b>${esc(givOf(name(id)))}</b> eta <b>${esc(givOf(name(nb)))}</b> ez daude eroso elkarrekin eta ondoan eserita daude — komeni da banatzea.`);
   }));
   for(const s of isolated.slice(0,3))
-    sugg.push(`🛟 <b>${esc(s.name)}</b>k ez du BAI-rik jaso — eseri harreman lasai baten ondoan eta zaindu taldekatzeetan.`);
+    sugg.push(`🌱 <b>${esc(s.name)}</b>k oraingoz ez du aukeraketa positiborik jaso — eseri harreman lasai baten ondoan eta zaindu taldekatzeetan.`);
   const posTotal = new Map(), confTotal = new Map();
   for(const s of g.students){
     for(const t of s.likes){ posTotal.set(s.id,(posTotal.get(s.id)||0)+1); posTotal.set(t,(posTotal.get(t)||0)+1); }
@@ -2390,11 +2405,11 @@ function renderSozioSide(){
     </div>
     ${card('success','⭐','Gehien aukeratuak', stars.length || null,
       stars.length ? chips(stars.map(([id,n])=>chip(`${esc(name(id))} · ${n}`,'g'))) : '<div class="iNote">Daturik ez.</div>')}
-    ${card(isolated.length?'warning':'success','🏝️','Inork aukeratu gabeak', isolated.length,
-      isolated.length ? chips(isolated.map(s=>chip(esc(s.name)))) + '<div class="iNote">BAI bat ere jaso ez dutenak — arreta berezia.</div>'
+    ${card(isolated.length?'warning':'success','🌱','Arreta tutoretzan behar dutenak', isolated.length,
+      isolated.length ? chips(isolated.map(s=>chip(esc(s.name)))) + '<div class="iNote">Oraingoz aukeraketa positiborik jaso ez dutenak — lotura berriak lantzeko aukera.</div>'
         : '<div class="iNote" style="color:#166534; font-weight:700">Denek jaso dute aukeraketaren bat 🎉</div>')}
-    ${card(rejected.length?'danger':'success','⚠️','EZ gehien jaso dutenak', rejected.length || null,
-      rejected.length ? chips(rejected.map(([id,n])=>chip(`${esc(name(id))} · ${n}`,'r'))) : '<div class="iNote">Inork ez du EZ-rik jaso.</div>')}
+    ${card(rejected.length?'warning':'success','🤝','Integrazioa zaintzea komeni zaienak', rejected.length || null,
+      rejected.length ? chips(rejected.map(([id,n])=>chip(esc(name(id)),'r'))) + '<div class="iNote">Taldekideekin lotura sendotzea lagungarria izan dakieke.</div>' : '<div class="iNote">Denek dute taldean lekua. 🙂</div>')}
     ${card('info','🤝','Elkarrekiko adiskidetasunak', mutuals.length,
       mutuals.length ? chips(mutuals.map(e=>chip(`${esc(givOf(name(e.a)))} ↔ ${esc(givOf(name(e.b)))}`,'g'))) : '<div class="iNote">Oraindik ez da elkarrekikorik agertu.</div>')}
     ${sugg.length ? `<div class="insightCard purple"><div class="iIcon">💡</div><div class="iBody">
@@ -2516,11 +2531,11 @@ function renderReport(){
         </ul>
       </article>
       <article>
-        <h3>⚠️ Arreta behar dutenak</h3>
-        <p class="rLbl">Inork aukeratu gabeak:</p>
+        <h3>🌱 Tutoretzan arreta jartzekoak</h3>
+        <p class="rLbl">Arreta tutoretzan behar dutenak:</p>
         ${chips(st.isolated.map(s=>chip(esc(s.name))))}
-        <p class="rLbl">EZ gehien jaso dutenak:</p>
-        ${chips(st.rejected.map(([id,n])=>chip(`${esc(st.name(id))} · ${n}`,'r')))}
+        <p class="rLbl">Integrazioa zaintzea komeni zaienak:</p>
+        ${chips(st.rejected.map(([id,n])=>chip(esc(st.name(id)),'r')))}
       </article>
       <article>
         <h3>💪 Indarguneak</h3>
@@ -2651,10 +2666,11 @@ const VIEW_TITLES = {
   txostena: ['Txostena', 'Irakasle-taldearentzako laburpen inprimagarria'],
 };
 function showTab(name){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  $('#tab-'+name).classList.add('active');
-  $('#view-'+name).classList.add('active');
+  document.querySelectorAll('.tab').forEach(t=>{ t.classList.remove('active'); t.removeAttribute('aria-current'); });
+  document.querySelectorAll('.view').forEach(v=>{ v.classList.remove('active'); v.setAttribute('aria-hidden','true'); });
+  const tab = $('#tab-'+name), view = $('#view-'+name);
+  tab.classList.add('active'); tab.setAttribute('aria-current','page');
+  view.classList.add('active'); view.setAttribute('aria-hidden','false');
   $('#viewTitle').textContent = VIEW_TITLES[name][0];
   $('#viewSub').textContent = VIEW_TITLES[name][1];
   renderStepper();
@@ -2673,7 +2689,9 @@ function openLayoutModal(){
     <div class="mapRow"><label>Mahaien taldekatzea:</label>
       <label><input type="radio" name="lgs" value="0" ${gs===0?'checked':''}> Jarraian</label>
       <label><input type="radio" name="lgs" value="2" ${gs===2?'checked':''}> Binaka</label>
-      <label><input type="radio" name="lgs" value="3" ${gs===3?'checked':''}> Hirunaka</label>
+      <label><input type="radio" name="lgs" value="3" ${gs===3?'checked':''}> 3ko uharteak</label>
+      <label><input type="radio" name="lgs" value="4" ${gs===4?'checked':''}> 4ko uharteak</label>
+      <label><input type="radio" name="lgs" value="5" ${gs===5?'checked':''}> 5eko uharteak</label>
     </div>
     <div class="mapRow"><label>Errenkada kopurua:</label>
       <button class="stepBtn" id="rowMinus">−</button>
@@ -2764,6 +2782,10 @@ function refreshAll(){
   $('#undoBtn').disabled = !(h && h.length);
 }
 refreshAll();
+
+/* Irisgarritasuna: ikono apaingarriak (SVG) ezkutatu laguntza-teknologietatik;
+   testu-etiketak edo aria-label-ak ematen dute esanahia. */
+document.querySelectorAll('.sidebar svg, .topbar svg, .btn svg, .iconbtn svg').forEach(s=>s.setAttribute('aria-hidden','true'));
 </script>
 </body>
 </html>
