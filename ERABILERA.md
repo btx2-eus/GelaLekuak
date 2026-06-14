@@ -51,7 +51,7 @@ Forms-eko erantzunak prest dituzunean, itzuli "Harremanak" txartelera eta **igo/
 
 ## 🕸️ Soziograma · 📋 Txostena
 
-- **Soziograma:** harremanen sare bisuala — izar sozialak, arreta tutoretzan behar dutenak, elkarrekiko adiskidetasunak, kohesio-indizea. Tutore eta orientatzailearentzat.
+- **Soziograma:** harremanen sare bisuala eta **egoera soziometrikoa** (Coie eta Dodge marko klasikoa: preferituak / eztabaidatuak / ezikusiak / integrazioa zaintzekoak / orekatuak), jasotako aukeraketa positibo eta negatiboetan oinarrituta. Elkarrekiko adiskidetasunak ere bai. Tutore eta orientatzailearentzat.
 - **Txostena:** orri bakarreko laburpen inprimagarria (PDF), irakasle-taldearekin partekatzeko (hizkera neurtuarekin).
 
 ---

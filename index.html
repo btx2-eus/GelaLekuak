@@ -2312,14 +2312,17 @@ function renderSociogram(force){
     return `<line class="ed" data-i="${i}" x1="${p.x1.toFixed(1)}" y1="${p.y1.toFixed(1)}" x2="${p.x2.toFixed(1)}" y2="${p.y2.toFixed(1)}" ${edgeAttrs(e)}/>`;
   }).join('');
 
+  const socio = computeSociometric();
   const nodesHtml = g.students.map(s=>{
     const p = sozioPos.get(s.id), r = radii.get(s.id);
     const nDis = inDis.get(s.id)||0, nLik = inLikes.get(s.id)||0;
     const stroke = nDis ? 'var(--red)' : (nLik ? 'var(--green)' : 'var(--neutral)');
     const dash = nLik===0 && !nDis ? ' stroke-dasharray="4 3"' : '';
     const badge = nDis ? `<circle cx="${r*0.8}" cy="${-r*0.8}" r="7.5" fill="var(--red)"/><text x="${r*0.8}" y="${-r*0.8+3.2}" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">${nDis}</text>` : '';
+    const katKey = socio.byId.get(s.id)?.status;
+    const katTxt = katKey && katKey!=='average' ? ` · ${SOZIO_KAT[katKey].tech}` : '';
     return `<g class="nd" data-id="${s.id}" transform="translate(${p.x.toFixed(1)},${p.y.toFixed(1)})">
-      <title>${esc(s.name)} — 💚 ${nLik} jasota · ⛔ ${nDis} jasota</title>
+      <title>${esc(s.name)} — 💚 ${nLik} jasota · ⛔ ${nDis} jasota${katTxt}</title>
       <circle r="${r}" fill="var(--card)" stroke="${stroke}" stroke-width="${nDis?2.6:2.2}"${dash}/>
       ${s.front ? `<text y="3.5" text-anchor="middle" font-size="${r*0.9}">📌</text>` : ''}
       ${badge}
@@ -2352,6 +2355,49 @@ function renderSociogram(force){
   $('#sozioPrintDate').textContent = new Date().toLocaleDateString('eu-ES', {year:'numeric',month:'long',day:'numeric'}) + ' · GelaLekuak · tutore/orientatzailearentzat';
 }
 
+/* Egoera soziometrikoa (Coie eta Dodge, 1983):
+   LM = jasotako aukeraketa positiboak, LL = jasotako aukeraketa negatiboak.
+   Lehentasun soziala (SP)=zLM−zLL, Eragin soziala (SI)=zLM+zLL; biak estandarizatuta.
+   Bost egoera: preferitua / baztertua / ezikusia / eztabaidatua / ertaina. */
+const SOZIO_KAT = {
+  popular:       {soft:'Erreferentziazkoak',          tech:'preferituak',  icon:'⭐', cls:'success', note:'Aukeraketa positibo asko, gutxi negatibo.'},
+  controversial: {soft:'Eragin handikoak',            tech:'eztabaidatuak',icon:'⚡', cls:'info',    note:'Aukeraketa asko jasotzen dituzte, positibo zein negatibo.'},
+  neglected:     {soft:'Oharkabean gera daitezkeenak',tech:'ezikusiak',    icon:'🌫️', cls:'warning', note:'Aukeraketa gutxi jasotzen dituzte (positibo zein negatibo).'},
+  rejected:      {soft:'Integrazioa zaintzekoak',     tech:'baztertuak',   icon:'🌱', cls:'warning', note:'Aukeraketa negatibo gehiago positibo baino.'},
+};
+function computeSociometric(){
+  const studs = G().students, n = studs.length;
+  const ids = new Set(studs.map(s=>s.id));
+  const LM = studs.map(()=>0), LL = studs.map(()=>0);
+  const idx = new Map(studs.map((s,i)=>[s.id,i]));
+  for(const s of studs){
+    for(const t of s.likes) if(ids.has(t)) LM[idx.get(t)]++;
+    for(const t of s.dislikes) if(ids.has(t)) LL[idx.get(t)]++;
+  }
+  const z = arr => {
+    const m = arr.reduce((a,b)=>a+b,0)/(arr.length||1);
+    const sd = Math.sqrt(arr.reduce((a,b)=>a+(b-m)**2,0)/(arr.length||1)) || 1;
+    return arr.map(v=>(v-m)/sd);
+  };
+  const zLM=z(LM), zLL=z(LL);
+  const SP=studs.map((_,i)=>zLM[i]-zLL[i]), SI=studs.map((_,i)=>zLM[i]+zLL[i]);
+  const zSP=z(SP), zSI=z(SI);
+  const byId=new Map(), groups={popular:[],rejected:[],neglected:[],controversial:[],average:[]};
+  const small = n < 10; // talde txikietan estatistika ahula da
+  studs.forEach((s,i)=>{
+    let st='average';
+    if(!small){
+      if(zSP[i]>1 && zLM[i]>0 && zLL[i]<0) st='popular';
+      else if(zSP[i]<-1 && zLM[i]<0 && zLL[i]>0) st='rejected';
+      else if(zSI[i]<-1 && zLM[i]<0 && zLL[i]<0) st='neglected';
+      else if(zSI[i]>1 && zLM[i]>0 && zLL[i]>0) st='controversial';
+    }
+    byId.set(s.id,{status:st, LM:LM[i], LL:LL[i]});
+    groups[st].push(s);
+  });
+  return {byId, groups, small, n};
+}
+
 /* Analisi soziometriko partekatua: soziogramaren panelak eta txostenak erabiltzen dute */
 function computeSozioStats(){
   const g = G();
@@ -2367,13 +2413,18 @@ function computeSozioStats(){
   const rejected = top(inDis);
   const isolated = g.students.filter(s=>!(inLikes.get(s.id)>0));
   const mutuals = edges.filter(e=>e.type==='like' && e.mutual);
+  const socio = computeSociometric();
 
   const posLinks = edges.filter(e=>e.type==='like').length;
   const confLinks = edges.filter(e=>e.type==='dislike').length;
   const m = computeMetrics();
-  const cohesion = Math.max(0, Math.min(100, Math.round(58 + posLinks*1.4 - confLinks*2.2 + m.score/10 - isolated.length*2)));
-  const [riskTxt, riskCls] = (m.conf >= 3 || isolated.length >= 5) ? ['Arrisku handia','bad']
-    : (m.conf > 0 || isolated.length >= 3) ? ['Arrisku ertaina','warn'] : ['Arrisku txikia','good'];
+  // Kohesio-adierazle orientagarria (ez epaia): ondo integratuen ehunekoa
+  const needAttention = socio.groups.rejected.length + socio.groups.neglected.length;
+  const wellIntegrated = socio.n ? Math.round(100*(socio.n - needAttention)/socio.n) : 0;
+  const cohesion = wellIntegrated;
+  const attFrac = socio.n ? needAttention/socio.n : 0; // taldearen tamainarekiko proportzioan
+  const [riskTxt, riskCls] = (attFrac > 0.2 || m.conf >= 3) ? ['Arreta handia','bad']
+    : (needAttention >= 1 || m.conf > 0) ? ['Arreta ertaina','warn'] : ['Egoera ona','good'];
 
   const sugg = [];
   g.seating.forEach((row,r)=>row.forEach((id,c)=>{
@@ -2395,11 +2446,11 @@ function computeSozioStats(){
   for(const s of bridges)
     sugg.push(`🌉 <b>${esc(s.name)}</b> ikasle "zubia" da (${posTotal.get(s.id)} lotura positibo) — baliagarria taldeak nahasteko.`);
 
-  return {name, stars, rejected, isolated, mutuals, cohesion, riskTxt, riskCls, sugg, bridges, m, posLinks, confLinks};
+  return {name, stars, rejected, isolated, mutuals, cohesion, riskTxt, riskCls, sugg, bridges, m, posLinks, confLinks, socio};
 }
 
 function renderSozioSide(){
-  const {name, stars, rejected, isolated, mutuals, cohesion, riskTxt, riskCls, sugg} = computeSozioStats();
+  const {name, mutuals, cohesion, riskTxt, riskCls, sugg, socio} = computeSozioStats();
 
   const card = (cls, icon, title, count, body) => `
     <div class="insightCard ${cls}">
@@ -2412,18 +2463,27 @@ function renderSozioSide(){
   const chips = arr => arr.length ? `<div class="iChips">${arr.join('')}</div>` : '';
   const chip = (txt, cls='') => `<span class="chip ${cls}">${txt}</span>`;
 
+  const katCard = key => {
+    const k = SOZIO_KAT[key], list = socio.groups[key];
+    if(!list.length) return '';
+    return card(k.cls, k.icon, k.soft, list.length,
+      chips(list.map(s=>chip(esc(s.name), key==='rejected'?'r':key==='popular'?'g':''))) +
+      `<div class="iNote">${k.note} <i>(${k.tech})</i></div>`);
+  };
+  const anyExtreme = socio.groups.popular.length || socio.groups.rejected.length || socio.groups.neglected.length || socio.groups.controversial.length;
+
   $('#sozioSide').innerHTML = `
     <div class="cohesionCard">
-      <div><span>Taldearen kohesioa</span><strong>${cohesion}<small>/100</small></strong></div>
+      <div><span>Ondo integratuak</span><strong>${cohesion}<small>%</small></strong></div>
       <span class="riskBadge ${riskCls}">${riskTxt}</span>
     </div>
-    ${card('success','⭐','Gehien aukeratuak', stars.length || null,
-      stars.length ? chips(stars.map(([id,n])=>chip(`${esc(name(id))} · ${n}`,'g'))) : '<div class="iNote">Daturik ez.</div>')}
-    ${card(isolated.length?'warning':'success','🌱','Arreta tutoretzan behar dutenak', isolated.length,
-      isolated.length ? chips(isolated.map(s=>chip(esc(s.name)))) + '<div class="iNote">Oraingoz aukeraketa positiborik jaso ez dutenak — lotura berriak lantzeko aukera.</div>'
-        : '<div class="iNote" style="color:#166534; font-weight:700">Denek jaso dute aukeraketaren bat 🎉</div>')}
-    ${card(rejected.length?'warning':'success','🤝','Integrazioa zaintzea komeni zaienak', rejected.length || null,
-      rejected.length ? chips(rejected.map(([id,n])=>chip(esc(name(id)),'r'))) + '<div class="iNote">Taldekideekin lotura sendotzea lagungarria izan dakieke.</div>' : '<div class="iNote">Denek dute taldean lekua. 🙂</div>')}
+    <div class="sozioCard" style="padding:10px 13px">
+      <h3 style="margin:0 0 5px">📊 Egoera soziometrikoa <span style="font-weight:500; color:var(--muted); font-size:11.5px">· Coie eta Dodge</span></h3>
+      <div style="font-size:12.5px; color:var(--muted)">Jasotako aukeraketa positibo/negatiboetan oinarrituta. Ikasle gehienak <b>egoera orekatuan</b> egotea normala da (${socio.groups.average.length}).</div>
+      ${socio.small ? '<div class="iNote" style="margin-top:6px">⚠️ Talde txikiegia sailkapen estatistiko fidagarrirako — orientazio gisa hartu.</div>' : ''}
+    </div>
+    ${anyExtreme ? ['popular','controversial','neglected','rejected'].map(katCard).join('')
+      : '<div class="insightCard success"><div class="iIcon">🙂</div><div class="iBody"><div class="iHead"><strong>Talde orekatua</strong></div><div class="iNote">Ez da muturreko egoerarik atzeman — ikasle guztiak tarte normalean.</div></div></div>'}
     ${card('info','🤝','Elkarrekiko adiskidetasunak', mutuals.length,
       mutuals.length ? chips(mutuals.map(e=>chip(`${esc(givOf(name(e.a)))} ↔ ${esc(givOf(name(e.b)))}`,'g'))) : '<div class="iNote">Oraindik ez da elkarrekikorik agertu.</div>')}
     ${sugg.length ? `<div class="insightCard purple"><div class="iIcon">💡</div><div class="iBody">
@@ -2528,7 +2588,7 @@ function renderReport(){
         <div class="rDate">${dateTxt} · GelaLekuak · konfidentziala, irakasle-taldearentzat</div>
       </div>
       <div class="rScore">
-        <div><span>Kohesioa</span><strong>${st.cohesion}<small>/100</small></strong></div>
+        <div><span>Ondo integratuak</span><strong>${st.cohesion}<small>%</small></strong></div>
         <span class="riskBadge ${st.riskCls}">${st.riskTxt}</span>
       </div>
     </div>
@@ -2545,20 +2605,20 @@ function renderReport(){
         </ul>
       </article>
       <article>
-        <h3>🌱 Tutoretzan arreta jartzekoak</h3>
-        <p class="rLbl">Arreta tutoretzan behar dutenak:</p>
-        ${chips(st.isolated.map(s=>chip(esc(s.name))))}
-        <p class="rLbl">Integrazioa zaintzea komeni zaienak:</p>
-        ${chips(st.rejected.map(([id,n])=>chip(esc(st.name(id)),'r')))}
+        <h3>📊 Egoera soziometrikoa <span style="font-weight:500; font-size:11px; color:var(--muted)">(Coie eta Dodge)</span></h3>
+        ${['popular','controversial','neglected','rejected'].map(key=>{
+          const k = SOZIO_KAT[key], list = st.socio.groups[key];
+          if(!list.length) return '';
+          return `<p class="rLbl">${k.icon} ${k.soft} <span style="text-transform:none; font-weight:500">(${k.tech})</span>:</p>${chips(list.map(s=>chip(esc(s.name), key==='rejected'?'r':key==='popular'?'g':'')))}`;
+        }).join('') || '<p class="rNote">Ez da muturreko egoerarik atzeman — ikasle guztiak tarte normalean.</p>'}
+        <p class="rNote" style="margin-top:8px">Egoera orekatuan: <b>${st.socio.groups.average.length}</b> ikasle.${st.socio.small ? ' ⚠️ Talde txikia: orientazio gisa.' : ''}</p>
       </article>
       <article>
-        <h3>💪 Indarguneak</h3>
-        <p class="rLbl">Gehien aukeratuak:</p>
-        ${chips(st.stars.map(([id,n])=>chip(`${esc(st.name(id))} · ${n}`,'g')))}
-        <p class="rLbl">Ikasle "zubiak":</p>
+        <h3>💪 Lotura positiboak</h3>
+        <p class="rLbl">Elkarrekiko adiskidetasunak:</p>
+        ${chips(st.mutuals.slice(0,8).map(e=>chip(`${esc(givOf(st.name(e.a)))} ↔ ${esc(givOf(st.name(e.b)))}`,'g')))}
+        <p class="rLbl">Ikasle "zubiak" (lotura asko):</p>
         ${chips(st.bridges.map(s=>chip(esc(s.name),'g')))}
-        <p class="rLbl">Elkarrekikoak:</p>
-        ${chips(st.mutuals.slice(0,6).map(e=>chip(`${esc(givOf(st.name(e.a)))} ↔ ${esc(givOf(st.name(e.b)))}`)))}
       </article>
       <article>
         <h3>💡 Iradokizunak</h3>
@@ -2624,7 +2684,7 @@ function showHelp(){
 
       <h4>🕸️ Soziograma eta 📋 Txostena</h4>
       <ul>
-        <li><b>Soziograma:</b> harremanen sarea ikusteko — izar sozialak, arreta behar dutenak, elkarrekiko adiskidetasunak. Tutore eta orientatzailearentzat.</li>
+        <li><b>Soziograma:</b> harremanen sare bisuala eta <b>egoera soziometrikoa</b> (Coie eta Dodge: preferituak, eztabaidatuak, ezikusiak, integrazioa zaintzekoak), elkarrekiko adiskidetasunak. Tutore eta orientatzailearentzat.</li>
         <li><b>Txostena:</b> orri bakarreko laburpen inprimagarria (PDF), irakasle-taldearentzat.</li>
       </ul>
 
