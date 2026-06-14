@@ -29,6 +29,10 @@ Datu guztiak **nabigatzailean bakarrik** gordetzen dira (localStorage). Ez da ez
 
 HTML fitxategi bakarra (`index.html`), menpekotasun bakarra [SheetJS](https://sheetjs.com/) (CDN) Excel fitxategiak irakurtzeko. Euskaraz. "Obsidian Ink / Velvet Curfew / Almond Hearth" paleta.
 
+## Erabilera-gida
+
+Mini-manual osoa: **[ERABILERA.md](ERABILERA.md)**. Aplikazioan bertan ere eskuragarri dago, albo-barrako **❓ Erabilera-gida** botoian.
+
 ## Egilea eta lizentzia
 
 Egilea: **Luken San Sebastián** ([luken@lasalledonostia.com](mailto:luken@lasalledonostia.com))

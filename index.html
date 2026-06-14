@@ -42,7 +42,7 @@ h1,h2,h3,.btn,.tab,label.filebtn,.iconbtn,.arbela{
   font-family:'Poppins',system-ui,sans-serif; letter-spacing:.2px;
 }
 /* Teklatuzko nabigaziorako foku ikusgaia (irisgarritasuna) */
-:focus-visible{outline:3px solid #e8902a; outline-offset:2px; border-radius:6px}
+:focus-visible{outline:3px solid var(--spark,#2dd4bf); outline-offset:2px; border-radius:6px}
 .tab:focus-visible{outline-offset:-3px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important; animation:none!important}}
 .sr-only{position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0}
@@ -93,6 +93,10 @@ h1,h2,h3,.btn,.tab,label.filebtn,.iconbtn,.arbela{
 .tab .dot.show{display:inline-block}
 .sidefoot{margin-top:auto; display:grid; gap:6px}
 .sidefoot .iconbtn{justify-content:flex-start}
+.helpDoc{font-size:14px; line-height:1.55; max-height:62vh; overflow:auto; padding-right:6px}
+.helpDoc h4{margin:16px 0 5px; font-size:15px; color:var(--primary-dark)}
+.helpDoc ul{margin:0 0 4px; padding-left:20px}
+.helpDoc li{margin-bottom:5px}
 .credit{margin-top:10px; padding-top:10px; border-top:1px solid rgba(215,227,224,.16); font-size:11px; color:#8fa6a1; line-height:1.6}
 .credit b{color:#c2d2ce; font-weight:700}
 .credit a{color:#8fa6a1; text-decoration:none}
@@ -633,6 +637,7 @@ textarea#pasteArea{width:100%; min-height:180px; font-family:ui-monospace,monosp
   <div class="sidefoot">
     <button class="iconbtn" id="exportBtn" title="Gorde datu guztiak fitxategi batean"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg> Gorde fitxategian</button>
     <label class="iconbtn" style="cursor:pointer" title="Lehenago gordetako fitxategia kargatu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg> Berreskuratu<input type="file" id="importJsonInput" accept=".json"></label>
+    <button class="iconbtn" id="helpBtn" title="Erabilera-gida"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg> Erabilera-gida</button>
     <button class="iconbtn" id="clearDataBtn" title="Talde honetako datu guztiak ezabatu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Garbitu datuak</button>
     <div class="credit">
       <b>Luken San Sebastián</b><br>
@@ -971,8 +976,16 @@ function classify(a,b){
   return 'yellow';
 }
 function pairScore(a,b,mult){
-  const c = classify(a,b);
-  let s = c==='red' ? -5*mult : c==='green' ? 3*mult : 0;
+  const A = rel.get(a), B = rel.get(b);
+  if(!A || !B) return 0;
+  let s = 0;
+  if(A.dislike.has(b) || B.dislike.has(a)){
+    // gatazka: bi norabidekoa indartsuagoa da seinale gisa
+    s = (A.dislike.has(b) && B.dislike.has(a) ? -7 : -5) * mult;
+  } else if(A.like.has(b) || B.like.has(a)){
+    // adiskidetasun ELKARREKIKOAK gehiago balio du norabide bakarrekoak baino
+    s = (A.like.has(b) && B.like.has(a) ? 5 : 3) * mult;
+  }
   if(KEEP.has(pairK(a,b))) s -= 20*mult; // tutorearen murrizketa: zigor gogorra
   return s;
 }
@@ -1100,7 +1113,8 @@ function optimize(){
     const rs = rowSeatsOf(g);
     const nRows = rs.length;
     const lockedSet = new Set(g.locked);
-    const TIME_MS = 1300; // saiakera kopuru finkoaren ordez, denbora-aurrekontua
+    // Denbora-aurrekontua, taldearen tamainara egokitua (talde handiek margen pixka bat dute)
+    const TIME_MS = g.students.length<=28 ? 1200 : g.students.length<=36 ? 1800 : 2600;
     let best = null, bestScore = -Infinity, tried = 0;
 
     const lockedPos = []; // [r,c,id] gaur egungo posizioetan
@@ -2577,6 +2591,61 @@ $('#clearDataBtn').addEventListener('click', ()=>{
   refreshAll();
   toast('🧹 Taldea garbituta — hutsetik has zaitezke.');
 });
+/* ---------- Erabilera-gida (mini-manuala) ---------- */
+$('#helpBtn').addEventListener('click', showHelp);
+function showHelp(){
+  openModal(`
+    <h3>📖 GelaLekuak — erabilera-gida</h3>
+    <div class="helpDoc">
+      <div class="privacyNote small" role="note" style="margin-bottom:14px">🔒 Datuak gailu honetan bakarrik gordetzen dira. <b>Datu sentikorrak: ez partekatu ikasle edo familiekin.</b></div>
+
+      <h4>1 · Ikasleak kargatu</h4>
+      <ul>
+        <li><b>Itsatsi</b> ikasleen zerrenda (Excel/Sheets-etik kopiatuta), <b>igo</b> Excel/CSV bat, edo <b>Probatu demoarekin</b> hasteko.</li>
+        <li>Eskuz ere gehi ditzakezu banan-banan, "Gehitu" botoiarekin.</li>
+        <li>Izen-formatua: <i>Abizena, Izena</i> (gomendatua, bi Aimar bereizteko).</li>
+      </ul>
+
+      <h4>2 · Harremanak / nahiak zehaztu</h4>
+      <ul>
+        <li><b>Bide azkarra:</b> egin klik ikasle batengan eta markatu txipekin norekin BAI (💚) eta norekin EZ (⛔).</li>
+        <li><b>Bide osoa:</b> Google Forms galdetegia (gida "Harremanak" txartelean — automatikoa edo eskuz).</li>
+        <li>⚠️ <b>Garrantzitsua:</b> ikasleek ez dute izenik idatzi behar — beti zerrenda itxitik aukeratu (Inhar/Inar arazoa saihesteko).</li>
+      </ul>
+
+      <h4>3 · Mapa sortu eta findu</h4>
+      <ul>
+        <li><b>🪑 Gelaren egitura:</b> errenkada kopurua, mahaiak (jarraian, binaka, 3/4/5eko uharteak).</li>
+        <li><b>✨ Sortu lehen proposamena</b> — algoritmoak banaketa optimoa kalkulatzen du.</li>
+        <li><b>Findu eskuz:</b> arrastatu ikasleak, edo egin klik batean (aukeratu) eta beste batean (mugitu/trukatu). Teklatuz ere bai: Tab + Enter.</li>
+        <li><b>🔒 Ainguratu</b> ikasle bat tokian; <b>🚫 blokeatu</b> erabili ezin diren eserlekuak; <b>🚫 banandu</b> bikote jakinak (tutorearen erabakia).</li>
+        <li><b>⚠️ Ikusi gatazkak</b> eta <b>Berrikusi proposamena</b> panela: zer dagoen konpondu gabe.</li>
+      </ul>
+
+      <h4>🕸️ Soziograma eta 📋 Txostena</h4>
+      <ul>
+        <li><b>Soziograma:</b> harremanen sarea ikusteko — izar sozialak, arreta behar dutenak, elkarrekiko adiskidetasunak. Tutore eta orientatzailearentzat.</li>
+        <li><b>Txostena:</b> orri bakarreko laburpen inprimagarria (PDF), irakasle-taldearentzat.</li>
+      </ul>
+
+      <h4>🧠 Nola erabakitzen du algoritmoak?</h4>
+      <ul>
+        <li>Lagunak <b>ondoan</b> jartzen saiatzen da (elkarrekiko adiskidetasunak lehenetsita), eta <b>gatazkak banatzen</b> (pisu handiagoa).</li>
+        <li>Lehen lerroko beharrak (📌), ainguratuak eta blokeoak <b>errespetatzen</b> ditu.</li>
+        <li>Albokoek diagonalek baino gehiago balio dute; pasabideek lotura hausten dute.</li>
+        <li><i>Algoritmoak proposatzen du; tutoreak erabakitzen du. Mapa hau abiapuntua da, ez azken epaia.</i></li>
+      </ul>
+
+      <h4>💾 Datuak gorde eta partekatu</h4>
+      <ul>
+        <li>Dena automatikoki gordetzen da nabigatzailean. <b>Gorde fitxategian</b> (.json) babeskopia egiteko edo beste ordenagailu batera eramateko; <b>Berreskuratu</b> kargatzeko.</li>
+        <li>Talde anitz kudea ditzakezu (goiko hautagailua).</li>
+      </ul>
+    </div>
+    <div class="foot"><button class="btn" onclick="closeModal()">Ulertuta ✓</button></div>
+  `);
+}
+
 function loadDemo(){
   const grp = newGroup('Adibidea (demo)');
   state.groups.push(grp); state.activeId = grp.id;
