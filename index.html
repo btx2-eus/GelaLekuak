@@ -396,22 +396,25 @@ body.dragging .seat.glow-g, body.dragging .seat.glow-r, body.dragging .seat.drag
 /* Hasierako pantaila */
 #emptyHero{max-width:920px; margin:20px auto; text-align:center}
 #emptyHero h2{font-size:23px; margin:18px 0 6px}
-.heroLead{font-size:15px; color:var(--muted); margin:0 auto 22px; max-width:560px}
-.journey{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:22px; text-align:left}
-.jStep{
-  background:var(--card); border:1.5px solid var(--line); border-radius:14px; padding:18px 16px;
-  display:flex; flex-direction:column; gap:6px; position:relative;
+.heroLead{font-size:15px; color:var(--muted); margin:0 auto 22px; max-width:600px}
+.paths2{display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-bottom:14px; text-align:left; align-items:stretch}
+.path2{
+  background:var(--card); border:1.5px solid var(--line); border-radius:16px; padding:18px;
+  display:flex; flex-direction:column; gap:8px; position:relative;
 }
-.jStep h3{margin:2px 0 2px; font-size:16px}
-.jStep p{margin:0; font-size:13.5px; color:var(--ink); line-height:1.45}
-.jNum{
-  width:34px; height:34px; border-radius:99px; flex:none;
-  background:var(--primary); color:#fff; font-weight:800; font-size:17px;
-  display:flex; align-items:center; justify-content:center; font-family:'Poppins',system-ui,sans-serif;
+.path2.recommended{border-color:var(--green); border-width:2px; box-shadow:0 4px 16px rgba(21,128,61,.08)}
+.p2Tag{
+  font-size:12px; font-weight:800; color:var(--muted); text-transform:uppercase; letter-spacing:.4px;
 }
-.jActions{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px}
-.jHint{font-size:12px !important; color:var(--muted) !important; margin-top:4px !important; font-style:italic}
-@media(max-width:820px){ .journey{grid-template-columns:1fr} }
+.path2.recommended .p2Tag{color:#166534}
+.p2Head{display:flex; align-items:center; gap:11px}
+.p2Icon{font-size:26px; line-height:1}
+.p2Head h3{margin:0; font-size:18px}
+.p2Steps{margin:4px 0 6px; padding-left:20px; display:flex; flex-direction:column; gap:5px}
+.p2Steps li{font-size:13.5px; line-height:1.45}
+.p2Actions{display:flex; gap:8px; flex-wrap:wrap; margin-top:auto; padding-top:6px}
+.heroAfter{font-size:14px; color:var(--muted); margin:0 0 20px}
+@media(max-width:820px){ .paths2{grid-template-columns:1fr} }
 .privacyNote{
   display:inline-block; background:var(--green-soft); border:1.5px solid var(--green);
   color:#166534; border-radius:99px; padding:8px 16px; font-size:14px; font-weight:600;
@@ -702,34 +705,39 @@ textarea#pasteArea{width:100%; min-height:180px; font-family:ui-monospace,monosp
   <!-- Hasierako pantaila (daturik gabe) -->
   <div id="emptyHero" style="display:none">
     <div class="privacyNote" role="note">🔒 <b>Datuak gailu honetako nabigatzailean bakarrik</b> gordetzen dira. Ez da ezer zerbitzarira bidaltzen.<br><span class="privacyWarn">⚠️ Tutoretzako datu sentikorrak dira — <b>ez partekatu ikasleekin edo familiekin</b>.</span></div>
-    <h2>Ongi etorri 👋 Hiru pausotan duzu gelako mapa</h2>
-    <p class="heroLead">Ez duzu manualik irakurri behar, ezta teknologian aditua izan ere. Bidea hau da:</p>
+    <h2>Ongi etorri 👋 Has gaitezen</h2>
+    <p class="heroLead">Gelako mapa egiteko, app-ak <b>ikasleak eta haien nahiak</b> behar ditu. Aukeratu nola eman:</p>
 
-    <div class="journey">
-      <div class="jStep">
-        <div class="jNum">1</div>
-        <h3>Kargatu ikasleen izenak</h3>
-        <p>Izenak bakarrik (nahirik gabe). Itsatsi Excel edo Google Sheets-etik, edo igo fitxategi bat.</p>
-        <div class="jActions">
-          <button class="btn" id="pasteHeroBtn">📋 Itsatsi zerrenda</button>
-          <button class="btn outline" id="uploadHeroBtn">📂 Igo Excel/CSV</button>
-        </div>
-      </div>
-      <div class="jStep">
-        <div class="jNum">2</div>
-        <h3>Jaso ikasleen nahiak</h3>
-        <p>Galdetu ikasleei norekin eseri nahi duten <b>Google inkesta</b> batekin. Lasai: <b>app-ak inkesta osoa prestatzen dizu</b> — ez duzu ezer teknikorik egin behar.</p>
-        <div class="jActions">
+    <div class="paths2">
+      <div class="path2 recommended">
+        <div class="p2Tag">⭐ Gomendatua · talde osorako</div>
+        <div class="p2Head"><span class="p2Icon">📋</span><h3>Google inkestarekin</h3></div>
+        <ol class="p2Steps">
+          <li>Sortu inkesta — <b>guk laguntzen dizugu</b> (zure klase-zerrenda erabiltzen da aukeretarako).</li>
+          <li>Ikasleek erantzun.</li>
+          <li><b>Igo erantzunen Excel-a</b> → izenak eta nahiak batera datoz, igoera bakarrean.</li>
+        </ol>
+        <div class="p2Actions">
           <button class="btn outline" id="formsHelpHeroBtn">📝 Ikusi nola egiten den</button>
+          <button class="btn green" id="uploadHeroBtn">📂 Igo erantzunak</button>
         </div>
-        <p class="jHint">Ikasle gutxi badira, eskuz ere marka ditzakezu app-ean.</p>
       </div>
-      <div class="jStep">
-        <div class="jNum">3</div>
-        <h3>Sortu gelako mapa</h3>
-        <p>App-ak eserlekuen banaketa optimoa kalkulatuko du, ikasleen nahiak eta zure irizpideak kontuan hartuta. Zuk fintzen duzu nahieran.</p>
+
+      <div class="path2">
+        <div class="p2Tag">Talde txikietarako</div>
+        <div class="p2Head"><span class="p2Icon">✍️</span><h3>Eskuz</h3></div>
+        <ol class="p2Steps">
+          <li>Itsatsi edo igo <b>ikasleen izenak</b>.</li>
+          <li>Markatu nahiak ikasle bakoitzean <b>klik eginez</b>.</li>
+        </ol>
+        <div class="p2Actions">
+          <button class="btn" id="pasteHeroBtn">📋 Itsatsi izenak</button>
+          <button class="btn outline" id="uploadHero2Btn">📂 Igo Excel/CSV</button>
+        </div>
       </div>
     </div>
+
+    <p class="heroAfter">→ Gero, <b>«Gelako mapa»</b> atalean: sortu banaketa eta findu nahieran.</p>
 
     <div class="demoBox">
       <div style="flex:1"><b>Ez dakizu nondik hasi?</b><br><span>Ikusi nola dabilen adibide-talde batekin — zure daturik gabe, dena lasai esploratzeko.</span></div>
@@ -738,7 +746,7 @@ textarea#pasteArea{width:100%; min-height:180px; font-family:ui-monospace,monosp
     <details class="moreOpt">
       <summary>Aukera gehiago</summary>
       <p style="display:flex; gap:10px; align-items:center; flex-wrap:wrap"><button class="btn outline" id="templateHeroBtn">⬇️ Txantiloia deskargatu</button> <span>Excel hutsa adibideekin: bete, gorde eta igo.</span></p>
-      <p>Edo gehitu ikasleak eskuz, banan-banan, zerrenda kargatu ondoren agertuko den txartelean.</p>
+      <p>💡 <b>Inkesta bete ez dutenak?</b> Lasai: app-ak abisatuko dizu eta botoi batekin gehi ditzakezu. Ez duzu klase-zerrenda osorik kargatu beharrik.</p>
     </details>
   </div>
 
@@ -2844,6 +2852,7 @@ $('#demoBtn').addEventListener('click', loadDemo);
 $('#demoHeroBtn').addEventListener('click', loadDemo);
 $('#pasteHeroBtn').addEventListener('click', ()=>openPasteModal());
 $('#uploadHeroBtn').addEventListener('click', ()=>$('#fileInput').click());
+$('#uploadHero2Btn')?.addEventListener('click', ()=>$('#fileInput').click());
 $('#templateHeroBtn').addEventListener('click', ()=>$('#templateBtn').click());
 $('#clearDataBtn').addEventListener('click', ()=>{
   const g = G();
