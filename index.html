@@ -330,6 +330,14 @@ body.dragging .seat.glow-g, body.dragging .seat.glow-r, body.dragging .seat.drag
   border-radius:9px; padding:8px 14px; font-size:13.5px; font-weight:700; cursor:pointer;
 }
 .pathTab.active{border-color:var(--primary); background:var(--primary-soft); color:var(--primary-dark)}
+.qHelp{display:flex; flex-direction:column; gap:8px}
+.qItem{display:flex; gap:11px; align-items:flex-start; background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:10px 12px}
+.qItem .qN{
+  width:24px; height:24px; border-radius:99px; flex:none; background:var(--primary-soft); color:var(--primary-dark);
+  font-weight:800; font-size:13px; display:flex; align-items:center; justify-content:center;
+}
+.qItem b{font-size:14px}
+.qHow{font-size:13px; color:var(--muted); line-height:1.45}
 .scriptSteps{counter-reset:ss; margin:0; padding:0; list-style:none}
 .scriptSteps li{position:relative; padding:0 0 12px 34px; font-size:13.5px; line-height:1.5}
 .scriptSteps li::before{
@@ -386,8 +394,24 @@ body.dragging .seat.glow-g, body.dragging .seat.glow-r, body.dragging .seat.drag
 @media(max-width:920px){#stepper{grid-template-columns:1fr}}
 
 /* Hasierako pantaila */
-#emptyHero{max-width:660px; margin:20px auto; text-align:center}
-#emptyHero h2{font-size:23px; margin:18px 0}
+#emptyHero{max-width:920px; margin:20px auto; text-align:center}
+#emptyHero h2{font-size:23px; margin:18px 0 6px}
+.heroLead{font-size:15px; color:var(--muted); margin:0 auto 22px; max-width:560px}
+.journey{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:22px; text-align:left}
+.jStep{
+  background:var(--card); border:1.5px solid var(--line); border-radius:14px; padding:18px 16px;
+  display:flex; flex-direction:column; gap:6px; position:relative;
+}
+.jStep h3{margin:2px 0 2px; font-size:16px}
+.jStep p{margin:0; font-size:13.5px; color:var(--ink); line-height:1.45}
+.jNum{
+  width:34px; height:34px; border-radius:99px; flex:none;
+  background:var(--primary); color:#fff; font-weight:800; font-size:17px;
+  display:flex; align-items:center; justify-content:center; font-family:'Poppins',system-ui,sans-serif;
+}
+.jActions{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px}
+.jHint{font-size:12px !important; color:var(--muted) !important; margin-top:4px !important; font-style:italic}
+@media(max-width:820px){ .journey{grid-template-columns:1fr} }
 .privacyNote{
   display:inline-block; background:var(--green-soft); border:1.5px solid var(--green);
   color:#166534; border-radius:99px; padding:8px 16px; font-size:14px; font-weight:600;
@@ -678,13 +702,37 @@ textarea#pasteArea{width:100%; min-height:180px; font-family:ui-monospace,monosp
   <!-- Hasierako pantaila (daturik gabe) -->
   <div id="emptyHero" style="display:none">
     <div class="privacyNote" role="note">🔒 <b>Datuak gailu honetako nabigatzailean bakarrik</b> gordetzen dira. Ez da ezer zerbitzarira bidaltzen.<br><span class="privacyWarn">⚠️ Tutoretzako datu sentikorrak dira — <b>ez partekatu ikasleekin edo familiekin</b>.</span></div>
-    <h2>Has gaitezen: kargatu zure ikasleen zerrenda</h2>
-    <div class="heroActions">
-      <button class="btn big" id="pasteHeroBtn">📋 Itsatsi ikasleen zerrenda</button>
-      <button class="btn big outline" id="uploadHeroBtn">📂 Igo Excel / CSV fitxategia</button>
+    <h2>Ongi etorri 👋 Hiru pausotan duzu gelako mapa</h2>
+    <p class="heroLead">Ez duzu manualik irakurri behar, ezta teknologian aditua izan ere. Bidea hau da:</p>
+
+    <div class="journey">
+      <div class="jStep">
+        <div class="jNum">1</div>
+        <h3>Kargatu ikasleen izenak</h3>
+        <p>Izenak bakarrik (nahirik gabe). Itsatsi Excel edo Google Sheets-etik, edo igo fitxategi bat.</p>
+        <div class="jActions">
+          <button class="btn" id="pasteHeroBtn">📋 Itsatsi zerrenda</button>
+          <button class="btn outline" id="uploadHeroBtn">📂 Igo Excel/CSV</button>
+        </div>
+      </div>
+      <div class="jStep">
+        <div class="jNum">2</div>
+        <h3>Jaso ikasleen nahiak</h3>
+        <p>Galdetu ikasleei norekin eseri nahi duten <b>Google inkesta</b> batekin. Lasai: <b>app-ak inkesta osoa prestatzen dizu</b> — ez duzu ezer teknikorik egin behar.</p>
+        <div class="jActions">
+          <button class="btn outline" id="formsHelpHeroBtn">📝 Ikusi nola egiten den</button>
+        </div>
+        <p class="jHint">Ikasle gutxi badira, eskuz ere marka ditzakezu app-ean.</p>
+      </div>
+      <div class="jStep">
+        <div class="jNum">3</div>
+        <h3>Sortu gelako mapa</h3>
+        <p>App-ak eserlekuen banaketa optimoa kalkulatuko du, ikasleen nahiak eta zure irizpideak kontuan hartuta. Zuk fintzen duzu nahieran.</p>
+      </div>
     </div>
+
     <div class="demoBox">
-      <div style="flex:1"><b>Ez dakizu nondik hasi?</b><br><span>Probatu adibide-talde batekin — zure daturik gabe, dena lasai esploratzeko.</span></div>
+      <div style="flex:1"><b>Ez dakizu nondik hasi?</b><br><span>Ikusi nola dabilen adibide-talde batekin — zure daturik gabe, dena lasai esploratzeko.</span></div>
       <button class="btn green big" id="demoHeroBtn">🎲 Probatu demoarekin</button>
     </div>
     <details class="moreOpt">
@@ -746,9 +794,9 @@ textarea#pasteArea{width:100%; min-height:180px; font-family:ui-monospace,monosp
     <div class="card" id="guideCard">
       <h2>💞 Harremanak / nahiak</h2>
       <div id="relStatus"></div>
-      <p class="desc">Modurik zuzenena: <b>egin klik ikasle batengan</b> (ondoko zerrendan) eta markatu bere nahiak txip bidez.<br><i>Harremanak laguntza dira, ez etiketa finkoak.</i></p>
-      <details>
-      <summary>Nahiak Google Forms bidez jaso nahi dituzu?</summary>
+      <p class="desc">Gomendatua talde handietan: <b>Google inkesta bat</b> (behean). Ikasle gutxi badira, <b>egin klik ikasle batengan</b> (ondoko zerrendan) eta markatu bere nahiak txip bidez.<br><i>Harremanak laguntza dira, ez etiketa finkoak.</i></p>
+      <details id="guideForms" open>
+      <summary>📝 Google inkesta bat sortu eta erantzunak igo</summary>
       <div style="margin-top:12px">
       <div class="guideNote">
         <b>Arau nagusia:</b> ikasleek <b>inoiz ez</b> dute izenik eskuz idazten ("Inhar" / "Inar" arazoa). Galdera guztiak zerrenda itxiekin sortzen dira — horregatik kargatu behar da lehenik ikasleen zerrenda.
@@ -2120,6 +2168,53 @@ $('#genScriptBtn').addEventListener('click', ()=>{
     }
   });
 });
+
+/* ---------- "Nola egiten da inkesta?" azalpena (hasiera-pantailatik) ---------- */
+$('#formsHelpHeroBtn')?.addEventListener('click', showFormsHelp);
+function showFormsHelp(){
+  const hasStudents = G().students.length >= 2;
+  openModal(`
+    <h3>📝 Nola jaso ikasleen nahiak</h3>
+    <p class="desc">Ikasleei galdetu behar diezu <b>norekin eseri nahi duten</b>. Modurik seguruena Google inkesta bat da, non ikasleek <b>ez duten izenik idazten</b> — zerrendatik aukeratzen baitute. Horrela ez da "Inhar / Inar" moduko akatsik egongo.</p>
+
+    <div class="guideNote" style="background:var(--green-soft); border-color:var(--green); color:#285e4a">
+      ✨ <b>Onena: ez duzu galdetegia eskuz egin behar.</b> Kargatu ikasleen izenak (1. pausoa), eta app-ak <b>inkesta osoa prestatuko dizu</b>, izenak eta dena barruan. Kopiatu, itsatsi Google-n, eta listo.
+    </div>
+
+    <p style="font-weight:700; margin:14px 0 6px">Inkestak hiru galdera baino ez ditu:</p>
+    <div class="qHelp">
+      <div class="qItem"><span class="qN">1</span><div>
+        <b>«Nor zara?»</b><br>
+        <span class="qHow">Mota: <b>Goitibeherakoa</b> (dropdown) · <b>Derrigorrezkoa</b>. Aukerak: ikasleen izenak.</span>
+      </div></div>
+      <div class="qItem"><span class="qN">2</span><div>
+        <b>«Norekin egongo zinateke gustura eserita?»</b><br>
+        <span class="qHow">Mota: <b>Kontrol-laukiak</b> (koadroak) · ikasleen izenak · gehienez <b>3</b> markatzeko muga.</span>
+      </div></div>
+      <div class="qItem"><span class="qN">3</span><div>
+        <b>«Norekin ez zenuke eseri nahi?»</b><br>
+        <span class="qHow">Mota: <b>Kontrol-laukiak</b> · gehienez <b>2</b> · <b>aukerakoa</b> (ez derrigorrezkoa).</span>
+      </div></div>
+    </div>
+
+    <p style="font-weight:700; margin:16px 0 6px">Pausoak, hasieratik amaierara:</p>
+    <ol class="scriptSteps">
+      <li><b>Kargatu ikasleen izenak</b> hemen (itsatsi edo igo Excel/CSV).</li>
+      <li><b>«Harremanak / nahiak» txartelean</b>, sakatu <b>«Prestatu inkesta»</b>: app-ak galdetegi osoa emango dizu, hiru galdera horiekin eta izenekin. Kopiatu eta jarraitu pausoei.</li>
+      <li><b>Bidali ikasleei</b> (Google Classroom edo posta bidez). Ikasle bakoitzak behin erantzungo du.</li>
+      <li>Erantzunak jasota, <b>ekarri hona</b>: «Igo erantzunak» edo «Itsatsi erantzunak». Izenak automatikoki lotuko dira.</li>
+      <li><b>Sortu gelako mapa</b> (3. pausoa). Eginda!</li>
+    </ol>
+
+    <div class="foot">
+      ${hasStudents
+        ? `<button class="btn gray" onclick="closeModal()">Itxi</button><button class="btn green" id="goPrepFromHelp">📝 Prestatu inkesta orain</button>`
+        : `<button class="btn green" id="loadFirstFromHelp">← Lehenik kargatu izenak</button>`}
+    </div>
+  `);
+  $('#goPrepFromHelp')?.addEventListener('click', ()=>{ closeModal(); $('#guideForms')?.setAttribute('open',''); $('#genScriptBtn')?.click(); });
+  $('#loadFirstFromHelp')?.addEventListener('click', closeModal);
+}
 
 /* ---------- Berrikuspen-panela: proposamena aztertzen lagundu ---------- */
 function renderReview(){
