@@ -515,6 +515,19 @@ details summary:hover{filter:brightness(.97)}
 .planTbl td.emp{background:transparent}
 .planTbl td.blk{background:repeating-linear-gradient(45deg,#e3e9e7,#e3e9e7 6px,#d4ddda 6px,#d4ddda 12px); color:#8aa39d}
 .rFoot{margin-top:14px; font-size:11.5px; color:var(--muted); border-top:1px solid var(--line); padding-top:10px}
+.reviewQs{display:flex; flex-direction:column; gap:6px}
+.reviewQ{display:flex; gap:8px; align-items:flex-start; font-size:12.5px; line-height:1.4; cursor:pointer}
+.reviewQ input{margin-top:2px; flex:none; width:15px; height:15px; accent-color:var(--primary)}
+.reportNotes{
+  width:100%; min-height:110px; border:1px solid var(--line); border-radius:8px;
+  padding:9px 11px; font-family:inherit; font-size:13px; line-height:1.45; resize:vertical;
+  background:var(--paper); color:var(--ink);
+}
+@media print{
+  .reportNotes{border:1px solid #bbb; background:#fff; min-height:90px}
+  .reviewQ input{-webkit-appearance:none; appearance:none; width:12px; height:12px; border:1px solid #555; border-radius:2px; position:relative}
+  .reviewQ input:checked::after{content:'✓'; position:absolute; top:-4px; left:1px; font-size:12px}
+}
 
 svg .nd{cursor:grab}
 svg .nd text{pointer-events:none; font-family:system-ui,sans-serif}
@@ -842,10 +855,16 @@ textarea#pasteArea{width:100%; min-height:180px; font-family:ui-monospace,monosp
 
 <!-- ===================== 4. TXOSTENA ===================== -->
 <section class="view" id="view-txostena">
-  <div class="maptoolbar no-print">
-    <span style="font-size:13px; color:var(--muted)">Orri bakarreko laburpena irakasle-taldearekin edo orientatzailearekin partekatzeko. Inprimatu edo gorde PDF gisa.</span>
-    <div style="flex:1"></div>
-    <button class="btn big" id="reportPrintBtn">🖨️ Inprimatu / PDF</button>
+  <div class="maptoolbar no-print" style="flex-direction:column; align-items:stretch; gap:10px">
+    <div class="pathTabs" style="margin:0">
+      <button class="pathTab active" data-rmode="safe">📋 Laburpen zuhurra <span style="font-weight:500">(taldearentzat)</span></button>
+      <button class="pathTab" data-rmode="full">🔒 Txosten osoa <span style="font-weight:500">(ez zabaldu)</span></button>
+    </div>
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
+      <span id="reportModeHint" style="font-size:13px; color:var(--muted)"></span>
+      <div style="flex:1"></div>
+      <button class="btn big" id="reportPrintBtn">🖨️ Inprimatu / PDF</button>
+    </div>
   </div>
   <div id="reportBody"></div>
 </section>
@@ -908,7 +927,8 @@ function newGroup(name){
   // keepApart: tutoreak ezarritako "banandu beharreko" bikoteak [[idA,idB],...]
   // blockedSeats: erabili ezin diren eserlekuak ['r:c',...] (gela irregularretarako)
   // optimized: lehen proposamena sortu da; touched: eskuzko aldaketak daude
-  return {id:uid(), name, rowSeats:null, groupSize:2, students:[], seating:[], locked:[], pending:[], keepApart:[], blockedSeats:[], optimized:false, touched:false};
+  // reportNotes: tutorearen jarraipen-oharrak; reportChecks: berrikusitako galderak
+  return {id:uid(), name, rowSeats:null, groupSize:2, students:[], seating:[], locked:[], pending:[], keepApart:[], blockedSeats:[], optimized:false, touched:false, reportNotes:'', reportChecks:[]};
 }
 function load(){
   try{
@@ -923,6 +943,8 @@ function load(){
           if(!('blockedSeats' in g)) g.blockedSeats = [];
           if(!('optimized' in g)) g.optimized = !!g.seating?.length;
           if(!('touched' in g)) g.touched = false;
+          if(!('reportNotes' in g)) g.reportNotes = '';
+          if(!('reportChecks' in g)) g.reportChecks = [];
         }
         return st;
       }
@@ -2125,7 +2147,7 @@ function renderReview(){
   if(m.frontBad) it('warn','📌', `${m.frontBad} ikasle lehen lerroko beharra bete gabe.`);
   if(g.pending.length) it('warn','⚠️', `${g.pending.length} izen argitzeke daude (Datuak fitxan) — nahi horiek ez dira kontuan hartzen ari.`);
   if(noPref.length) it('warn','😶', `Nahirik gabeko ikasleak (${noPref.length}): ${noPref.slice(0,6).map(s=>esc(givOf(s.name))).join(', ')}${noPref.length>6?'…':''} — beraien erantzunak falta dira?`);
-  if(isolated.length) it('warn','🌱', `Arreta tutoretzan behar dutenak (${isolated.length}): ${isolated.slice(0,6).map(s=>esc(givOf(s.name))).join(', ')}${isolated.length>6?'…':''} — begiratu soziograma.`);
+  if(isolated.length) it('warn','🌱', `Arreta tutoretzan behar dutenak (${isolated.length}): ${isolated.slice(0,6).map(s=>esc(givOf(s.name))).join(', ')}${isolated.length>6?'…':''}. <span style="font-weight:400">Honek ez du automatikoki bazterketa esan nahi: ikaslea diskretua, berria edo gutxi ikusia izan daiteke. Kontrastatu behaketarekin.</span>`);
   else it('ok','💚', 'Ikasle guztiek jaso dute aukeraketaren bat.');
   if(g.locked.length) it('ok','🔒', `Ainguratuta: ${g.locked.map(id=>esc(givOf(nm(id)))).join(', ')}.`);
   if(g.blockedSeats?.length) it('ok','🚫', `${g.blockedSeats.length} eserleku blokeatuta.`);
@@ -2560,10 +2582,34 @@ $('#sozioPrintBtn').addEventListener('click', ()=>{
 window.addEventListener('afterprint', ()=>document.body.classList.remove('print-sozio','print-report'));
 
 /* ---------- Txostena (irakasle-taldearentzat) ---------- */
+let reportMode = 'safe';
+const REVIEW_Q = [
+  'Ikasleren bat bakartuegi geratu da?',
+  'Ikasle arduradun bati gehiegizko zama jarri zaio?',
+  'Gatazka bat saihestu da, baina beste tentsio bat sor daiteke?',
+  'Ikasle baten hautu positibo guztiak hautsi dira?',
+  'Ikasleren bat bazterrean geratu da arrazoi pedagogikorik gabe?',
+  'Banaketa honek ikaskuntza errazten du, ala soilik zarata gutxitzen?',
+];
+const REPORT_HINTS = {
+  safe: '✅ Irakasle-taldearekin partekatzeko egokia: erabakia eta jarraipena dokumentatzen ditu, ikasleen etiketa edo aukeraketa pribaturik gabe.',
+  full: '🔒 Tutore eta orientatzailearentzat soilik: soziometria-analisi osoa, ikasle-izenez. Ez zabaldu.',
+};
+function reportPlanTable(g){
+  return g.seating.map((row,r)=>'<tr>'+row.map((id,c)=>{
+    if(BLK.has(r+':'+c)) return '<td class="blk">✕</td>';
+    if(!id) return '<td class="emp"></td>';
+    const s = rel.get(id);
+    return `<td>${esc(givOf(s.name))}<small>${esc(s.name.includes(',') ? s.name.split(',')[0].trim() : '')}</small></td>`;
+  }).join('')+'</tr>').join('');
+}
+
 function renderReport(){
   buildRel();
   const g = G();
   const body = $('#reportBody');
+  $('#reportModeHint').textContent = REPORT_HINTS[reportMode];
+  document.querySelectorAll('[data-rmode]').forEach(b=>b.classList.toggle('active', b.dataset.rmode===reportMode));
   if(g.students.length < 2){
     body.innerHTML = `<div class="emptyState" style="padding:60px 20px">Txostena sortzeko, kargatu ikasleak eta haien nahiak (Datuak fitxa).</div>`;
     return;
@@ -2573,64 +2619,125 @@ function renderReport(){
   const dateTxt = new Date().toLocaleDateString('eu-ES', {year:'numeric', month:'long', day:'numeric'});
   const chips = arr => arr.length ? `<div class="iChips">${arr.join('')}</div>` : '<p class="rNote">— ezer ez —</p>';
   const chip = (txt, cls='') => `<span class="chip ${cls}">${txt}</span>`;
-  const planRows = g.seating.map((row,r)=>'<tr>'+row.map((id,c)=>{
-    if(BLK.has(r+':'+c)) return '<td class="blk">✕</td>';
-    if(!id) return '<td class="emp"></td>';
-    const s = rel.get(id);
-    return `<td>${esc(givOf(s.name))}<small>${esc(s.name.includes(',') ? s.name.split(',')[0].trim() : '')}</small></td>`;
-  }).join('')+'</tr>').join('');
+  const planRows = reportPlanTable(g);
+  const reciprocalDislikes = sozioEdges().filter(e=>e.type==='dislike' && e.mutual).length;
 
-  body.innerHTML = `
-  <div class="report">
-    <div class="rHead">
-      <div>
-        <h2>🪑 ${esc(g.name)} — gelaren txosten soziometrikoa</h2>
-        <div class="rDate">${dateTxt} · GelaLekuak · konfidentziala, irakasle-taldearentzat</div>
-      </div>
-      <div class="rScore">
-        <div><span>Ondo integratuak</span><strong>${st.cohesion}<small>%</small></strong></div>
-        <span class="riskBadge ${st.riskCls}">${st.riskTxt}</span>
-      </div>
-    </div>
-    <div class="rGrid">
-      <article>
-        <h3>📊 Laburpena</h3>
-        <ul>
-          <li><b>${g.students.length}</b> ikasle</li>
-          <li>Nahiak beteta mapan: <b>${st.m.likesOk}/${st.m.likesTot}</b>${st.m.likesNear ? ` (+${st.m.likesNear} diagonalean)` : ''}</li>
-          <li>Gatazkak ondoan: <b>${st.m.conf}</b></li>
-          <li>Lotura positiboak: <b>${st.posLinks}</b> · gatazka-loturak: <b>${st.confLinks}</b></li>
-          <li>Elkarrekiko adiskidetasunak: <b>${st.mutuals.length}</b></li>
-          ${g.keepApart?.length ? `<li>Tutorearen murrizketak: <b>${g.keepApart.length}</b> (${st.m.keepBad ? st.m.keepBad+' urratuta' : 'denak beteta'})</li>` : ''}
-        </ul>
-      </article>
-      <article>
-        <h3>📊 Egoera soziometrikoa <span style="font-weight:500; font-size:11px; color:var(--muted)">(Coie eta Dodge)</span></h3>
-        ${['popular','controversial','neglected','rejected'].map(key=>{
-          const k = SOZIO_KAT[key], list = st.socio.groups[key];
-          if(!list.length) return '';
-          return `<p class="rLbl">${k.icon} ${k.soft} <span style="text-transform:none; font-weight:500">(${k.tech})</span>:</p>${chips(list.map(s=>chip(esc(s.name), key==='rejected'?'r':key==='popular'?'g':'')))}`;
-        }).join('') || '<p class="rNote">Ez da muturreko egoerarik atzeman — ikasle guztiak tarte normalean.</p>'}
-        <p class="rNote" style="margin-top:8px">Egoera orekatuan: <b>${st.socio.groups.average.length}</b> ikasle.${st.socio.small ? ' ⚠️ Talde txikia: orientazio gisa.' : ''}</p>
-      </article>
-      <article>
-        <h3>💪 Lotura positiboak</h3>
-        <p class="rLbl">Elkarrekiko adiskidetasunak:</p>
-        ${chips(st.mutuals.slice(0,8).map(e=>chip(`${esc(givOf(st.name(e.a)))} ↔ ${esc(givOf(st.name(e.b)))}`,'g')))}
-        <p class="rLbl">Ikasle "zubiak" (lotura asko):</p>
-        ${chips(st.bridges.map(s=>chip(esc(s.name),'g')))}
-      </article>
-      <article>
-        <h3>💡 Iradokizunak</h3>
-        ${st.sugg.length ? `<ul class="iList">${st.sugg.map(s=>`<li>${s}</li>`).join('')}</ul>` : '<p class="rNote">Ez dago iradokizun berezirik — egoera orekatua.</p>'}
-      </article>
-    </div>
-    <h3 style="margin:18px 0 8px">🗺️ Gelako planoa (arbela goian)</h3>
-    <table class="planTbl">${planRows}</table>
-    <div class="rFoot">🔐 Datu sentikorrak: soziograma-erantzunetan oinarritua. Erabili tutoretza/orientazio lanerako bakarrik; ez partekatu ikasle edo familiekin.<br>
-    <span style="opacity:.8">GelaLekuak · Luken San Sebastián (luken@lasalledonostia.com) · CC BY-NC-SA 4.0</span></div>
+  const criteria = ['Lagunak ahalik eta gertuen jarri dira, eta gatazka argiak banatu.'];
+  if(g.students.some(s=>s.front)) criteria.push('Lehen lerroko edo ikus-eremuko beharrak (📌) kontuan hartu dira.');
+  if(g.locked.length) criteria.push('Ainguratutako ikasleak beren tokian finkatu dira.');
+  if(g.blockedSeats?.length) criteria.push('Erabili ezin diren eserlekuak (blokeatuak) errespetatu dira.');
+  if(g.keepApart?.length) criteria.push('Tutoreak eskuz ezarritako banaketa-arauak aplikatu dira.');
+
+  const checks = g.reportChecks || [];
+  const reviewHtml = `<div class="reviewQs">
+    ${REVIEW_Q.map((q,i)=>`<label class="reviewQ"><input type="checkbox" data-rq="${i}" ${checks[i]?'checked':''}> <span>${q}</span></label>`).join('')}
   </div>`;
+  const notesHtml = `<textarea id="reportNotes" class="reportNotes" placeholder="Adibidez: Lehen astean behatu: A eta B elkarren ondoan arreta mantentzen duten; C ez den isolatuta geratzen…">${esc(g.reportNotes||'')}</textarea>`;
+
+  if(reportMode === 'safe'){
+    body.innerHTML = `
+    <div class="report">
+      <div class="rHead">
+        <div>
+          <h2>🪑 ${esc(g.name)} — eserlekuen banaketa</h2>
+          <div class="rDate">${dateTxt} · GelaLekuak · tutorearen lan-dokumentua</div>
+        </div>
+        <div class="rScore">
+          <div><span>Ondo integratuak</span><strong>${st.cohesion}<small>%</small></strong></div>
+          <span class="riskBadge ${st.riskCls}">${st.riskTxt}</span>
+        </div>
+      </div>
+      <div class="rGrid">
+        <article>
+          <h3>🎯 Kontuan hartutako irizpideak</h3>
+          <ul>${criteria.map(c=>`<li>${c}</li>`).join('')}</ul>
+        </article>
+        <article>
+          <h3>🔎 Datuen seinaleak <span style="font-weight:500; font-size:11px; color:var(--muted)">(zuhur irakurri)</span></h3>
+          <ul>
+            <li>Hautu positiborik jaso ez dutenak: <b>${st.isolated.length}</b></li>
+            <li>Elkarrekiko zailtasunak: <b>${reciprocalDislikes}</b> bikote</li>
+            <li>Sarean presentzia txikikoak: <b>${st.socio.groups.neglected.length}</b></li>
+            <li>Gatazkak elkarren ondoan: <b>${st.m.conf}</b></li>
+          </ul>
+          <p class="rNote">Seinaleak dira, ez ondorioak: kontrastatu beti behaketarekin.</p>
+        </article>
+        <article>
+          <h3>✅ Berrikusteko galderak</h3>
+          ${reviewHtml}
+        </article>
+        <article>
+          <h3>📝 Jarraipen-oharrak</h3>
+          ${notesHtml}
+        </article>
+      </div>
+      <h3 style="margin:18px 0 8px">🗺️ Gelako planoa (arbela goian)</h3>
+      <table class="planTbl">${planRows}</table>
+      <div class="rFoot">Banaketa hau ez da ikasleak etiketatzeko tresna: tutorearen behaketan, taldearen ezagutzan eta ikaskuntza-giroaren zaintzan oinarritutako proposamen praktikoa da.<br>
+      <span style="opacity:.8">GelaLekuak · Luken San Sebastián (luken@lasalledonostia.com) · CC BY-NC-SA 4.0</span></div>
+    </div>`;
+  } else {
+    body.innerHTML = `
+    <div class="report">
+      <div class="rHead">
+        <div>
+          <h2>🪑 ${esc(g.name)} — txosten soziometriko osoa</h2>
+          <div class="rDate">${dateTxt} · GelaLekuak · <b>tutore/orientatzailea — ez zabaldu</b></div>
+        </div>
+        <div class="rScore">
+          <div><span>Ondo integratuak</span><strong>${st.cohesion}<small>%</small></strong></div>
+          <span class="riskBadge ${st.riskCls}">${st.riskTxt}</span>
+        </div>
+      </div>
+      <div class="rGrid">
+        <article>
+          <h3>📊 Laburpena</h3>
+          <ul>
+            <li><b>${g.students.length}</b> ikasle</li>
+            <li>Nahiak beteta mapan: <b>${st.m.likesOk}/${st.m.likesTot}</b>${st.m.likesNear ? ` (+${st.m.likesNear} diagonalean)` : ''}</li>
+            <li>Gatazkak ondoan: <b>${st.m.conf}</b></li>
+            <li>Lotura positiboak: <b>${st.posLinks}</b> · gatazka-loturak: <b>${st.confLinks}</b></li>
+            <li>Elkarrekiko adiskidetasunak: <b>${st.mutuals.length}</b></li>
+            ${g.keepApart?.length ? `<li>Tutorearen murrizketak: <b>${g.keepApart.length}</b> (${st.m.keepBad ? st.m.keepBad+' urratuta' : 'denak beteta'})</li>` : ''}
+          </ul>
+        </article>
+        <article>
+          <h3>📊 Egoera soziometrikoa <span style="font-weight:500; font-size:11px; color:var(--muted)">(Coie eta Dodge)</span></h3>
+          ${['popular','controversial','neglected','rejected'].map(key=>{
+            const k = SOZIO_KAT[key], list = st.socio.groups[key];
+            if(!list.length) return '';
+            return `<p class="rLbl">${k.icon} ${k.soft} <span style="text-transform:none; font-weight:500">(${k.tech})</span>:</p>${chips(list.map(s=>chip(esc(s.name), key==='rejected'?'r':key==='popular'?'g':'')))}`;
+          }).join('') || '<p class="rNote">Ez da muturreko egoerarik atzeman — ikasle guztiak tarte normalean.</p>'}
+          <p class="rNote" style="margin-top:8px">Egoera orekatuan: <b>${st.socio.groups.average.length}</b> ikasle.${st.socio.small ? ' ⚠️ Talde txikia: orientazio gisa.' : ''}</p>
+        </article>
+        <article>
+          <h3>💪 Lotura positiboak</h3>
+          <p class="rLbl">Elkarrekiko adiskidetasunak:</p>
+          ${chips(st.mutuals.slice(0,8).map(e=>chip(`${esc(givOf(st.name(e.a)))} ↔ ${esc(givOf(st.name(e.b)))}`,'g')))}
+          <p class="rLbl">Ikasle "zubiak" (lotura asko):</p>
+          ${chips(st.bridges.map(s=>chip(esc(s.name),'g')))}
+        </article>
+        <article>
+          <h3>💡 Iradokizunak</h3>
+          ${st.sugg.length ? `<ul class="iList">${st.sugg.map(s=>`<li>${s}</li>`).join('')}</ul>` : '<p class="rNote">Ez dago iradokizun berezirik — egoera orekatua.</p>'}
+        </article>
+      </div>
+      <h3 style="margin:18px 0 8px">🗺️ Gelako planoa (arbela goian)</h3>
+      <table class="planTbl">${planRows}</table>
+      <div class="rFoot">🔐 Datu sentikorrak: soziograma-erantzunetan oinarritua. Erabili tutoretza/orientazio lanerako bakarrik; <b>ez partekatu ikasle, familia edo irakasle-talde zabalarekin</b>.<br>
+      <span style="opacity:.8">GelaLekuak · Luken San Sebastián (luken@lasalledonostia.com) · CC BY-NC-SA 4.0</span></div>
+    </div>`;
+  }
+
+  const ta = $('#reportNotes');
+  if(ta) ta.addEventListener('input', ()=>{ g.reportNotes = ta.value; save(); });
+  body.querySelectorAll('[data-rq]').forEach(cb=>cb.addEventListener('change', ()=>{
+    g.reportChecks = g.reportChecks || [];
+    g.reportChecks[+cb.dataset.rq] = cb.checked;
+    save();
+  }));
 }
+document.querySelectorAll('[data-rmode]').forEach(b=>b.addEventListener('click', ()=>{ reportMode = b.dataset.rmode; renderReport(); }));
 $('#reportPrintBtn').addEventListener('click', ()=>{
   renderReport();
   document.body.classList.add('print-report');
@@ -2776,6 +2883,8 @@ $('#importJsonInput').addEventListener('change', e=>{
         if(!('blockedSeats' in g)) g.blockedSeats = [];
         if(!('optimized' in g)) g.optimized = !!g.seating?.length;
         if(!('touched' in g)) g.touched = false;
+        if(!('reportNotes' in g)) g.reportNotes = '';
+        if(!('reportChecks' in g)) g.reportChecks = [];
         state.groups.push(g);
       }
       state.activeId = state.groups[state.groups.length-1].id;
