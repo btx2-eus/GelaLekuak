@@ -116,6 +116,9 @@ h1,h2,h3,.btn,.tab,label.filebtn,.iconbtn,.arbela{
   display:inline-flex; gap:7px; align-items:center; white-space:nowrap;
 }
 .save-status svg{color:var(--green)}
+.save-status.saveErr{color:#fff; background:var(--red); padding:5px 11px; border-radius:8px; animation:saveErrPulse 1.6s ease-in-out infinite}
+.save-status.saveErr svg{color:#fff}
+@keyframes saveErrPulse{0%,100%{opacity:1}50%{opacity:.72}}
 main{padding:18px 22px 60px}
 section.view{display:none; background:transparent; padding:2px}
 section.view.active{display:block}
@@ -1063,6 +1066,7 @@ function mergeWithStored(stored){
   if(!state.groups.some(g=>g.id===state.activeId)) state.activeId = state.groups[0]?.id;
   return incoming;
 }
+let saveBroken = false;   // gordetzeak huts egin du eta erabiltzailea ohartarazi da
 /* Taldearen edukiaren aztarna, 'rev' kanpoan utzita (aldaketa errealik dagoen jakiteko) */
 const groupPrint = g => JSON.stringify({...g, rev:0});
 function save(){
@@ -1082,10 +1086,41 @@ function save(){
     const incoming = mergeWithStored(stored);
     localStorage.setItem(LS_KEY, JSON.stringify(state));
     if(incoming) renderGroupSelect();
+    saveBroken = false;
     const el = document.getElementById('saveStatus');
-    if(el) el.lastChild.textContent = ' Gordeta ✓ ' + new Date().toLocaleTimeString('eu-ES', {hour:'2-digit', minute:'2-digit'});
+    if(el){
+      el.classList.remove('saveErr');
+      el.lastChild.textContent = ' Gordeta ✓ ' + new Date().toLocaleTimeString('eu-ES', {hour:'2-digit', minute:'2-digit'});
+    }
   }
-  catch(e){ console.warn('localStorage gordetzeko errorea', e); }
+  catch(e){ console.warn('localStorage gordetzeko errorea', e); reportSaveFailure(e); }
+}
+/* Gordetzeak huts egin dezake: kuota beteta, nabigatze pribatua, edo ikastetxeko
+   ordenagailuan gunearen biltegiratzea blokeatuta. Isilik ez utzi INOIZ: hemendik
+   aurrera egindako lan guztia galduko litzateke leihoa itxitakoan. */
+function reportSaveFailure(err){
+  const el = document.getElementById('saveStatus');
+  if(el){
+    el.classList.add('saveErr');
+    el.lastChild.textContent = ' ⚠️ EZ DA GORDETZEN';
+  }
+  if(saveBroken) return;   // behin bakarrik eten lana
+  saveBroken = true;
+  openModal(`
+    <h3>⚠️ Ezin da gorde nabigatzailean</h3>
+    <p class="desc">Aplikazioak ez du zure lana gailu honetan gordetzerik lortu
+    (<code>${esc(err?.name || 'errorea')}</code>). <b>Leihoa itxiz gero, orain arte egindakoa galduko da.</b></p>
+    <div class="privacyNote small" role="note" style="text-align:left">
+      Ohiko arrazoiak: nabigatze pribatua, biltegiratzea beteta, edo ikastetxeko
+      ordenagailuak gunearen datuak blokeatuta izatea.
+    </div>
+    <p class="desc"><b>Zer egin orain:</b> deskargatu babeskopia fitxategi batean, eta jarraitu lanean
+    hortik (fitxategia <i>«Berreskuratu»</i> botoiarekin kargatzen da beste ordenagailu batean).</p>
+    <div class="foot">
+      <button class="btn gray" onclick="closeModal()">Ulertuta</button>
+      <button class="btn green big" id="saveFailExport">⬇️ Deskargatu babeskopia orain</button>
+    </div>`);
+  $('#saveFailExport')?.addEventListener('click', ()=>{ exportJson(); closeModal(); });
 }
 /* Beste leiho batek gorde du: taldeen zerrenda eguneratu, editatzen ari garena ukitu gabe. */
 window.addEventListener('storage', e=>{
@@ -2010,7 +2045,7 @@ function openMappingModal(grid){
   const choiceRows = choiceCols.map(i=>{
     const st = likeSet.has(i) ? 'like' : disSet.has(i) ? 'dislike' : 'none';
     return `<div class="choiceMapRow">
-      <span class="cmCol" title="${esc((grid[0]?.[i]??'')+'')}">${colName(i)}</span>
+      <span class="cmCol" title="${esc((grid[0]?.[i]??'')+'')}">${esc(colName(i))}</span>
       <label class="cmL"><input type="radio" name="cm${i}" value="like" ${st==='like'?'checked':''}> 💚 BAI</label>
       <label class="cmD"><input type="radio" name="cm${i}" value="dislike" ${st==='dislike'?'checked':''}> ⛔ EZ</label>
       <label><input type="radio" name="cm${i}" value="none" ${st==='none'?'checked':''}> —</label>
@@ -2122,6 +2157,16 @@ function applyMapping(grid, m){
   }
   if(!base.length){ toast('Ez da ikaslerik aurkitu — egiaztatu zutabeak.'); return; }
 
+  // Inportazio berean izen bera behin baino gehiagotan? Izenaren araberako lotura egiten
+  // denez (Forms-eko erantzunak lotzeko beharrezkoa), bigarrena lehenaren gainean idatziko
+  // litzateke eta ikasle bat mapatik desagertuko. Ez aldatu jokabidea: ohartarazi.
+  const dupNames = [], seenInBatch = new Set();
+  for(const b of base){
+    const k = keyFull(b.name);
+    if(seenInBatch.has(k)){ if(!dupNames.includes(b.name)) dupNames.push(b.name); }
+    else seenInBatch.add(k);
+  }
+
   const g = G();
   let students = m.merge==='append' ? [...g.students] : [];
   if(m.merge!=='append'){ g.pending = []; g.locked = []; g.seating = []; }
@@ -2183,6 +2228,18 @@ function applyMapping(grid, m){
   if(added) bits.push(`${added} ikasle berri`);
   if(updated) bits.push(`${updated} eguneratuta`);
   toast(`✅ ${bits.join(' · ') || 'Kargatuta'}` + (unresolved ? ` · ⚠️ ${unresolved} izen argitzeke` : ''));
+
+  if(dupNames.length){
+    openModal(`
+      <h3>⚠️ Izen errepikatuak fitxategian</h3>
+      <p class="desc">Izen hau${dupNames.length>1?'ek':''} behin baino gehiagotan ager${dupNames.length>1?'tzen dira':'tzen da'}
+      inportatutako fitxategian, eta <b>ikasle bakar bat</b> sortu da bakoitzeko:</p>
+      <div class="iChips" style="margin:10px 0">${dupNames.map(n=>`<span class="chip r">${esc(n)}</span>`).join('')}</div>
+      <p class="desc">Errenkada bikoiztuak badira (adibidez, erantzun bat bi aldiz), <b>dena ondo dago</b>.
+      Baina <b>bi ikasle desberdin</b> badira, bat falta da zerrendan: bereizi itzazu fitxategian
+      (bigarren abizena erantsita, adibidez) eta inportatu berriro.</p>
+      <div class="foot"><button class="btn" onclick="closeModal()">Ulertuta</button></div>`);
+  }
 }
 
 /* ---------- Gida: zerrenda kopiatu + paperezko galdetegia ---------- */
@@ -3075,14 +3132,15 @@ $('#delGroupBtn').addEventListener('click', ()=>{
 });
 
 /* ---------- JSON gorde / berreskuratu ---------- */
-$('#exportBtn').addEventListener('click', ()=>{
+function exportJson(){
   const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = 'gelalekuak_datuak.json';
   a.click(); URL.revokeObjectURL(a.href);
   toast('⬇️ Datu guztiak gordeta fitxategian.');
-});
+}
+$('#exportBtn').addEventListener('click', exportJson);
 $('#importJsonInput').addEventListener('change', e=>{
   const f = e.target.files?.[0]; if(!f) return;
   const reader = new FileReader();
