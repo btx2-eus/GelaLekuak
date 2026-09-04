@@ -12,10 +12,10 @@
   Lizentzia: Creative Commons Aitortu-EzKomertziala-PartekatuBerdin 4.0 (CC BY-NC-SA 4.0)
   https://creativecommons.org/licenses/by-nc-sa/4.0/deed.eu
 -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Menpekotasun guztiak autoalojatuta: aplikazioak EZ du kanpoko zerbitzaririk kontsultatzen.
+     SheetJS 0.20.3 (Apache-2.0) · Poppins eta Inter (SIL OFL 1.1) -->
+<script src="assets/js/xlsx.full.min.js"></script>
+<link href="assets/fonts/fonts.css" rel="stylesheet">
 <style>
 :root{
   /* Paleta: Teal moderna (errefinatua) — marka teala, semantika bereizita */
@@ -977,6 +977,7 @@ const keySurname = s => splitSurGiv(s).surname.replace(/\s+/g,'');
 const LS_KEY = 'gelalekuak-v2';
 let state = null;
 const histories = {}; // taldeko desegite-pilak (memorian soilik)
+const TOMB_MS = 180*24*3600*1000; // hilarriak zenbat denbora gorde
 
 function newGroup(name){
   // rowSeats=null → automatikoa (4 errenkada); groupSize: 0 jarraian, 2 binaka, 3 hirunaka
@@ -984,39 +985,135 @@ function newGroup(name){
   // blockedSeats: erabili ezin diren eserlekuak ['r:c',...] (gela irregularretarako)
   // optimized: lehen proposamena sortu da; touched: eskuzko aldaketak daude
   // reportNotes: tutorearen jarraipen-oharrak; reportChecks: berrikusitako galderak
-  return {id:uid(), name, rowSeats:null, groupSize:2, students:[], seating:[], locked:[], pending:[], keepApart:[], blockedSeats:[], optimized:false, touched:false, reportNotes:'', reportChecks:[]};
+  return {id:uid(), name, rev:0, rowSeats:null, groupSize:2, students:[], seating:[], locked:[], pending:[], keepApart:[], blockedSeats:[], optimized:false, touched:false, reportNotes:'', reportChecks:[]};
 }
-function load(){
+/* Talde bat egituraz osatu (bertsio zaharretatik migratu) */
+function migrateGroup(g){
+  if(!('rev' in g)) g.rev = 0;
+  if(!('rowSeats' in g)) g.rowSeats = null;
+  if(!('groupSize' in g)) g.groupSize = 0;
+  if(!('keepApart' in g)) g.keepApart = [];
+  if(!('blockedSeats' in g)) g.blockedSeats = [];
+  if(!('optimized' in g)) g.optimized = !!g.seating?.length;
+  if(!('touched' in g)) g.touched = false;
+  if(!('reportNotes' in g)) g.reportNotes = '';
+  if(!('reportChecks' in g)) g.reportChecks = [];
+  return g;
+}
+/* Kanpoko taldeak (fitxategia, beste leiho bat, localStorage hondatua) balioztatu
+   EGOERA UKITU AURRETIK. Baliogabea bada null; bestela taldea osatuta. */
+function sanitizeGroup(g){
+  if(!g || typeof g !== 'object') return null;
+  if(typeof g.name !== 'string' || !Array.isArray(g.students)) return null;
+  for(const st of g.students){
+    if(!st || typeof st.id !== 'string' || typeof st.name !== 'string') return null;
+    if(!Array.isArray(st.likes) || !Array.isArray(st.dislikes)) return null;
+  }
+  if(typeof g.id !== 'string' || !g.id) g.id = uid();
+  g.seating = Array.isArray(g.seating) ? g.seating.filter(Array.isArray) : [];
+  g.locked  = Array.isArray(g.locked)  ? g.locked  : [];
+  g.pending = Array.isArray(g.pending) ? g.pending : [];
+  return migrateGroup(g);
+}
+function readStored(){
   try{
     const raw = localStorage.getItem(LS_KEY);
-    if(raw){
-      const st = JSON.parse(raw);
-      if(st.groups?.length){
-        for(const g of st.groups){ // bertsio zaharretik migratu
-          if(!('rowSeats' in g)) g.rowSeats = null;
-          if(!('groupSize' in g)) g.groupSize = 0;
-          if(!('keepApart' in g)) g.keepApart = [];
-          if(!('blockedSeats' in g)) g.blockedSeats = [];
-          if(!('optimized' in g)) g.optimized = !!g.seating?.length;
-          if(!('touched' in g)) g.touched = false;
-          if(!('reportNotes' in g)) g.reportNotes = '';
-          if(!('reportChecks' in g)) g.reportChecks = [];
-        }
-        return st;
-      }
-    }
-  }catch(e){ console.warn('localStorage irakurtzeko errorea', e); }
-  return null;
+    return raw ? JSON.parse(raw) : null;
+  }catch(e){ console.warn('localStorage irakurtzeko errorea', e); return null; }
 }
+function load(){
+  const st = readStored();
+  if(!st?.groups?.length) return null;
+  const groups = st.groups.map(sanitizeGroup).filter(Boolean);
+  if(!groups.length) return null;
+  const deleted = (st.deleted && typeof st.deleted === 'object') ? st.deleted : {};
+  const alive = {}, now = Date.now();
+  for(const [id, ts] of Object.entries(deleted)) if(now - (+ts||0) < TOMB_MS) alive[id] = +ts;
+  return {...st, groups: groups.filter(g=>!(g.id in alive)), deleted: alive};
+}
+/* Beste leiho batek gordetakoa EZ zapaldu: taldez talde fusionatu. Talde bakoitzak bere
+   'rev' du eta berrienak irabazten du; hemen ezabatutakoak ez dira itzultzen.
+   Itzultzen du: kanpotik etorritako talde berrien kopurua (0 = ezer berririk ez). */
+function mergeWithStored(stored){
+  // Hilarriak (ezabatutako taldeak) BI aldeetatik batu: leiho batek ezabatutakoa
+  // besteak ez du berpiztu behar. Zaharrak baztertu, pilatu ez daitezen.
+  const now = Date.now(), tombs = {};
+  for(const src of [stored?.deleted, state.deleted]){
+    for(const [id, ts] of Object.entries(src||{})) if(now - (+ts||0) < TOMB_MS) tombs[id] = Math.max(tombs[id]||0, +ts||0);
+  }
+  state.deleted = tombs;
+  state.groups = state.groups.filter(g=>!(g.id in tombs));
+  if(!stored?.groups?.length){
+    if(!state.groups.some(g=>g.id===state.activeId)) state.activeId = state.groups[0]?.id;
+    return 0;
+  }
+  const mine = new Map(state.groups.map(g=>[g.id, g]));
+  const merged = [];
+  let incoming = 0;
+  for(const raw of stored.groups){
+    if(raw?.id in tombs) continue;                  // ezabatuta: ez berpiztu
+    const theirs = sanitizeGroup(raw);
+    if(!theirs) continue;
+    const ours = mine.get(theirs.id);
+    if(!ours){ merged.push(theirs); incoming++; }
+    else { merged.push((theirs.rev||0) > (ours.rev||0) ? theirs : ours); mine.delete(theirs.id); }
+  }
+  for(const g of state.groups) if(mine.has(g.id)) merged.push(g);  // hemen sortu berriak
+  state.groups = merged;
+  if(!state.groups.some(g=>g.id===state.activeId)) state.activeId = state.groups[0]?.id;
+  return incoming;
+}
+/* Taldearen edukiaren aztarna, 'rev' kanpoan utzita (aldaketa errealik dagoen jakiteko) */
+const groupPrint = g => JSON.stringify({...g, rev:0});
 function save(){
   try{
+    const stored = readStored();
+    const g = G();
+    const prev = g ? (stored?.groups||[]).find(x=>x && x.id===g.id) : null;
+    // Erloju logikoa: 'rev' aldaketa ERREALA dagoenean bakarrik igotzen da, eta beti
+    // ezagutzen diren rev guztien gainetik. Horrela leiho batek ez du besteak editatutakoa
+    // zapaltzen: taldea ukitu duen azkenak dauka beti zenbaki handiena.
+    if(g && (!prev || groupPrint(prev) !== groupPrint(g))){
+      let max = 0;
+      for(const x of (stored?.groups||[])) max = Math.max(max, x?.rev||0);
+      for(const x of state.groups) max = Math.max(max, x.rev||0);
+      g.rev = max + 1;
+    }
+    const incoming = mergeWithStored(stored);
     localStorage.setItem(LS_KEY, JSON.stringify(state));
+    if(incoming) renderGroupSelect();
     const el = document.getElementById('saveStatus');
     if(el) el.lastChild.textContent = ' Gordeta ✓ ' + new Date().toLocaleTimeString('eu-ES', {hour:'2-digit', minute:'2-digit'});
   }
   catch(e){ console.warn('localStorage gordetzeko errorea', e); }
 }
-state = load() || {groups:[newGroup('Nire taldea')], activeId:null};
+/* Beste leiho batek gorde du: taldeen zerrenda eguneratu, editatzen ari garena ukitu gabe. */
+window.addEventListener('storage', e=>{
+  if(e.key !== LS_KEY || !e.newValue) return;
+  let stored = null;
+  try{ stored = JSON.parse(e.newValue); }catch(err){ return; }
+  let removed = 0;
+  for(const [id, ts] of Object.entries(stored?.deleted||{})){
+    if(!(id in (state.deleted||{}))){ state.deleted = state.deleted||{}; state.deleted[id] = +ts||Date.now(); }
+    const i = state.groups.findIndex(g=>g.id===id);
+    if(i>=0 && state.groups.length>1){ state.groups.splice(i,1); removed++; }
+  }
+  const have = new Set(state.groups.map(g=>g.id));
+  let added = 0;
+  for(const raw of (stored?.groups||[])){
+    if(have.has(raw?.id) || (raw?.id in (state.deleted||{}))) continue;
+    const g = sanitizeGroup(raw);
+    if(g){ state.groups.push(g); added++; }
+  }
+  if(removed && !state.groups.some(g=>g.id===state.activeId)){ state.activeId = state.groups[0]?.id; refreshAll(); }
+  if(added || removed){
+    renderGroupSelect();
+    if(added) toast(`ℹ️ Beste leiho batean ${added} talde agertu d${added===1?'a':'ira'}.`);
+    else toast('ℹ️ Beste leiho batean talde bat ezabatu da.');
+  }
+});
+state = load() || {groups:[newGroup('Nire taldea')], activeId:null, deleted:{}};
+state.deleted = state.deleted || {};
 if(!state.activeId || !state.groups.some(g=>g.id===state.activeId)) state.activeId = state.groups[0].id;
 const G = () => state.groups.find(g=>g.id===state.activeId);
 
@@ -1899,7 +1996,9 @@ function openMappingModal(grid){
     Array.from({length:nCols}, (_,i)=>`<option value="${i}" ${i===sel?'selected':''}>${esc(colName(i))}</option>`).join('');
   const prevRows = grid.slice(0, 5).map(r=>
     `<tr>${Array.from({length:Math.min(nCols,8)},(_,i)=>`<td>${esc((r[i]??'')+'')}</td>`).join('')}</tr>`).join('');
-  const twoColGuess = gss.sur!==-1 && gss.giv!==-1;
+  // Goibururik gabeko bi zutabe = ia beti 'Abizena, Izena' itsatsitako zerrenda bat
+  // (koma banatzaile gisa irakurrita). Zutabe bakarra hautatuz gero abizenak baino ez lirateke kargatuko.
+  const twoColGuess = (gss.sur!==-1 && gss.giv!==-1) || (!gss.looksHeader && nCols===2);
   // Aukera-zutabeen zerrenda (BAI/EZ/ez erabili), izen- eta meta-zutabeak kanpo
   const likeSet = new Set(gss.likesCols), disSet = new Set(gss.dislikesCols);
   const choiceCols = [];
@@ -1980,8 +2079,14 @@ function splitCellNames(cell, tryResolve){
   if(txt.includes(';')) return txt.split(';').map(x=>x.trim()).filter(Boolean);
   if(!txt.includes(',')) return [txt];
   const parts = txt.split(',').map(x=>x.trim()).filter(Boolean);
-  // Bi zati = "Abizena, Izena" izen oso bat (goitibeherako gelaxka edo aukera bakarra)
-  if(parts.length===2) return [txt];
+  // Bi zati: "Abizena, Izena" izen oso BAT izan daiteke, edo koma bidez bereizitako BI izen
+  // ("June Agirre, Maddi Lasa"). Lehenik osoa ebazten saiatu; ezin bada eta zatiak banaka
+  // ebazten badira, bi izen dira.
+  if(parts.length===2){
+    if(tryResolve(txt)) return [txt];
+    if(tryResolve(parts[0]) && tryResolve(parts[1])) return parts;
+    return [txt];
+  }
   // Zati bikoiti gehiago = "Abizena, Izena, Abizena, Izena..." (koadroak, hainbat aukera)
   if(parts.length>=4 && parts.length%2===0){
     const pairs = [];
@@ -2120,8 +2225,12 @@ function buildFormsScript(){
 
   var f = FormApp.create(${JSON.stringify(title)});
   f.setDescription('Markatu zure izena eta norekin egongo zinatekeen gustura (edo ez). '
-    + 'Ez idatzi izenik: aukeratu beti zerrendatik.');
-  f.setCollectEmail(true);
+    + 'Ez idatzi izenik: aukeratu beti zerrendatik.\\n\\n'
+    + 'Galdetegi hau EZ da anonimoa: tutoreak zure erantzunak ikusiko ditu, gela antolatzeko. '
+    + 'Ez da zure helbide elektronikoa gordetzen, eta erantzunak ez dira ikaskideekin partekatuko.');
+  // Ez da helbide elektronikorik jasotzen: soziogramak 1. galdera baino ez du behar.
+  // Erantzun bakarraren muga mantentzen da (saioa hasi behar dute), baina posta ez da orrian gordetzen.
+  f.setCollectEmail(false);
   f.setLimitOneResponsePerUser(true);
 
   // 1) Nor zara? (goitibeherakoa, derrigorrezkoa)
@@ -2958,6 +3067,8 @@ $('#renameGroupBtn').addEventListener('click', ()=>{
 $('#delGroupBtn').addEventListener('click', ()=>{
   if(state.groups.length===1){ toast('Gutxienez talde bat behar da.'); return; }
   if(!confirm(`"${G().name}" taldea eta bere datu guztiak ezabatu?`)) return;
+  state.deleted = state.deleted || {};
+  state.deleted[state.activeId] = Date.now();   // hilarria: beste leihoek ere errespeta dezaten
   state.groups = state.groups.filter(g=>g.id!==state.activeId);
   state.activeId = state.groups[0].id;
   renderGroupSelect(); refreshAll();
@@ -2978,19 +3089,16 @@ $('#importJsonInput').addEventListener('change', e=>{
   reader.onload = ev=>{
     try{
       const st = JSON.parse(ev.target.result);
-      if(!st.groups?.length) throw new Error('formatua');
-      for(const g of st.groups){
+      if(!Array.isArray(st.groups) || !st.groups.length) throw new Error('formatua');
+      // Dena balioztatu EGOERA UKITU AURRETIK: fitxategi hondatu batek ez du saioa apurtu behar
+      const incoming = [];
+      for(const raw of st.groups){
+        const g = sanitizeGroup(raw);
+        if(!g) throw new Error('taldea');
         g.id = uid(); // talkarik ez
-        if(!('rowSeats' in g)) g.rowSeats = null;
-        if(!('groupSize' in g)) g.groupSize = 0;
-        if(!('keepApart' in g)) g.keepApart = [];
-        if(!('blockedSeats' in g)) g.blockedSeats = [];
-        if(!('optimized' in g)) g.optimized = !!g.seating?.length;
-        if(!('touched' in g)) g.touched = false;
-        if(!('reportNotes' in g)) g.reportNotes = '';
-        if(!('reportChecks' in g)) g.reportChecks = [];
-        state.groups.push(g);
+        incoming.push(g);
       }
+      state.groups.push(...incoming);
       state.activeId = state.groups[state.groups.length-1].id;
       renderGroupSelect(); refreshAll();
       toast(`✅ ${st.groups.length} talde berreskuratuta.`);

@@ -1,6 +1,10 @@
 # 📖 GelaLekuak — erabilera-gida (mini-manuala)
 
-> 🔒 **Pribatutasuna:** datu guztiak zure gailuko nabigatzailean bakarrik gordetzen dira. Ez da ezer zerbitzarira bidaltzen. Tutoretzako datu sentikorrak dira — **ez partekatu ikasle edo familiekin**.
+> 🔒 **Pribatutasuna:** datu guztiak zure gailuko nabigatzailean bakarrik gordetzen dira. Ez da ezer zerbitzarira bidaltzen, eta orriak ez du kanpoko zerbitzaririk kontsultatzen. Tutoretzako datu sentikorrak dira — **ez partekatu ikasle edo familiekin**.
+>
+> ⚠️ **Ordenagailu partekatuak:** datuak nabigatzailearen profilari lotuta daude, ez zure erabiltzaileari. Irakasle-gelako ordenagailu batean profil bera erabiltzen duen edonork zure taldeak ikusiko ditu. Erabili zure saioa/profila, edo garbitu amaitutakoan.
+>
+> 📝 **Inkesta ez da anonimoa:** soziograma egiteko tutoreak jakin behar du nork zer erantzun duen (hala esaten zaie ikasleei galdetegian). Helbide elektronikoa, ordea, ez da gordetzen.
 
 Aplikazioak hiru pausotan gidatzen zaitu. Albo-barran beti duzu **❓ Erabilera-gida** botoia gogorarazpen azkar baterako.
 
