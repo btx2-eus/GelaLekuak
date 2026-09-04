@@ -35,6 +35,8 @@ HTML fitxategi bakarra (`index.html`) + `assets/` (SheetJS 0.20.3 eta letra-tipo
 
 Mini-manual osoa: **[ERABILERA.md](ERABILERA.md)**. Aplikazioan bertan ere eskuragarri dago, albo-barrako **❓ Erabilera-gida** botoian.
 
+**Etapa-arduradun eta orientaziorako gida laburra** (zer datu erabiltzen diren, zer arau bete behar diren, txostenaren bi mailak, metodoaren mugak): [btx2-eus.github.io/GelaLekuak/eskuliburua.html](https://btx2-eus.github.io/GelaLekuak/eskuliburua.html)
+
 ## Egilea eta lizentzia
 
 Egilea: **Luken San Sebastián** ([luken@lasalledonostia.com](mailto:luken@lasalledonostia.com))

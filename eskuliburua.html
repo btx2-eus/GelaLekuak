@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="eu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GelaLekuak eskuliburua — etapa eta orientaziorako</title>
+<meta name="description" content="Etapa-arduradunentzat eta orientaziorako gida laburra: zer egiten duen GelaLekuak-ek, zer datu erabiltzen dituen eta zer arau bete behar diren.">
+<meta name="author" content="Luken San Sebastián (luken@lasalledonostia.com)">
+<meta name="license" content="CC BY-NC-SA 4.0">
+<link href="assets/fonts/fonts.css" rel="stylesheet">
+<!--
+  GelaLekuak — etapa eta orientaziorako gida
+  © 2026 Luken San Sebastián · CC BY-NC-SA 4.0
+  Menpekotasunik gabe: ez du kanpoko zerbitzaririk kontsultatzen.
+-->
+<style>
+:root{
+  --ink:#17212b;
+  --muted:#5a6b67;
+  --faint:#7d8b88;
+  --line:#d6e2df;
+  --line-soft:#e6eeec;
+  --bg:#f0f4f3;
+  --card:#ffffff;
+  --paper:#f8fbfa;
+  --primary:#0f766e;
+  --primary-deep:#0b5c55;
+  --primary-soft:#d6f1ed;
+  --green:#15803d;
+  --green-soft:#ddf7e6;
+  --red:#b42318;
+  --red-soft:#feE4e2;
+  --amber:#96610a;
+  --amber-soft:#fdf0d3;
+  --shadow:0 1px 2px rgba(16,40,36,.05), 0 10px 30px -18px rgba(16,40,36,.35);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#e7efec;
+    --muted:#9fb2ae;
+    --faint:#7f918d;
+    --line:#2b3a37;
+    --line-soft:#243130;
+    --bg:#0e1615;
+    --card:#161f1e;
+    --paper:#131c1b;
+    --primary:#43c5b7;
+    --primary-deep:#7ce0d3;
+    --primary-soft:#123330;
+    --green:#5ad088;
+    --green-soft:#12301f;
+    --red:#f79288;
+    --red-soft:#381916;
+    --amber:#e3ab53;
+    --amber-soft:#33260f;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 12px 34px -20px rgba(0,0,0,.9);
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#e7efec;
+  --muted:#9fb2ae;
+  --faint:#7f918d;
+  --line:#2b3a37;
+  --line-soft:#243130;
+  --bg:#0e1615;
+  --card:#161f1e;
+  --paper:#131c1b;
+  --primary:#43c5b7;
+  --primary-deep:#7ce0d3;
+  --primary-soft:#123330;
+  --green:#5ad088;
+  --green-soft:#12301f;
+  --red:#f79288;
+  --red-soft:#381916;
+  --amber:#e3ab53;
+  --amber-soft:#33260f;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 12px 34px -20px rgba(0,0,0,.9);
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:"Source Serif 4","Iowan Old Style",Georgia,serif;
+  font-size:17px;
+  line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:53rem;margin:0 auto;padding:0 22px 76px}
+
+/* ---------- Goiburua ---------- */
+header.masthead{
+  border-bottom:2px solid var(--primary);
+  padding:38px 0 22px;
+  margin-bottom:34px;
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:26px;
+  align-items:end;
+}
+.eyebrow{
+  font-family:Poppins,"Segoe UI",system-ui,sans-serif;
+  font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--primary);margin:0 0 10px;
+}
+h1{
+  font-family:Poppins,"Segoe UI",system-ui,sans-serif;
+  font-size:clamp(31px,5vw,44px);font-weight:700;line-height:1.06;
+  letter-spacing:-.02em;margin:0 0 12px;text-wrap:balance;
+}
+.standfirst{margin:0;max-width:34em;color:var(--muted);font-size:18px}
+.masthead figure{margin:0}
+figcaption{
+  font-family:Poppins,"Segoe UI",system-ui,sans-serif;
+  font-size:11px;font-weight:600;color:var(--muted);
+  margin-top:10px;display:flex;gap:16px;justify-content:center;flex-wrap:wrap;
+}
+figcaption span{display:inline-flex;align-items:center;gap:6px}
+figcaption .sw{width:11px;height:5px;border-radius:1px;display:inline-block}
+
+/* ---------- Datu-fitxa ---------- */
+.factsheet{
+  background:var(--card);border:1px solid var(--line);border-radius:4px;
+  box-shadow:var(--shadow);padding:6px 24px;margin:0 0 44px;
+}
+.factsheet dl{margin:0;display:grid;grid-template-columns:minmax(9rem,15rem) 1fr}
+.factsheet dt,.factsheet dd{
+  padding:13px 0;margin:0;border-top:1px solid var(--line-soft);
+}
+.factsheet dt{
+  font-family:Poppins,"Segoe UI",system-ui,sans-serif;
+  font-size:11.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--faint);align-self:center;padding-right:18px;
+}
+.factsheet dd{font-size:16px}
+.factsheet dl > dt:first-of-type,
+.factsheet dl > dt:first-of-type + dd{border-top:0}
+.no{color:var(--red);font-weight:600}
+.yes{color:var(--green);font-weight:600}
+
+/* ---------- Atalak ---------- */
+section{margin:0 0 44px}
+h2{
+  font-family:Poppins,"Segoe UI",system-ui,sans-serif;
+  font-size:21px;font-weight:600;letter-spacing:-.01em;
+  margin:0 0 6px;text-wrap:balance;
+}
+h2 .n{
+  color:var(--primary);font-variant-numeric:tabular-nums;
+  margin-right:.5em;font-weight:700;
+}
+.lede{color:var(--muted);margin:0 0 18px;max-width:38em}
+p{margin:0 0 15px;max-width:38em}
+strong{font-weight:600}
+a{color:var(--primary-deep);text-underline-offset:3px;text-decoration-thickness:1px}
+a:focus-visible,button:focus-visible{outline:2px solid var(--primary);outline-offset:3px;border-radius:2px}
+
+/* ---------- Hiru pausoak ---------- */
+ol.steps{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+ol.steps li{
+  background:var(--paper);border-left:3px solid var(--primary);
+  padding:16px 20px;display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start;
+}
+ol.steps .num{
+  font-family:Poppins,"Segoe UI",system-ui,sans-serif;
+  font-size:24px;font-weight:700;color:var(--primary);line-height:1;
+  font-variant-numeric:tabular-nums;padding-top:2px;
+}
+ol.steps h3{
+  font-family:Poppins,"Segoe UI",system-ui,sans-serif;
+  font-size:15.5px;font-weight:600;margin:0 0 4px;
+}
+ol.steps p{margin:0;font-size:16px;color:var(--muted);max-width:44em}
+
+/* ---------- Oharra ---------- */
+.callout{
+  background:var(--amber-soft);border:1px solid var(--amber);
+  border-radius:4px;padding:18px 22px;margin:0 0 18px;
+}
+.callout.t-red{background:var(--red-soft);border-color:var(--red)}
+.callout h3{
+  font-family:Poppins,"Segoe UI",system-ui,sans-serif;
+  font-size:15px;font-weight:600;margin:0 0 8px;color:var(--amber);
+}
+.callout.t-red h3{color:var(--red)}
+.callout p{margin:0 0 10px;max-width:44em;font-size:16px}
+.callout p:last-child{margin:0}
+
+/* ---------- Taulak ---------- */
+.scroller{overflow-x:auto;margin:0 0 16px;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;min-width:34rem;font-size:15.5px}
+th,td{text-align:left;vertical-align:top;padding:13px 16px;border-bottom:1px solid var(--line-soft)}
+thead th{
+  font-family:Poppins,"Segoe UI",system-ui,sans-serif;
+  font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--faint);border-bottom:1px solid var(--line);padding-bottom:9px;
+}
+tbody th{font-weight:600;width:11rem}
+tbody tr:last-child th,tbody tr:last-child td{border-bottom:0}
+td .tag{
+  font-family:Poppins,"Segoe UI",system-ui,sans-serif;
+  font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  padding:3px 8px;border-radius:3px;white-space:nowrap;display:inline-block;
+}
+.tag.ok{background:var(--green-soft);color:var(--green)}
+.tag.stop{background:var(--red-soft);color:var(--red)}
+
+/* ---------- Kategoriak ---------- */
+ul.kats{list-style:none;margin:0 0 16px;padding:0;display:grid;gap:9px}
+ul.kats li{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:baseline;font-size:16px}
+ul.kats .dot{width:9px;height:9px;border-radius:50%;align-self:center}
+ul.kats b{font-weight:600}
+ul.kats span.tech{color:var(--faint);font-style:italic}
+
+/* ---------- Egiaztapen-zerrenda ---------- */
+ul.checks{list-style:none;margin:0;padding:0;display:grid;gap:1px;background:var(--line-soft);
+  border:1px solid var(--line-soft);border-radius:4px;overflow:hidden}
+ul.checks li{
+  background:var(--card);padding:14px 18px;display:grid;
+  grid-template-columns:auto 1fr;gap:14px;align-items:start;font-size:16px;
+}
+ul.checks .box{
+  width:15px;height:15px;border:1.5px solid var(--primary);border-radius:2px;
+  margin-top:5px;flex:none;
+}
+
+/* ---------- Oina ---------- */
+footer{
+  border-top:1px solid var(--line);margin-top:52px;padding-top:20px;
+  font-size:14px;color:var(--faint);display:flex;flex-wrap:wrap;gap:6px 22px;
+}
+footer a{color:var(--primary-deep)}
+
+@media (max-width:640px){
+  header.masthead{grid-template-columns:1fr}
+  .masthead figure{order:-1}
+  .factsheet dl{grid-template-columns:1fr}
+  .factsheet dt{padding-bottom:0;border-top:1px solid var(--line-soft)}
+  .factsheet dd{padding-top:4px;border-top:0}
+  .factsheet dl > dt:first-of-type + dd{border-top:0}
+  tbody th{width:auto}
+}
+@media print{
+  body{background:#fff;color:#000;font-size:11pt}
+  .wrap{max-width:none;padding:0}
+  section,.factsheet,ol.steps li,.callout{break-inside:avoid}
+  .factsheet,ul.checks li{box-shadow:none}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+
+<header class="masthead">
+  <div>
+    <p class="eyebrow">Tutoretza · Etapa eta orientaziorako gida</p>
+    <h1>GelaLekuak</h1>
+    <p class="standfirst">Gelako eserleku-banaketa soziograma batean oinarrituta prestatzeko tresna. Gida labur hau <strong>etapa-arduradunentzat eta orientaziorako</strong> da: zer egiten duen, zer datu erabiltzen dituen eta zer arau bete behar diren.</p>
+  </div>
+  <figure aria-labelledby="mapcap">
+    <svg width="196" height="104" viewBox="0 0 188 100" role="img" aria-label="Gelako maparen adibidea: bi mahai berdez lotuta, bi mahai gorriz banatuta">
+      <rect x="34" y="2" width="120" height="9" rx="2" fill="var(--primary)" opacity=".28"/>
+      <text x="94" y="9.5" text-anchor="middle" font-family="Poppins, sans-serif" font-size="6" font-weight="600" fill="var(--primary-deep)">ARBELA</text>
+      <g fill="var(--card)" stroke="var(--line)" stroke-width="1.4">
+        <rect x="14" y="26" width="46" height="26" rx="3"/>
+        <rect x="70" y="26" width="46" height="26" rx="3"/>
+        <rect x="126" y="26" width="46" height="26" rx="3"/>
+        <rect x="14" y="66" width="46" height="26" rx="3"/>
+        <rect x="70" y="66" width="46" height="26" rx="3"/>
+        <rect x="126" y="66" width="46" height="26" rx="3"/>
+      </g>
+      <rect x="14" y="26" width="46" height="26" rx="3" fill="none" stroke="var(--green)" stroke-width="2.4"/>
+      <rect x="70" y="26" width="46" height="26" rx="3" fill="none" stroke="var(--green)" stroke-width="2.4"/>
+      <rect x="70" y="66" width="46" height="26" rx="3" fill="none" stroke="var(--red)" stroke-width="2.4"/>
+      <rect x="126" y="66" width="46" height="26" rx="3" fill="none" stroke="var(--red)" stroke-width="2.4"/>
+      <g font-family="Poppins, sans-serif" font-size="8.5" font-weight="600" fill="var(--ink)" text-anchor="middle">
+        <text x="37" y="42.5">June</text>
+        <text x="93" y="42.5">Maddi</text>
+        <text x="149" y="42.5">Ane</text>
+        <text x="37" y="82.5">Inhar</text>
+        <text x="93" y="82.5">Danel</text>
+        <text x="149" y="82.5">Peru</text>
+      </g>
+    </svg>
+    <figcaption id="mapcap">
+      <span><i class="sw" style="background:var(--green)"></i>elkarrekin gustura</span>
+      <span><i class="sw" style="background:var(--red)"></i>gatazka</span>
+    </figcaption>
+  </figure>
+</header>
+
+<div class="factsheet">
+  <dl>
+    <dt>Non dauden datuak</dt>
+    <dd>Tutorearen nabigatzailean bakarrik. Ez dago zerbitzaririk, ez konturik, ez sinkronizaziorik.</dd>
+    <dt>Kanpoko eskaerak</dt>
+    <dd><span class="yes">Bat ere ez.</span> Aplikazioak ez du inongo kanpo-zerbitzaririk kontsultatzen; interneterik gabe ere badabil.</dd>
+    <dt>Anonimoa al da?</dt>
+    <dd><span class="no">Ez.</span> Adingabeen datu pertsonalak dira: izenak eta ikaskideen arteko aukeraketak.</dd>
+    <dt>Nork ikusten ditu</dt>
+    <dd>Taldearen tutoreak. Orientazioak, txosten osoaren bidez. Inork gehiagok ez, automatikoki.</dd>
+    <dt>Zenbat denbora</dt>
+    <dd>Tutoreak ezabatu arte. Gomendioa: <strong>ikasturte amaieran garbitu</strong> — ez da automatikoki iraungitzen.</dd>
+    <dt>Kostua eta lizentzia</dt>
+    <dd>Doakoa. CC BY-NC-SA 4.0 · Luken San Sebastián</dd>
+  </dl>
+</div>
+
+<section>
+  <h2><span class="n">1</span>Zer egiten duen</h2>
+  <p>Ikasle bakoitzari bi gauza galdetzen zaizkio: <strong>norekin egongo litzatekeen gustura eserita</strong> (gehienez hiru) eta <strong>norekin ez</strong> (gehienez bi, aukerakoa). Erantzun horiekin, algoritmo batek eserleku-banaketa bat proposatzen du: adiskidetasunak ahalik eta gertuen, gatazkak bananduta, eta tutoreak markatutako beharrak errespetatuta (lehen lerroa behar duenak lehen lerroan).</p>
+  <p>Proposamena <strong>abiapuntua da, ez erabakia</strong>: tutoreak eskuz mugitu, ikasleak tokian ainguratu edo bikote jakinak banantzeko agindu dezake, eta algoritmoak hori errespetatzen du hurrengo saiakeran.</p>
+</section>
+
+<section>
+  <h2><span class="n">2</span>Hiru pauso, hasieratik amaierara</h2>
+  <ol class="steps">
+    <li>
+      <span class="num" aria-hidden="true">1</span>
+      <div>
+        <h3>Ikasleak kargatu</h3>
+        <p>Zerrenda itsatsi edo Excel/CSV bat igo. Gomendatutako formatua <em>Abizena, Izena</em> da, bi «Aimar» bereizteko.</p>
+      </div>
+    </li>
+    <li>
+      <span class="num" aria-hidden="true">2</span>
+      <div>
+        <h3>Nahiak jaso</h3>
+        <p>Aplikazioak <strong>Google inkesta osoa prestatzen du</strong>, ikasleen izenak barruan eta hiru galderekin. Ikasleek ez dute izenik idazten: zerrenda itxietatik aukeratzen dute, eta horrek idazkera-akatsak saihesten ditu. Erantzunak igo eta izenak automatikoki lotzen dira; lotu gabekoak abisu-panel batean agertzen dira.</p>
+      </div>
+    </li>
+    <li>
+      <span class="num" aria-hidden="true">3</span>
+      <div>
+        <h3>Mapa sortu eta findu</h3>
+        <p>Gelaren egitura zehaztu (errenkadak, mahaiak binaka edo uharteka, erabili ezin diren eserlekuak) eta proposamena sortu. Ondoren, eskuz findu eta inprimatu edo PDF gisa gorde.</p>
+      </div>
+    </li>
+  </ol>
+</section>
+
+<section>
+  <h2><span class="n">3</span>Datuak non dauden — eta nork ikusten dituen</h2>
+  <p>Datu guztiak <strong>tutorearen nabigatzailean</strong> gordetzen dira, gailu horretan. Ez dago atzeko zerbitzaririk: informazioa ez da inora bidaltzen, eta aplikazioak berak ez du kanpoko zerbitzaririk kontsultatzen.</p>
+  <p>Horrek bi ondorio praktiko ditu, eta biak jakin behar dira:</p>
+  <div class="callout">
+    <h3>Ordenagailu partekatuak</h3>
+    <p>Beste tutore batek <strong>ez du</strong> zure daturik ikusten bere ordenagailutik. Baina <strong>ordenagailu eta nabigatzaile-profil bera</strong> erabiltzen duen edonork bai: irekitzean, zuk sortutako talde guztiak ikusiko ditu zerrendan.</p>
+      <p>Irakasle-gelako ordenagailua erabiltzen bada, bakoitzak <strong>bere saioa edo profila</strong> izan behar du.</p>
+  </div>
+  <p><strong>Google inkesta erabiltzen bada</strong>, erantzunak tutorearen Drive-n geratzen dira, ikastetxeko kontuan. Galdetegiak <strong>ez du helbide elektronikorik gordetzen</strong>: ikasleak saioa hasi behar du (behin bakarrik erantzuteko), baina posta ez da erantzunen orrian idazten.</p>
+  <p><strong>Babeskopiak.</strong> «Gorde fitxategian» botoiak <code>.json</code> fitxategi bat sortzen du talde <em>guztiekin</em>, testu lauan. Erabilgarria da ordenagailuz aldatzeko, baina fitxategi hori datu sentikorra da: gorde ikastetxeak zehaztutako lekuan, ez karpeta partekatu batean.</p>
+</section>
+
+<section>
+  <h2><span class="n">4</span>Ez da anonimoa, eta ezin da izan</h2>
+  <p>Soziograma batek izenak behar ditu: nork nor aukeratzen duen jakin gabe ez dago maparik egiterik. Beraz, tresnak <strong>adingabeen datu pertsonalak</strong> tratatzen ditu, eta aukeraketa negatiboak («norekin ez») bereziki delikatuak dira, bazterketa-egoerak agerian utzi baititzakete.</p>
+  <div class="callout t-red">
+    <h3>Hiru arau, salbuespenik gabe</h3>
+    <p>1 · Ikasleei <strong>egia esaten zaie</strong>: galdetegiak berak dio ez dela anonimoa eta tutoreak erantzunak ikusiko dituela, gela antolatzeko.</p>
+    <p>2 · Emaitzak <strong>ez dira ikasle edo familiekin partekatzen</strong>, ez osorik ez zatika.</p>
+    <p>3 · Ikastetxeak beste edozein tutoretza-daturekin bezala jokatu behar du: oinarri juridikoa, kontserbazio-epea eta tratamendu-jardueren erregistroa.</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">5</span>Txostenaren bi mailak</h2>
+  <p class="lede">Aplikazioak bi txosten sortzen ditu ikasle-multzo beretik. Bereizketa ez da kosmetikoa: zer partekatu daitekeen erabakitzen du.</p>
+  <div class="scroller">
+    <table>
+      <thead>
+        <tr><th scope="col">Maila</th><th scope="col">Zer dakar</th><th scope="col">Norentzat</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">Laburpen zuhurra</th>
+          <td>Kontuan hartutako irizpideak, datuen seinaleak <strong>zenbakitan</strong> (ikasle-etiketarik eta aukeraketa pribaturik gabe), berrikusteko galderak, tutorearen oharrak eta gelako planoa.</td>
+          <td><span class="tag ok">Irakasle-taldearekin</span></td>
+        </tr>
+        <tr>
+          <th scope="row">Txosten osoa</th>
+          <td>Soziometria-analisi osoa <strong>ikasle-izenez</strong>: egoera soziometrikoa, elkarrekiko adiskidetasunak, ikasle «zubiak» eta iradokizunak.</td>
+          <td><span class="tag stop">Tutorea eta orientazioa</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">6</span>Metodoa eta bere mugak</h2>
+  <p>Egoera soziometrikoa <strong>Coie eta Dodge-ren marko klasikoan</strong> oinarritzen da: jasotako aukeraketa positiboak eta negatiboak taldearen barruan estandarizatzen dira, eta hortik bost egoera ateratzen dira.</p>
+  <ul class="kats">
+    <li><span class="dot" style="background:var(--green)"></span><span><b>Erreferentziazkoak</b> <span class="tech">(preferituak)</span> — aukeraketa positibo asko, gutxi negatibo.</span></li>
+    <li><span class="dot" style="background:var(--primary)"></span><span><b>Eragin handikoak</b> <span class="tech">(eztabaidatuak)</span> — aukeraketa asko, positibo zein negatibo.</span></li>
+    <li><span class="dot" style="background:var(--amber)"></span><span><b>Oharkabean gera daitezkeenak</b> <span class="tech">(ezikusiak)</span> — ia aukeraketarik ez, ez alde ez kontra.</span></li>
+    <li><span class="dot" style="background:var(--red)"></span><span><b>Integrazioa zaintzekoak</b> <span class="tech">(baztertuak)</span> — negatibo gehiago positibo baino.</span></li>
+    <li><span class="dot" style="background:var(--faint)"></span><span><b>Orekatuak</b> — tarte normalean. <strong>Ikasle gehienak hemen egotea da normala.</strong></span></li>
+  </ul>
+  <div class="callout">
+    <h3>Zer ez den</h3>
+    <p><strong>Ez da diagnostiko bat.</strong> Seinaleak dira, eta beti behaketarekin kontrastatu behar dira.</p>
+    <p><strong>Ez da etiketa bat.</strong> Kategoria bat une jakin bateko harreman-argazkia da, ez ikaslearen ezaugarri bat. Harremanak aldatu egiten dira ikasturtean zehar.</p>
+    <p><strong>10 ikasle baino gutxiagoko taldeetan ez da fidagarria</strong>: estatistika ahulegia da, eta aplikazioak berak abisatzen du.</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">7</span>Zentroarentzako egiaztapen-zerrenda</h2>
+  <ul class="checks">
+    <li><span class="box" aria-hidden="true"></span><span>Ordenagailu partekatuetan, <strong>profil edo saio propioa</strong> tutore bakoitzeko.</span></li>
+    <li><span class="box" aria-hidden="true"></span><span>«Gordeta ✓» adierazlea <strong>gorri jartzen bada</strong> (⚠️ EZ DA GORDETZEN), ez da ezer gordetzen ari: deskargatu babeskopia berehala eta abisatu.</span></li>
+    <li><span class="box" aria-hidden="true"></span><span>Babeskopiak (<code>.json</code>) ikastetxeak zehaztutako lekuan; ez karpeta partekatuetan, ez kontu pertsonaletan.</span></li>
+    <li><span class="box" aria-hidden="true"></span><span><strong>Ikasturte amaieran</strong>: taldeak ezabatu aplikaziotik, babeskopiak ezabatu, eta Drive-ko erantzunen orria ezabatu.</span></li>
+    <li><span class="box" aria-hidden="true"></span><span>Txosten osoa ez inprimatu behar ez denean, eta ez utzi gela edo mahai irekietan.</span></li>
+    <li><span class="box" aria-hidden="true"></span><span>Emaitzek zerbait kezkagarria erakusten badute, <strong>orientazioarekin kontrastatu</strong> ekintzarik hartu aurretik.</span></li>
+  </ul>
+</section>
+
+<section>
+  <h2><span class="n">8</span>Nork zer</h2>
+  <div class="scroller">
+    <table>
+      <thead>
+        <tr><th scope="col">Nor</th><th scope="col">Zeregina</th></tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">Tutorea</th><td>Inkesta pasatu, mapa sortu eta findu, laburpen zuhurra irakasle-taldearekin partekatu, eta ikasturte amaieran datuak ezabatu.</td></tr>
+        <tr><th scope="row">Orientazioa</th><td>Txosten osoa interpretatu tutorearekin batera, eta arreta berezia behar duten egoerak baloratu.</td></tr>
+        <tr><th scope="row">Etapa-arduraduna</th><td>Erabilera koordinatu, egiaztapen-zerrenda bete dadin zaindu, eta datu-babesari buruzko zalantzak ikastetxeko arduradunari helarazi.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer>
+  <span><a href="./">← Aplikaziora itzuli</a></span>
+  <span>Erabilera-gida osoa aplikazioaren barruan: <strong>❓ Erabilera-gida</strong></span>
+  <span>Luken San Sebastián · CC BY-NC-SA 4.0</span>
+</footer>
+
+</div>
+
+</body>
+</html>
