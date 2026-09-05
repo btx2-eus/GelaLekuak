@@ -37,6 +37,13 @@ Mini-manual osoa: **[ERABILERA.md](ERABILERA.md)**. Aplikazioan bertan ere eskur
 
 **Etapa-arduradun eta orientaziorako gida laburra** (zer datu erabiltzen diren, zer arau bete behar diren, txostenaren bi mailak, metodoaren mugak): [btx2-eus.github.io/GelaLekuak/eskuliburua.html](https://btx2-eus.github.io/GelaLekuak/eskuliburua.html)
 
+## Probak
+
+`tests.html` orriak 29 proba exekutatzen ditu aplikazioaren gainean (izenen normalizazioa,
+inportazioa, leiho anitzen arteko fusioa, soziometria, optimizatzailea). Aplikazioa
+`index.html?probak=1` gisa kargatzen du: `localStorage` gako desberdina erabiltzen duenez,
+**ez die benetako datuei ukitzen**. Ireki nabigatzailean eta exekutatuko dira.
+
 ## Egilea eta lizentzia
 
 Egilea: **Luken San Sebastián** ([luken@lasalledonostia.com](mailto:luken@lasalledonostia.com))

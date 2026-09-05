@@ -988,7 +988,9 @@ const keyGiven = s => splitSurGiv(s).given.replace(/\s+/g,'');
 const keySurname = s => splitSurGiv(s).surname.replace(/\s+/g,'');
 
 /* ---------- Egoera eta biltegiratzea ---------- */
-const LS_KEY = 'gelalekuak-v2';
+/* Probak (tests.html) '?probak=1' parametroarekin kargatzen du orria: orduan beste
+   gako bat erabiltzen da, eta tutorearen benetako datuei ez zaie inoiz ukitzen. */
+const LS_KEY = 'gelalekuak-v2' + (location.search.includes('probak=1') ? '-probak' : '');
 let state = null;
 const histories = {}; // taldeko desegite-pilak (memorian soilik)
 const TOMB_MS = 180*24*3600*1000; // hilarriak zenbat denbora gorde
@@ -1180,6 +1182,13 @@ let rel = new Map(); // id -> {like:Set, dislike:Set, front, name, ref}
 let KEEP = new Set(); // tutorearen "banandu" bikoteak: 'idA|idB' gako ordenatuak
 let BLK = new Set();  // blokeatutako eserlekuak: 'r:c'
 const pairK = (a,b) => a < b ? a+'|'+b : b+'|'+a;
+/* Fisher-Yates: sort(()=>Math.random()-0.5) ez da nahasketa uniformea, eta
+   optimizatzailearen abiapuntu ausazkoek benetan ausazkoak izan behar dute. */
+function shuffled(arr){
+  const a = [...arr];
+  for(let i=a.length-1; i>0; i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; }
+  return a;
+}
 function buildRel(){
   rel = new Map();
   GS = G().groupSize || 0;
@@ -1282,11 +1291,12 @@ function ensureSeating(g){
   const blk = new Set(g.blockedSeats);
   // Eserleku erabilgarri gutxiegi badaude, zabaldu errenkada laburrenak
   if(blk.size && !g.rowSeats?.length) g.rowSeats = [...rs0]; // auto-modua gauzatu, zabaldu ahal izateko
+  g._added = 0;
   if(g.rowSeats?.length){
     let total = g.rowSeats.reduce((a,b)=>a+b,0) - blk.size;
     while(total < ids.length){
       const i = g.rowSeats.indexOf(Math.min(...g.rowSeats));
-      g.rowSeats[i]++; total++;
+      g.rowSeats[i]++; total++; g._added++;   // zabaldu behar izan da: mapan abisatuko da
     }
   }
   const rs = rowSeatsOf(g);
@@ -1307,16 +1317,21 @@ function ensureSeating(g){
 }
 
 function pushHistory(){
-  const h = histories[G().id] = histories[G().id] || [];
-  h.push(deepClone(G().seating));
+  const g = G();
+  const h = histories[g.id] = histories[g.id] || [];
+  h.push({seating: deepClone(g.seating), optimized: g.optimized, touched: g.touched});
   if(h.length>30) h.shift();
   $('#undoBtn').disabled = false;
 }
 function undo(){
   const h = histories[G().id];
   if(h?.length){
-    G().seating = h.pop();
-    renderSeating(); save();
+    const prev = h.pop();
+    const g = G();
+    g.seating = prev.seating;
+    g.optimized = prev.optimized;   // egoera-adierazleak ere itzuli behar dira
+    g.touched = prev.touched;
+    renderSeating(); renderStepper(); save();
     $('#undoBtn').disabled = !h.length;
   }
 }
@@ -1388,7 +1403,7 @@ function optimize(){
         }
         fillWith(grid, freeIds.filter(id=>!placed.has(id)));
       } else {
-        fillWith(grid, [...freeIds].sort(()=>Math.random()-0.5));
+        fillWith(grid, shuffled(freeIds));
       }
       const sc = hillClimb(grid);
       if(sc > bestScore){ bestScore = sc; best = grid; }
@@ -1472,7 +1487,7 @@ const colorFor = c => c==='red' ? 'var(--red)' : c==='green' ? 'var(--green)' : 
 function renderSeating(){
   buildRel();
   const g = G();
-  clearSel(true);
+  clearSel();
   if(!g.students.length){
     $('#seatGrid').innerHTML = `<div class="emptyState" style="padding:50px 30px">
       Oraindik ez dago ikaslerik. Hasi 1. pausoan: kargatu ikasleen zerrenda.<br><br>
@@ -1491,7 +1506,8 @@ function renderSeating(){
   const maxW = Math.max(...rs.map(len => len*134 - 12 + aislesIn(len)*38));
   $('#arbela').style.maxWidth = maxW+'px';
   const gsTxt = GS===2 ? 'binaka' : GS>=3 ? `${GS}ko uharteak` : 'jarraian';
-  $('#layoutSummary').textContent = `· ${rs.length} errenkada (${rs.join('+')}) · ${gsTxt}`;
+  $('#layoutSummary').textContent = `· ${rs.length} errenkada (${rs.join('+')}) · ${gsTxt}`
+    + (g._added ? ` · ⚠️ ${g._added} eserleku gehitu dira automatikoki (denak kabitzeko)` : '');
 
   const html = grid.map((row,r)=>{
     const cells = row.map((id,c)=>{
@@ -1576,7 +1592,15 @@ let drag = null;
 function toggleBlockSeat(key, block){
   const g = G();
   if(block){
-    if(!g.rowSeats?.length) g.rowSeats = [...rowSeatsOf(g)]; // auto-modua gauzatu
+    // Blokeatzeak eserlekuak faltan uzten baditu, ensureSeating-ek errenkadak zabalduko
+    // lituzke eta mapak ez luke gela erreala isladatuko. Hobe da ez egitea eta esatea.
+    const rs = rowSeatsOf(g);
+    const libre = rs.reduce((a,b)=>a+b,0) - (g.blockedSeats||[]).length - 1;
+    if(libre < g.students.length){
+      toast(`⚠️ Orduan ${g.students.length - libre} eserleku faltako lirateke. Handitu gela lehenik («🪑 Gelaren egitura»).`);
+      return;
+    }
+    if(!g.rowSeats?.length) g.rowSeats = [...rs]; // auto-modua gauzatu
     g.blockedSeats = g.blockedSeats || [];
     g.blockedSeats.push(key);
     toast('🚫 Eserlekua blokeatuta — egin klik berriro desblokeatzeko.');
@@ -1856,7 +1880,11 @@ function linkPendingGroup(grp, targetId){
   const g = G();
   for(const p of grp.items){
     const stu = g.students.find(s=>s.id===p.by);
-    if(stu && targetId!==p.by && !stu[p.field].includes(targetId)) stu[p.field].push(targetId);
+    if(!stu || targetId===p.by) continue;
+    const bestea = p.field==='likes' ? 'dislikes' : 'likes';
+    // Kontrako zerrendan badago, ez bikoiztu: bestela 💚 eta ⛔ aldi berean egongo litzateke
+    if(stu[p.field].includes(targetId) || stu[bestea].includes(targetId)) continue;
+    stu[p.field].push(targetId);
   }
   g.pending = g.pending.filter(p=>!grp.items.includes(p));
 }
@@ -3308,6 +3336,16 @@ function refreshAll(){
   $('#undoBtn').disabled = !(h && h.length);
 }
 refreshAll();
+
+/* Probetarako sarbidea (tests.html). 'let' bidez deklaratutakoak ez dira window-en
+   propietate, beraz esplizituki eskaintzen dira. Ez du aplikazioaren jokabidea aldatzen. */
+window.__probak = {
+  get state(){ return state; }, G, uid, newGroup,
+  keyFull, splitSurGiv, parseDelimited, guessMapping, splitCellNames,
+  sanitizeGroup, mergeWithStored, migrateGroup, readStored, save, load,
+  computeSociometric, computeMetrics, rowSeatsOf, nameOf, optimize,
+  openMappingModal, closeModal, refreshAll, toggleBlockSeat, LS_KEY,
+};
 
 /* Irisgarritasuna: ikono apaingarriak (SVG) ezkutatu laguntza-teknologietatik;
    testu-etiketak edo aria-label-ak ematen dute esanahia. */

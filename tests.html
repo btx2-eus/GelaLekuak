@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="eu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>GelaLekuak — probak</title>
+<link href="assets/fonts/fonts.css" rel="stylesheet">
+<!--
+  Probak. index.html?probak=1 kargatzen du iframe batean: gako desberdina
+  erabiltzen duenez, tutorearen benetako datuei EZ die inoiz ukitzen.
+-->
+<style>
+:root{
+  --ink:#17212b; --muted:#5b6573; --line:#dbe4e1;
+  --bg:#eef2f1; --card:#ffffff; --paper:#f6f8f7;
+  --primary:#0f766e; --green:#15803d; --green-soft:#dcfce7;
+  --red:#b42318; --red-soft:#fee4e2; --amber:#92400e; --amber-soft:#fef3c7;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#e7efec; --muted:#9fb2ae; --line:#2b3a37;
+    --bg:#0e1615; --card:#161f1e; --paper:#131c1b;
+    --primary:#43c5b7; --green:#5ad088; --green-soft:#12301f;
+    --red:#f79288; --red-soft:#381916; --amber:#e3ab53; --amber-soft:#33260f;
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#e7efec; --muted:#9fb2ae; --line:#2b3a37;
+  --bg:#0e1615; --card:#161f1e; --paper:#131c1b;
+  --primary:#43c5b7; --green:#5ad088; --green-soft:#12301f;
+  --red:#f79288; --red-soft:#381916; --amber:#e3ab53; --amber-soft:#33260f;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:14px; line-height:1.5;
+}
+.wrap{max-width:56rem; margin:0 auto; padding:26px 20px 70px}
+h1{
+  font-family:Poppins,system-ui,sans-serif; font-size:24px; font-weight:700;
+  margin:0 0 4px; letter-spacing:-.01em;
+}
+.sub{color:var(--muted); margin:0 0 20px; max-width:46em}
+.sub code{background:var(--paper); border:1px solid var(--line); border-radius:4px; padding:1px 5px; font-size:12.5px}
+
+.bar{
+  display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  background:var(--card); border:1px solid var(--line); border-radius:8px;
+  padding:14px 18px; margin-bottom:22px; position:sticky; top:0; z-index:5;
+}
+.score{font-family:Poppins,system-ui,sans-serif; font-size:19px; font-weight:700; font-variant-numeric:tabular-nums}
+.score.ok{color:var(--green)} .score.ko{color:var(--red)} .score.run{color:var(--muted)}
+.bar .spacer{flex:1}
+button{
+  font:inherit; font-weight:600; cursor:pointer;
+  background:var(--primary); color:#fff; border:0; border-radius:7px; padding:9px 16px;
+}
+button:disabled{opacity:.5; cursor:default}
+button:focus-visible{outline:2px solid var(--primary); outline-offset:2px}
+
+.grp{margin-bottom:8px; background:var(--card); border:1px solid var(--line); border-radius:8px; overflow:hidden}
+.grp > h2{
+  font-family:Poppins,system-ui,sans-serif; font-size:13px; font-weight:600;
+  letter-spacing:.04em; text-transform:uppercase; color:var(--muted);
+  margin:0; padding:11px 18px; background:var(--paper); border-bottom:1px solid var(--line);
+}
+.t{display:grid; grid-template-columns:auto 1fr auto; gap:12px; align-items:baseline;
+   padding:9px 18px; border-bottom:1px solid var(--line)}
+.t:last-child{border-bottom:0}
+.t .mark{font-weight:700; font-variant-numeric:tabular-nums}
+.t.pass .mark{color:var(--green)} .t.fail .mark{color:var(--red)}
+.t.fail{background:var(--red-soft)}
+.t .why{
+  grid-column:2 / -1; font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:12px; color:var(--red); white-space:pre-wrap; word-break:break-word; margin-top:2px;
+}
+.t .ms{color:var(--muted); font-size:12px; font-variant-numeric:tabular-nums}
+.note{
+  background:var(--amber-soft); border:1px solid var(--amber); color:var(--ink);
+  border-radius:8px; padding:12px 16px; margin-bottom:22px; font-size:13.5px;
+}
+iframe{position:absolute; width:1200px; height:800px; left:-9999px; top:0; border:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>GelaLekuak — probak</h1>
+  <p class="sub">Aplikazioa <code>index.html?probak=1</code> gisa kargatzen da iframe batean. Parametro horrekin beste <code>localStorage</code> gako bat erabiltzen du, beraz <b>probek ez diote tutorearen datuei ukitzen</b>.</p>
+
+  <div class="note">
+    Proba hauek auditoria batean agertutako akatsak zaintzen dituzte. Bat gorri jartzen bada,
+    lehen konpondutako zerbait berriro hautsi da.
+  </div>
+
+  <div class="bar">
+    <span class="score run" id="score">Kargatzen…</span>
+    <span class="spacer"></span>
+    <button id="run" disabled>Berriro exekutatu</button>
+  </div>
+
+  <div id="out"></div>
+</div>
+
+<iframe id="app" title="proba-ingurunea"></iframe>
+
+<script>
+const $ = s => document.querySelector(s);
+let A = null, frame = null;
+
+/* ---------- Proba-egitura txikia ---------- */
+const groups = [];
+let current = null;
+const group = (name, fn) => { current = {name, tests:[]}; groups.push(current); fn(); };
+const test  = (name, fn) => current.tests.push({name, fn});
+
+function eq(a, b, msg){
+  const sa = JSON.stringify(a), sb = JSON.stringify(b);
+  if(sa !== sb) throw new Error(`${msg || 'ez dira berdinak'}\n  espero:  ${sb}\n  jasoa:   ${sa}`);
+}
+function ok(v, msg){ if(!v) throw new Error(msg || 'faltsua izan da'); }
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+/* ---------- Laguntzaileak ---------- */
+function freshGroup(){
+  const g = A.G();
+  Object.assign(g, {students:[], seating:[], locked:[], pending:[], keepApart:[],
+                    blockedSeats:[], rowSeats:null, groupSize:2, optimized:false, touched:false});
+  return g;
+}
+async function importGrid(grid){
+  A.openMappingModal(grid);
+  frame.contentDocument.querySelector('#mGo').click();
+  await sleep(120);
+  A.closeModal();
+}
+const names = () => A.G().students.map(s => s.name);
+const stu = n => A.G().students.find(s => s.name === n);
+
+/* ══════════════════════════════════════════════════════════════════════ */
+
+group('Izenak normalizatzea', () => {
+  test('koma eta maiuskulak berdin tratatzen dira', () => {
+    eq(A.keyFull('Agirre, June'), A.keyFull('AGIRRE ,  june'));
+  });
+  test('azentuak eta ñ kentzen dira konparatzeko', () => {
+    eq(A.keyFull('Muñoz, José'), A.keyFull('munoz,jose'));
+  });
+  test('zuriune bidezko izena zatitzen da', () => {
+    eq(A.splitSurGiv('June Agirre'), {surname:'agirre', given:'june'});
+  });
+});
+
+group('Testu banatua irakurtzea', () => {
+  test('tabuladoreak zutabe gisa', () => {
+    eq(A.parseDelimited('Abizena\tIzena\nAgirre\tJune'), [['Abizena','Izena'],['Agirre','June']]);
+  });
+  test('komatxo arteko komak ez dira banatzaile', () => {
+    eq(A.parseDelimited('a,"Lopez, Danel",b'), [['a','Lopez, Danel','b']]);
+  });
+  test('puntu eta koma detektatzen da', () => {
+    eq(A.parseDelimited('a;b;c\n1;2;3'), [['a','b','c'],['1','2','3']]);
+  });
+  test('lerro hutsak baztertzen dira', () => {
+    eq(A.parseDelimited('a,b\n\n c,d '), [['a','b'],['c','d']]);
+  });
+});
+
+group('Gelaxka batean izen bat ala bi (P5)', () => {
+  const komarik = n => ['june agirre','maddi lasa','danel lopez'].includes(n.trim().toLowerCase());
+  const komarekin = n => ['agirre, june','lasa, maddi'].includes(n.trim().toLowerCase());
+  test('«Abizena, Izena» izen bakarra da', () => {
+    eq(A.splitCellNames('Agirre, June', komarekin), ['Agirre, June']);
+  });
+  test('zuriunedun bi izen bereizten dira  ← akats zaharra', () => {
+    eq(A.splitCellNames('June Agirre, Maddi Lasa', komarik), ['June Agirre','Maddi Lasa']);
+  });
+  test('komadun bi izen bikoteka bereizten dira', () => {
+    eq(A.splitCellNames('Agirre, June, Lasa, Maddi', komarekin), ['Agirre, June','Lasa, Maddi']);
+  });
+  test('puntu eta komak beti banatzen du', () => {
+    eq(A.splitCellNames('A; B; C', () => false), ['A','B','C']);
+  });
+});
+
+group('Zutabeen igarpena', () => {
+  test('Forms-eko orria: izena, BAI eta EZ igartzen dira; meta zutabeak baztertu', () => {
+    const g = A.guessMapping([[ 'Marca temporal','Helbide elektronikoa','Nor zara?',
+      'Norekin egongo zinateke gustura eserita?','Norekin ez zenuke eseri nahi?' ]]);
+    eq(g.full, 2, 'izen-zutabea');
+    eq(g.likesCols, [3], 'BAI zutabea');
+    eq(g.dislikesCols, [4], 'EZ zutabea');
+  });
+});
+
+group('Inportazioa', () => {
+  test('«Abizena, Izena» zerrenda osorik kargatzen da  ← akats zaharra', async () => {
+    freshGroup();
+    await importGrid(A.parseDelimited('Agirre, June\nLasa, Maddi\nLopez, Danel'));
+    eq(names(), ['Agirre, June','Lasa, Maddi','Lopez, Danel']);
+  });
+  test('zutabe bakarreko zerrenda ez da hausten', async () => {
+    freshGroup();
+    await importGrid(A.parseDelimited('June Agirre\nMaddi Lasa'));
+    eq(names(), ['June Agirre','Maddi Lasa']);
+  });
+  test('Forms-eko erantzunak: nahiak lotuta, ezer zintzilik gabe', async () => {
+    freshGroup();
+    await importGrid([['Abizenak','Izena'],['Agirre','June'],['Lasa','Maddi'],
+                      ['Lopez','Danel'],['Zubiri','Inhar']]);
+    await importGrid([
+      ['Marca temporal','Helbide elektronikoa','Nor zara?','Norekin egongo zinateke gustura eserita?','Norekin ez zenuke eseri nahi?'],
+      ['9:01','june@x.eus','Agirre, June','Lasa, Maddi, Zubiri, Inhar','Lopez, Danel'],
+      ['9:02','maddi@x.eus','Lasa, Maddi','Agirre, June','']]);
+    eq(A.G().pending.length, 0, 'zintzilik dauden izenak');
+    eq(stu('Agirre, June').likes.map(A.nameOf).sort(), ['Lasa, Maddi','Zubiri, Inhar']);
+    eq(stu('Agirre, June').dislikes.map(A.nameOf), ['Lopez, Danel']);
+  });
+  test('izen bikoiztuak: ikasle bat sortzen da eta abisua ematen da', async () => {
+    freshGroup();
+    await importGrid([['Abizenak','Izena'],['Agirre','June'],['Lasa','Maddi'],['Agirre','June']]);
+    eq(names(), ['Agirre, June','Lasa, Maddi']);
+    const abisua = frame.contentDocument.querySelector('#modalBox h3')?.textContent || '';
+    ok(/errepikatu/i.test(abisua), 'ez da abisu-leihoa agertu: ' + JSON.stringify(abisua));
+    A.closeModal();
+  });
+});
+
+group('Kanpoko datuak balioztatzea (P6)', () => {
+  test('ikasleak array ez bada, baztertu', () => {
+    eq(A.sanitizeGroup({id:'x', name:'X', students:'ez'}), null);
+  });
+  test('ikasle batek zerrendak falta baditu, baztertu', () => {
+    eq(A.sanitizeGroup({id:'x', name:'X', students:[{id:'a', name:'A'}]}), null);
+  });
+  test('baliozkoa bada, hutsuneak bete', () => {
+    const g = A.sanitizeGroup({id:'x', name:'X', students:[{id:'a',name:'A',likes:[],dislikes:[]}]});
+    ok(g, 'baztertu egin du baliozko talde bat');
+    eq(g.keepApart, []); eq(g.blockedSeats, []); eq(g.rev, 0); eq(g.seating, []);
+  });
+  test('izenik gabeko taldea baztertu', () => {
+    eq(A.sanitizeGroup({id:'x', students:[]}), null);
+  });
+});
+
+group('Leiho anitzen arteko fusioa (P1)', () => {
+  test('beste leiho batek sortutako taldea ekartzen da', () => {
+    const st = A.state;
+    const kanpokoa = {id:'kanpo1', name:'Beste leihoa', rev:1, students:[],
+                      seating:[], locked:[], pending:[]};
+    localStorage.setItem(A.LS_KEY, JSON.stringify({groups:[...st.groups.map(g=>({...g})), kanpokoa],
+                                                   activeId:st.activeId, deleted:{}}));
+    A.mergeWithStored(A.readStored());
+    ok(st.groups.some(g => g.id === 'kanpo1'), 'ez du kanpoko taldea ekarri');
+  });
+  test('rev handiena duenak irabazten du', () => {
+    const st = A.state;
+    const mine = st.groups.find(g => g.id === 'kanpo1');
+    mine.name = 'Zaharra'; mine.rev = 1;
+    const stored = A.readStored();
+    stored.groups = stored.groups.map(g => g.id === 'kanpo1' ? {...g, name:'Berria', rev:9} : g);
+    localStorage.setItem(A.LS_KEY, JSON.stringify(stored));
+    A.mergeWithStored(A.readStored());
+    eq(A.state.groups.find(g => g.id === 'kanpo1').name, 'Berria');
+  });
+  test('ezabatutakoa ez da berpizten (hilarria)', () => {
+    const st = A.state;
+    st.deleted = {...(st.deleted||{}), kanpo1: Date.now()};
+    st.groups = st.groups.filter(g => g.id !== 'kanpo1');
+    A.mergeWithStored(A.readStored());   // biltegian oraindik badago
+    ok(!A.state.groups.some(g => g.id === 'kanpo1'), 'ezabatutako taldea itzuli da');
+  });
+});
+
+group('Eserlekuak blokeatzea (P7)', () => {
+  test('lekua sobera dagoenean, blokeatzen uzten du', async () => {
+    freshGroup();
+    const filas = [['Abizenak','Izena']];
+    for(let i=0;i<12;i++) filas.push(['Ab'+i, 'Iz'+i]);
+    await importGrid(filas);
+    const g = A.G();
+    g.rowSeats = [4,4,4,4]; A.refreshAll();      // 16 eserleku, 12 ikasle
+    A.toggleBlockSeat('3:3', true);
+    A.toggleBlockSeat('3:2', true);
+    eq(A.G().blockedSeats, ['3:3','3:2'], 'ez ditu blokeatu');
+  });
+  test('ikasleak kabituko ez balira, uko egiten dio  ← isilean errenkadak zabaltzen zituen', async () => {
+    const g = A.G();
+    A.toggleBlockSeat('3:1', true);
+    A.toggleBlockSeat('3:0', true);              // 12 eserleku, 12 ikasle: azkena onartzen da
+    eq(A.G().blockedSeats.length, 4, 'laugarrena onartu behar zuen');
+    A.toggleBlockSeat('2:3', true);              // honek 11 utziko lituzke: EZ
+    eq(A.G().blockedSeats.length, 4, 'bosgarrena blokeatu du eta ez zuen behar');
+    eq(A.G().rowSeats, [4,4,4,4], 'errenkadak zabaldu ditu');
+  });
+});
+
+group('Egoera soziometrikoa', () => {
+  test('10 ikasle baino gutxiago: dena «orekatua»', async () => {
+    freshGroup();
+    await importGrid([['Abizenak','Izena'],['A','a'],['B','b'],['C','c']]);
+    const s = A.computeSociometric();
+    ok(s.small, 'ez du talde txikitzat hartu');
+    eq(s.groups.popular.length + s.groups.rejected.length, 0);
+  });
+  test('preferituak eta baztertuak bereizten ditu', async () => {
+    freshGroup();
+    const filas = [['Abizenak','Izena']];
+    for(let i=0;i<14;i++) filas.push(['Ab'+i, 'Iz'+i]);
+    await importGrid(filas);
+    const g = A.G();
+    const izar = g.students[0].id, ahula = g.students[9].id;
+    g.students.slice(1).forEach(s => s.likes = [izar]);        // denek izarra aukeratu
+    g.students.slice(0, 5).forEach(s => s.dislikes = [ahula]); // bostek beste bat baztertu
+    const s = A.computeSociometric();
+    eq(s.byId.get(izar).LM, 13, 'izarrak jasotako aukeraketa positiboak');
+    eq(s.byId.get(ahula).LL, 5, 'besteak jasotako aukeraketa negatiboak');
+    ok(s.groups.popular.some(x => x.id === izar), 'izarra ez da preferitu gisa sailkatu');
+    ok(s.groups.rejected.some(x => x.id === ahula), 'bestea ez da baztertu gisa sailkatu');
+  });
+});
+
+group('Optimizatzailea', () => {
+  test('ikasle guztiak esertzen dira, ainguratuak eta blokeoak errespetatuta', async () => {
+    freshGroup();
+    const filas = [['Abizenak','Izena']];
+    for(let i=0;i<12;i++) filas.push(['Ab'+i, 'Iz'+i]);
+    await importGrid(filas);
+    const g = A.G();
+    g.rowSeats = [4,4,4,4]; g.groupSize = 2;
+    g.students[0].likes = [g.students[1].id];
+    g.students[2].dislikes = [g.students[3].id];
+    g.blockedSeats = ['3:3'];
+    A.refreshAll();
+    g.locked = [g.seating[0][0]].filter(Boolean);
+    const ainguratua = g.locked[0];
+    const nonZegoen = JSON.stringify(g.seating.map(r => r.indexOf(ainguratua)));
+    A.optimize();
+    await sleep(2200);
+    const jarrita = g.seating.flat().filter(Boolean);
+    eq(jarrita.length, 12, 'eserita dauden ikasleak');
+    eq(new Set(jarrita).size, 12, 'bikoizturik gabe');
+    eq(JSON.stringify(g.seating.map(r => r.indexOf(ainguratua))), nonZegoen, 'ainguratua mugitu da');
+    ok(!g.seating[3][3], 'blokeatutako eserlekua beteta dago');   // hutsik: null edo undefined
+  });
+  test('nahasketak ikasle guztiak mantentzen ditu', () => {
+    const orig = ['a','b','c','d','e','f','g'];
+    const nahastua = frame.contentWindow.eval("shuffled(['a','b','c','d','e','f','g'])");
+    eq([...nahastua].sort(), orig, 'nahasketak elementuak galdu edo bikoiztu ditu');
+  });
+});
+
+/* ══════════════════════════════════════════════════════════════════════ */
+
+async function run(){
+  $('#run').disabled = true;
+  $('#out').innerHTML = '';
+  $('#score').className = 'score run';
+  $('#score').textContent = 'Exekutatzen…';
+  let pass = 0, fail = 0;
+
+  for(const g of groups){
+    const box = document.createElement('div');
+    box.className = 'grp';
+    box.innerHTML = `<h2>${g.name}</h2>`;
+    $('#out').appendChild(box);
+    for(const t of g.tests){
+      const row = document.createElement('div');
+      row.className = 't';
+      box.appendChild(row);
+      const t0 = performance.now();
+      let err = null;
+      try{ await t.fn(); }catch(e){ err = e; }
+      const ms = Math.round(performance.now() - t0);
+      if(err){
+        fail++;
+        row.classList.add('fail');
+        row.innerHTML = `<span class="mark">✕</span><span>${t.name}</span><span class="ms">${ms} ms</span>
+                         <div class="why">${(err.message || String(err)).replace(/[&<]/g, c => c === '&' ? '&amp;' : '&lt;')}</div>`;
+      } else {
+        pass++;
+        row.classList.add('pass');
+        row.innerHTML = `<span class="mark">✓</span><span>${t.name}</span><span class="ms">${ms} ms</span>`;
+      }
+      $('#score').textContent = `${pass} ✓ · ${fail} ✕`;
+    }
+  }
+  $('#score').className = 'score ' + (fail ? 'ko' : 'ok');
+  $('#score').textContent = fail ? `${fail} huts · ${pass} ondo` : `Dena ondo · ${pass} proba`;
+  $('#run').disabled = false;
+}
+
+/* Exekuzio bakoitza hutsetik: proba-gakoa garbitu eta aplikazioa berriro kargatu.
+   Bestela exekuzio batek utzitakoak (hilarriak, adibidez) hurrengoa baldintzatzen du. */
+function ezarriHasieratik(){
+  return new Promise(resolve => {
+    try{ localStorage.removeItem('gelalekuak-v2-probak'); }catch(e){}
+    frame.onload = async () => {
+      await new Promise(r => setTimeout(r, 300));
+      resolve(frame.contentWindow.__probak);
+    };
+    frame.src = 'index.html?probak=1&t=' + Date.now();
+  });
+}
+
+async function hasi(){
+  $('#run').disabled = true;
+  $('#score').className = 'score run';
+  $('#score').textContent = 'Ingurunea prestatzen…';
+  A = await ezarriHasieratik();
+  if(!A){
+    $('#score').className = 'score ko';
+    $('#score').textContent = 'Ezin izan da aplikazioa kargatu';
+    return;
+  }
+  if(!/-probak$/.test(A.LS_KEY)){   // segurtasun-morroia: benetako datuen gainean ez exekutatu
+    $('#score').className = 'score ko';
+    $('#score').textContent = 'Gelditua: proba-gakoa ez dago aktibo';
+    return;
+  }
+  await run();
+}
+
+frame = $('#app');
+$('#run').addEventListener('click', hasi);
+hasi();
+</script>
+</body>
+</html>
