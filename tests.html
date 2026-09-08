@@ -137,6 +137,7 @@ async function importGrid(grid){
 }
 const names = () => A.G().students.map(s => s.name);
 const stu = n => A.G().students.find(s => s.name === n);
+const XLSX = new Proxy({}, {get:(_,k)=>frame.contentWindow.XLSX[k]});
 
 /* ══════════════════════════════════════════════════════════════════════ */
 
@@ -181,6 +182,31 @@ group('Gelaxka batean izen bat ala bi (P5)', () => {
   });
   test('puntu eta komak beti banatzen du', () => {
     eq(A.splitCellNames('A; B; C', () => false), ['A','B','C']);
+  });
+});
+
+group('Fitxategien kodeketa', () => {
+  const CSV = 'Abizenak,Izena\nAcuña Soñora,Aritz\nGorjón Rodríguez,Iker\nSútil Apilánez,Leire\n';
+  const bytesUtf8 = () => new TextEncoder().encode(CSV);
+  test('UTF-8 BOM gabe (Google-k horrela esportatzen du)  ← azentuak hondatzen zituen', () => {
+    eq(A.readGrid(bytesUtf8())[1], ['Acuña Soñora','Aritz']);
+  });
+  test('UTF-8 BOMarekin (Excel)', () => {
+    eq(A.readGrid(new Uint8Array([0xEF,0xBB,0xBF, ...bytesUtf8()]))[1], ['Acuña Soñora','Aritz']);
+  });
+  test('windows-1252 (Excel zaharrak) ere ondo', () => {
+    const cp = 'Abizenak,Izena\nAcu\xF1a So\xF1ora,Aritz\n';
+    eq(A.readGrid(Uint8Array.from([...cp].map(c => c.charCodeAt(0))))[1], ['Acuña Soñora','Aritz']);
+  });
+  test('puntu eta komadun CSVa (Excel espainiarra)', () => {
+    eq(A.readGrid(new TextEncoder().encode('Abizenak;Izena\nGorjón Rodríguez;Iker\n'))[1],
+       ['Gorjón Rodríguez','Iker']);
+  });
+  test('.xlsx binarioak bide zaharretik jarraitzen du', () => {
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([['Abizenak','Izena'],['Acuña Soñora','Aritz']]), 'I');
+    const buf = XLSX.write(wb, {type:'array', bookType:'xlsx'});
+    eq(A.readGrid(new Uint8Array(buf))[1], ['Acuña Soñora','Aritz']);
   });
 });
 

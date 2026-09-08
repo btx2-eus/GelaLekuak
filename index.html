@@ -1985,15 +1985,31 @@ $('#templateBtn').addEventListener('click', ()=>{
   XLSX.writeFile(wb, 'gelalekuak_txantiloia.xlsx');
 });
 
+/* Fitxategi bat saretan bihurtu, kodeketa errespetatuz.
+   Testu-fitxategiek (CSV/TSV/TXT) tratu berezia behar dute: UTF-8 BOM gabe —Google-k
+   horrela esportatzen ditu erantzunak— SheetJS-ek kodepage zaharra suposatzen du eta
+   azentuak hondatzen ditu («Acuña» → «AcuÃ±a»). Hemen esplizituki deskodetzen da,
+   eta itsasteko bide bera erabiltzen da gero, biek berdin joka dezaten. */
+function readGrid(bytes){
+  const zip  = bytes[0]===0x50 && bytes[1]===0x4B;   // .xlsx (ZIP)
+  const biff = bytes[0]===0xD0 && bytes[1]===0xCF;   // .xls zaharra
+  if(zip || biff){
+    const wb = XLSX.read(bytes, {type:'array'});
+    return XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header:1, defval:''});
+  }
+  let txt;
+  try{ txt = new TextDecoder('utf-8', {fatal:true}).decode(bytes); }
+  catch(err){ txt = new TextDecoder('windows-1252').decode(bytes); }  // Excel zaharren CSVak
+  if(txt.charCodeAt(0) === 0xFEFF) txt = txt.slice(1);                // BOM kendu
+  return parseDelimited(txt);
+}
+
 $('#fileInput').addEventListener('change', e=>{
   const f = e.target.files?.[0]; if(!f) return;
   const reader = new FileReader();
   reader.onload = ev=>{
-    try{
-      const wb = XLSX.read(new Uint8Array(ev.target.result), {type:'array'});
-      const grid = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header:1, defval:''});
-      openMappingModal(grid);
-    }catch(err){ console.error(err); toast('❌ Errorea fitxategia irakurtzean.'); }
+    try{ openMappingModal(readGrid(new Uint8Array(ev.target.result))); }
+    catch(err){ console.error(err); toast('❌ Errorea fitxategia irakurtzean.'); }
   };
   reader.readAsArrayBuffer(f);
   e.target.value = '';
@@ -3344,7 +3360,7 @@ window.__probak = {
   keyFull, splitSurGiv, parseDelimited, guessMapping, splitCellNames,
   sanitizeGroup, mergeWithStored, migrateGroup, readStored, save, load,
   computeSociometric, computeMetrics, rowSeatsOf, nameOf, optimize,
-  openMappingModal, closeModal, refreshAll, toggleBlockSeat, LS_KEY,
+  openMappingModal, closeModal, refreshAll, toggleBlockSeat, readGrid, LS_KEY,
 };
 
 /* Irisgarritasuna: ikono apaingarriak (SVG) ezkutatu laguntza-teknologietatik;
