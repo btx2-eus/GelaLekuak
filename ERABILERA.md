@@ -57,7 +57,11 @@ Forms-eko erantzunak prest dituzunean, itzuli "Harremanak" txartelera eta **igo/
 
 ## 🕸️ Soziograma · 📋 Txostena
 
-- **Soziograma:** harremanen sare bisuala eta **egoera soziometrikoa** (Coie eta Dodge marko klasikoa: preferituak / eztabaidatuak / ezikusiak / integrazioa zaintzekoak / orekatuak), jasotako aukeraketa positibo eta negatiboetan oinarrituta. Elkarrekiko adiskidetasunak ere bai. Tutore eta orientatzailearentzat.
+- **Soziograma:** bi ikuspegi, goiko botoiekin aldatzeko:
+  - **🕸️ Harremanen sarea** — nork nor aukeratzen duen, gezi eta lotura gisa.
+  - **🎯 Diana soziometrikoa** — eraztun kontzentrikoak lehentasun sozialaren arabera: erdian gehien aukeratutakoak, kanpoko eraztunean arreta behar dutenak. Elkarrekiko adiskidetasunak marra berdez, multzoak eraztunen artean ikusteko. Marko klasikoa da, orientazioan asko erabilia.
+
+  Bi ikuspegietan, alboko panelak **egoera soziometrikoa** (Coie eta Dodge marko klasikoa: preferituak / eztabaidatuak / ezikusiak / integrazioa zaintzekoak / orekatuak), jasotako aukeraketa positibo eta negatiboetan oinarrituta. Elkarrekiko adiskidetasunak ere bai. Tutore eta orientatzailearentzat.
 - **Txostena:** orri bakarreko laburpen inprimagarria (PDF), bi mailatan:
   - **Laburpen zuhurra (taldearentzat):** erabakia eta jarraipena dokumentatzen ditu — kontuan hartutako irizpideak, datuen seinaleak (zenbakitan, ikasle-etiketarik gabe), berrikusteko galderak eta tutorearen jarraipen-oharrak. Irakasle-taldearekin partekatzeko egokia.
   - **Txosten osoa (ez zabaldu):** soziometria-analisi osoa, ikasle-izenez. Tutore eta orientatzailearentzat soilik.

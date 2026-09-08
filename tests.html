@@ -347,6 +347,54 @@ group('Egoera soziometrikoa', () => {
   });
 });
 
+group('Diana soziometrikoa', () => {
+  test('eraztunak zSP-ren arabera esleitzen dira', () => {
+    eq([2.4, 0.5, -0.5, -2.1].map(A.dianaEraztuna), [0, 1, 2, 3]);
+    eq(A.dianaEraztuna(0), 2, 'zero = batez bestekoa, barrukoa ez');
+  });
+  test('angeluak bereizten dira ordena galdu gabe', () => {
+    const items = [{ang:0},{ang:0.01},{ang:0.02},{ang:3}];
+    A.spreadAngles(items, 0.4);
+    for(let i=0;i<items.length-1;i++) ok(items[i].ang <= items[i+1].ang, 'ordena aldatu da');
+    for(let i=0;i<items.length-1;i++) ok(items[i+1].ang - items[i].ang > 0.39, 'gainjarrita geratu dira');
+  });
+  test('leku gehiegi eskatuz gero, uniformeki banatzen ditu', () => {
+    const items = Array.from({length:10}, () => ({ang:0}));
+    A.spreadAngles(items, 1.5);                    // 10 × 1.5 rad > 2π
+    const uniq = new Set(items.map(i => i.ang.toFixed(3)));
+    eq(uniq.size, 10, 'batzuk toki berean geratu dira');
+  });
+  test('gehien aukeratua erdian, baztertua kanpoan', async () => {
+    freshGroup();
+    const filas = [['Abizenak','Izena']];
+    for(let i=0;i<16;i++) filas.push(['Ab'+i, 'Iz'+i]);
+    await importGrid(filas);
+    const g = A.G(), S = g.students;
+    const izar = S[0].id, ahula = S[9].id;
+    S.slice(1).forEach(s => s.likes = [izar]);
+    S.slice(0, 6).forEach(s => s.dislikes = [ahula]);
+    const {pos} = A.layoutDiana();
+    eq(pos.get(izar).eraztuna, 0, 'izarra ez dago erdian');
+    eq(pos.get(ahula).eraztuna, 3, 'baztertua ez dago kanpoko eraztunean');
+    eq(pos.size, 16, 'ikasleren bat kanpoan geratu da');
+  });
+  test('ikasle guztiak mihisearen barruan eta gainjarri gabe', async () => {
+    const {pos} = A.layoutDiana();
+    const P = [...pos.values()];
+    ok(P.every(p => p.x > 15 && p.x < 885 && p.y > 15 && p.y < 685), 'norbait mihisetik kanpo');
+    let dmin = Infinity;
+    for(let i=0;i<P.length;i++) for(let j=i+1;j<P.length;j++)
+      if(P[i].eraztuna === P[j].eraztuna) dmin = Math.min(dmin, Math.hypot(P[i].x-P[j].x, P[i].y-P[j].y));
+    ok(dmin > 30, 'eraztun bereko bi ikasle gainjarrita: ' + Math.round(dmin) + 'px');
+  });
+  test('marrazten da eta ikasle bakoitzeko nodo bat dago', async () => {
+    A.renderDiana();
+    const doc = frame.contentDocument;
+    ok(doc.querySelector('#dianaSvg'), 'ez da SVGa sortu');
+    eq(doc.querySelectorAll('.dnd').length, A.G().students.length);
+  });
+});
+
 group('Optimizatzailea', () => {
   test('ikasle guztiak esertzen dira, ainguratuak eta blokeoak errespetatuta', async () => {
     freshGroup();

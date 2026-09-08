@@ -378,6 +378,16 @@ body.dragging .seat.glow-g, body.dragging .seat.glow-r, body.dragging .seat.drag
 }
 .sozioSide{flex:0 1 300px; display:flex; flex-direction:column; gap:10px; min-width:240px}
 .sozioCard{background:#f3f7f6; border:1px solid var(--line); border-radius:12px; padding:12px 14px; font-size:13.5px}
+/* ---- Diana soziometrikoa ---- */
+#sozioSvgBox .ring{fill:none; stroke:var(--line); stroke-width:1.2}
+#sozioSvgBox .ringFill{stroke:none}
+#sozioSvgBox .ringLbl{font-size:10.5px; font-weight:700; letter-spacing:.04em; fill:var(--muted)}
+#sozioSvgBox .dnd{cursor:pointer}
+#sozioSvgBox .dnd text{pointer-events:none}
+#sozioSvgBox svg.focusing .dnd{opacity:.22}
+#sozioSvgBox svg.focusing .dnd.hot{opacity:1}
+#sozioSvgBox svg.focusing .dlink{opacity:.08}
+#sozioSvgBox svg.focusing .dlink.hot{opacity:.95; stroke-width:3.4}
 .sozioCard h3{margin:0 0 6px; font-size:14px}
 .sozioCard ul{margin:0; padding-left:18px}
 .sozioCard li{margin-bottom:3px}
@@ -912,10 +922,14 @@ textarea#pasteArea{width:100%; min-height:180px; font-family:ui-monospace,monosp
 <!-- ===================== 3. SOZIOGRAMA ===================== -->
 <section class="view" id="view-soziograma">
   <div id="sozioPrintHeader"><h2 id="sozioPrintTitle"></h2><div class="d" id="sozioPrintDate"></div></div>
+  <div class="pathTabs no-print" style="margin-bottom:12px">
+    <button class="pathTab active" data-sview="sarea">🕸️ Harremanen sarea</button>
+    <button class="pathTab" data-sview="diana">🎯 Diana soziometrikoa</button>
+  </div>
   <div class="sozioToolbar no-print">
     <button class="btn" id="sozioShuffleBtn">🔀 Berrantolatu</button>
     <button class="btn outline" id="sozioPrintBtn">🖨️ Inprimatu / PDF</button>
-    <span style="font-size:12.5px; color:var(--muted)">Arrastatu izenak · pasatu sagua ikasle baten gainetik bere harremanak isolatzeko · klik, fitxa irekitzeko</span>
+    <span id="sozioHint" style="font-size:12.5px; color:var(--muted)">Arrastatu izenak · pasatu sagua ikasle baten gainetik bere harremanak isolatzeko · klik, fitxa irekitzeko</span>
   </div>
   <div class="sozioWrap">
     <div id="sozioSvgBox"></div>
@@ -2738,7 +2752,7 @@ function computeSociometric(){
       else if(zSI[i]<-1 && zLM[i]<0 && zLL[i]<0) st='neglected';
       else if(zSI[i]>1 && zLM[i]>0 && zLL[i]>0) st='controversial';
     }
-    byId.set(s.id,{status:st, LM:LM[i], LL:LL[i]});
+    byId.set(s.id,{status:st, LM:LM[i], LL:LL[i], zSP:zSP[i], zSI:zSI[i]});
     groups[st].push(s);
   });
   return {byId, groups, small, n};
@@ -2841,6 +2855,195 @@ function renderSozioSide(){
     </div>`;
 }
 
+/* ============================================================
+   DIANA SOZIOMETRIKOA
+   Eraztunak = lehentasun soziala (zSP): erdian gehien aukeratutakoak,
+   kanpoan aukeraketa negatibo gehiago dituztenak. Angelua sarearen
+   banaketatik hartzen da, lagun-multzoak elkarrekin ager daitezen.
+   ============================================================ */
+const DIANA_W = 900, DIANA_H = 700;
+const DIANA_R = [105, 180, 255, 330];          // eraztunen mugak
+const DIANA_NODE_R = [58, 142, 217, 292];      // ikasleak jartzeko erradioak
+const DIANA_ERAZTUNAK = [
+  {izena:'Gehien aukeratuak',   ohar:'zSP > +1'},
+  {izena:'Batez bestetik gora', ohar:'0 … +1'},
+  {izena:'Batez bestetik behera', ohar:'−1 … 0'},
+  {izena:'Arreta behar dutenak', ohar:'zSP < −1'},
+];
+/* Zein eraztunetan doa ikasle bakoitza (0 = erdikoa) */
+function dianaEraztuna(zSP){
+  if(zSP > 1) return 0;
+  if(zSP > 0) return 1;
+  if(zSP > -1) return 2;
+  return 3;
+}
+/* Angeluak bereizi, etiketak ez gainjartzeko, ordena (eta beraz lagun-multzoak) mantenduz.
+   Zirkulua zuzen batean zabaltzen da lehenik: horrela inork ezin dio bere bizilagunari
+   aurrea hartu — bira osoak desordena hori ezkutatzen baitzuen. */
+function spreadAngles(items, minGap){
+  const n = items.length, TAU = 2*Math.PI;
+  if(n < 2) return items;
+  if(minGap * n >= TAU){                            // ez dago lekurik: uniformeki banatu
+    items.forEach((it,i)=> it.ang = TAU*i/n - Math.PI/2);
+    return items;
+  }
+  const a = items.map(it => it.ang);
+  for(let i=1;i<n;i++) while(a[i] < a[i-1]) a[i] += TAU;   // zuzen batean zabaldu
+  const jatorrizkoa = a.slice();
+  for(let pass=0; pass<4; pass++){
+    for(let i=1;i<n;i++) if(a[i] < a[i-1] + minGap) a[i] = a[i-1] + minGap;
+    const muga = a[0] + TAU - minGap;               // zirkulua ixteko tartea
+    if(a[n-1] <= muga) break;
+    a[n-1] = muga;
+    for(let i=n-2;i>=0;i--) if(a[i] > a[i+1] - minGap) a[i] = a[i+1] - minGap;
+  }
+  const desbid = a.reduce((acc,v,i)=>acc + (v - jatorrizkoa[i]), 0) / n;
+  items.forEach((it,i)=>{ it.ang = a[i] - desbid; });   // multzoa alde batera ez mugitzeko
+  return items;
+}
+function layoutDiana(){
+  const g = G();
+  const socio = computeSociometric();
+  if(!sozioPos || sozioGroupId !== g.id || g.students.some(s=>!sozioPos.has(s.id))){
+    sozioPos = layoutSozio(); sozioGroupId = g.id;
+  }
+  const eraztunka = [[],[],[],[]];
+  for(const st of g.students){
+    const info = socio.byId.get(st.id);
+    const p = sozioPos.get(st.id);
+    const ang = Math.atan2(p.y - SOZIO_H/2, p.x - SOZIO_W/2);   // sarearen angelua gorde
+    eraztunka[dianaEraztuna(info?.zSP ?? 0)].push({id:st.id, ang, info});
+  }
+  const pos = new Map();
+  eraztunka.forEach((lista, i)=>{
+    lista.sort((a,b)=>a.ang-b.ang);
+    spreadAngles(lista, Math.min(2*Math.PI/Math.max(lista.length,1), 74/DIANA_NODE_R[i]));
+    for(const it of lista){
+      pos.set(it.id, {
+        x: DIANA_W/2 + DIANA_NODE_R[i]*Math.cos(it.ang),
+        y: DIANA_H/2 + DIANA_NODE_R[i]*Math.sin(it.ang),
+        eraztuna: i, info: it.info,
+      });
+    }
+  });
+  return {pos, socio};
+}
+let dianaEls = null;
+function renderDiana(){
+  buildRel();
+  const g = G(), box = $('#sozioSvgBox'), side = $('#sozioSide');
+  if(g.students.length < 2){
+    box.innerHTML = `<div class="emptyState" style="padding:60px 20px">Diana marrazteko, kargatu ikasleak eta haien nahiak (1. fitxa).</div>`;
+    side.innerHTML = ''; dianaEls = null; return;
+  }
+  const {pos, socio} = layoutDiana();
+  const cx = DIANA_W/2, cy = DIANA_H/2;
+
+  const inDis = new Map();
+  for(const st of g.students) for(const t of st.dislikes) inDis.set(t, (inDis.get(t)||0)+1);
+
+  // eraztunak, kanpotik barrura (barrukoa ilunena)
+  const opak = [.17, .11, .06, .025];
+  const eraztunakHtml = [...DIANA_R].reverse().map((r,i)=>{
+    const idx = DIANA_R.length-1-i;
+    return `<circle class="ringFill" cx="${cx}" cy="${cy}" r="${r}" fill="var(--primary)" opacity="${opak[idx]}"/>
+            <circle class="ring" cx="${cx}" cy="${cy}" r="${r}"/>`;
+  }).join('');
+  // Eraztunen legenda ezkerreko goiko izkinan: marrazkiaren gainean ez jartzeko
+  const etiketakHtml = `<g transform="translate(16,26)">
+    <text class="ringLbl" x="0" y="0">ERAZTUNAK · ERDITIK KANPORA</text>
+    ${DIANA_ERAZTUNAK.map((e,i)=>`
+      <g transform="translate(0,${16 + i*19})">
+        <rect x="0" y="-8" width="11" height="11" rx="2" fill="var(--primary)" opacity="${opak[i]}" stroke="var(--line)" stroke-width="1"/>
+        <text x="17" y="1" font-size="10.5" fill="var(--muted)">${esc(e.izena)}</text>
+      </g>`).join('')}
+  </g>`;
+
+  // elkarrekiko adiskidetasunak: multzoak eraztunen artean ikusteko
+  const mutuals = sozioEdges().filter(e=>e.type==='like' && e.mutual && pos.has(e.a) && pos.has(e.b));
+  const linksHtml = mutuals.map((e,i)=>{
+    const A = pos.get(e.a), B = pos.get(e.b);
+    return `<line class="dlink" data-i="${i}" x1="${A.x.toFixed(1)}" y1="${A.y.toFixed(1)}" x2="${B.x.toFixed(1)}" y2="${B.y.toFixed(1)}" stroke="var(--green)" stroke-width="2" opacity=".4"/>`;
+  }).join('');
+
+  const KOLOREA = {popular:'var(--green)', controversial:'var(--primary)',
+                   neglected:'var(--yellow)', rejected:'var(--red)', average:'var(--neutral)'};
+  const nodoakHtml = g.students.map(st=>{
+    const p = pos.get(st.id); if(!p) return '';
+    const info = p.info || {};
+    const kol = KOLOREA[info.status] || 'var(--neutral)';
+    const nDis = inDis.get(st.id)||0;
+    const r = Math.min(19, 11 + (info.LM||0)*1.6);
+    const badge = nDis ? `<circle cx="${r*0.8}" cy="${-r*0.8}" r="7" fill="var(--red)"/><text x="${r*0.8}" y="${-r*0.8+3}" text-anchor="middle" font-size="8.5" font-weight="800" fill="#fff">${nDis}</text>` : '';
+    const katTxt = info.status && info.status!=='average' ? ` · ${SOZIO_KAT[info.status].tech}` : '';
+    return `<g class="dnd" data-id="${st.id}" transform="translate(${p.x.toFixed(1)},${p.y.toFixed(1)})">
+      <title>${esc(st.name)} — 💚 ${info.LM||0} jasota · ⛔ ${info.LL||0} jasota${katTxt}</title>
+      <circle r="${r}" fill="var(--card)" stroke="${kol}" stroke-width="2.6"/>
+      ${st.front ? `<text y="3.5" text-anchor="middle" font-size="${r*0.85}">📌</text>` : ''}
+      ${badge}
+      <text y="${r+12}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--ink)">${esc(givOf(st.name))}</text>
+    </g>`;
+  }).join('');
+
+  box.innerHTML = `<svg id="dianaSvg" viewBox="0 0 ${DIANA_W} ${DIANA_H}" xmlns="http://www.w3.org/2000/svg">
+    <g id="dianaRings">${eraztunakHtml}${etiketakHtml}</g>
+    <g id="dianaLinks">${linksHtml}</g>
+    <g id="dianaNodes">${nodoakHtml}</g>
+  </svg>`;
+
+  dianaEls = {
+    svg: box.querySelector('svg'),
+    nodes: new Map([...box.querySelectorAll('.dnd')].map(el=>[el.dataset.id, el])),
+    links: mutuals.map((e,i)=>({e, el: box.querySelector(`.dlink[data-i="${i}"]`)})),
+  };
+  renderSozioSide();
+  $('#sozioPrintTitle').textContent = '🎯 ' + g.name + ' — diana soziometrikoa';
+  $('#sozioPrintDate').textContent = new Date().toLocaleDateString('eu-ES', {year:'numeric',month:'long',day:'numeric'}) + ' · GelaLekuak · tutore/orientatzailearentzat';
+}
+function dianaFocus(id){
+  if(!dianaEls) return;
+  dianaEls.svg.classList.add('focusing');
+  const lotuak = new Set([id]);
+  for(const {e, el} of dianaEls.links){
+    const bai = e.a===id || e.b===id;
+    el.classList.toggle('hot', bai);
+    if(bai){ lotuak.add(e.a); lotuak.add(e.b); }
+  }
+  for(const [nid, el] of dianaEls.nodes) el.classList.toggle('hot', lotuak.has(nid));
+}
+function dianaUnfocus(){
+  if(!dianaEls) return;
+  dianaEls.svg.classList.remove('focusing');
+  dianaEls.svg.querySelectorAll('.hot').forEach(el=>el.classList.remove('hot'));
+}
+$('#sozioSvgBox').addEventListener('pointerover', ev=>{
+  const nd = ev.target.closest('.dnd');
+  if(nd) dianaFocus(nd.dataset.id);
+});
+$('#sozioSvgBox').addEventListener('pointerout', ev=>{
+  if(!ev.relatedTarget?.closest?.('.dnd')) dianaUnfocus();
+});
+$('#sozioSvgBox').addEventListener('click', ev=>{
+  const nd = ev.target.closest('.dnd');
+  if(nd) openEditor(nd.dataset.id);
+});
+
+/* Bi ikuspegien artean aldatu */
+let sozioView = 'sarea';
+function renderSozioView(force){
+  if(sozioView === 'diana') renderDiana();
+  else renderSociogram(force);
+}
+document.querySelectorAll('[data-sview]').forEach(b=>b.addEventListener('click', ()=>{
+  sozioView = b.dataset.sview;
+  document.querySelectorAll('[data-sview]').forEach(x=>x.classList.toggle('active', x.dataset.sview===sozioView));
+  $('#sozioShuffleBtn').style.display = sozioView==='diana' ? 'none' : '';
+  $('#sozioHint').textContent = sozioView==='diana'
+    ? 'Erdian, gehien aukeratutakoak; kanpoan, arreta behar dutenak · pasatu sagua elkarrekiko adiskidetasunak ikusteko · klik, fitxa irekitzeko'
+    : 'Arrastatu izenak · pasatu sagua ikasle baten gainetik bere harremanak isolatzeko · klik, fitxa irekitzeko';
+  renderSozioView();
+}));
+
 /* Soziogramaren interakzioa: arrastatu / nabarmendu / klik */
 let sozioDrag = null;
 function sozioUpdateNode(id){
@@ -2898,7 +3101,7 @@ document.addEventListener('pointerup', ()=>{
   sozioDrag = null;
   if(!moved){ sozioUnfocus(); openEditor(id); }
 });
-$('#sozioShuffleBtn').addEventListener('click', ()=>renderSociogram(true));
+$('#sozioShuffleBtn').addEventListener('click', ()=>renderSozioView(true));
 $('#sozioPrintBtn').addEventListener('click', ()=>{
   document.body.classList.add('print-sozio');
   window.print();
@@ -3244,7 +3447,7 @@ function showTab(name){
   $('#viewTitle').textContent = VIEW_TITLES[name][0];
   $('#viewSub').textContent = VIEW_TITLES[name][1];
   renderStepper();
-  if(name==='soziograma') renderSociogram();
+  if(name==='soziograma') renderSozioView();
   if(name==='txostena') renderReport();
 }
 $('#layoutBtn').addEventListener('click', openLayoutModal);
@@ -3345,7 +3548,7 @@ function refreshAll(){
   renderConstraints();
   renderGroupSelect();
   renderStepper();
-  if($('#view-soziograma').classList.contains('active')) renderSociogram();
+  if($('#view-soziograma').classList.contains('active')) renderSozioView();
   if($('#view-txostena').classList.contains('active')) renderReport();
   save();
   const h = histories[G().id];
@@ -3360,7 +3563,8 @@ window.__probak = {
   keyFull, splitSurGiv, parseDelimited, guessMapping, splitCellNames,
   sanitizeGroup, mergeWithStored, migrateGroup, readStored, save, load,
   computeSociometric, computeMetrics, rowSeatsOf, nameOf, optimize,
-  openMappingModal, closeModal, refreshAll, toggleBlockSeat, readGrid, LS_KEY,
+  openMappingModal, closeModal, refreshAll, toggleBlockSeat, readGrid,
+  layoutDiana, dianaEraztuna, spreadAngles, renderDiana, LS_KEY,
 };
 
 /* Irisgarritasuna: ikono apaingarriak (SVG) ezkutatu laguntza-teknologietatik;
